@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:materialdesign="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ListView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_height="match_parent" android:layout_width="match_parent"
+        android:id="@+id/accountList"  />
+
+    <com.gc.materialdesign.views.ButtonFloat
+        android:id="@+id/new_account"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="24dp"
+        android:background="@color/primary_dark"
+        materialdesign:animate="true"
+        materialdesign:iconDrawable="@drawable/ic_action_new" />
+</RelativeLayout><!-- From: file:/D:/Projects/JayClient/app/src/main/res/layout/fragment_account.xml -->

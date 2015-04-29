@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
+
+    <item android:id="@+id/action_scan_tx" android:title="@string/action_scantx"
+        android:orderInCategory="100" app:showAsAction="ifRoom" android:icon="@drawable/icon_scan" />
+
+    <item android:id="@+id/action_settings" android:title="@string/action_settings"
+        android:orderInCategory="100" app:showAsAction="never" android:icon="@drawable/app_icon2" />
+</menu>
+<!-- From: file:/D:/Projects/JayClient/app/src/main/res/menu/menu_account.xml -->

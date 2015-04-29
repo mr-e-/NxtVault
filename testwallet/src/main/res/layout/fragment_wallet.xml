@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:id="@+id/scrollview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/lblAccountRs"
+                style="@style/row_header_text"
+                android:textSize="24dp"
+                android:text="No Account Selected. Add new Account." />
+
+            <LinearLayout style="@style/row_group" >
+
+                <TextView
+                    android:id="@+id/lblAccountName"
+                    android:layout_weight=".3"
+                    android:layout_width="0dp"
+                    style="@style/row_header_text"
+                    android:text="Name" />
+
+                <TextView
+                    android:imeOptions="actionDone"
+                    android:textColorHint="#CCBEBEBE"
+                    android:inputType="textCapWords"
+                    android:textColor="@color/primary_dark"
+                    android:gravity="center_vertical"
+                    android:layout_weight=".7"
+                    android:id="@+id/txtAccountName"
+                    android:background="@android:color/transparent"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+
+            </LinearLayout>
+
+            <View style="@style/row_group_divider" />
+
+            <LinearLayout style="@style/row_group" >
+
+                <TextView
+                    android:id="@+id/lblDescription"
+                    android:layout_weight=".3"
+                    android:layout_width="0dp"
+                    style="@style/row_header_text"
+                    android:text="Description" />
+
+                <TextView
+                    android:imeOptions="actionDone"
+                    android:textColorHint="#CCBEBEBE"
+                    android:inputType="textCapWords"
+                    android:textColor="@color/primary_dark"
+                    android:gravity="center_vertical"
+                    android:layout_weight=".7"
+                    android:id="@+id/txtDescription"
+                    android:background="@android:color/transparent"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+
+            </LinearLayout>
+
+            <View style="@style/row_group_divider" />
+
+            <LinearLayout style="@style/row_group" >
+
+                <TextView
+                    android:id="@+id/lblBalance"
+                    android:layout_weight=".3"
+                    android:layout_width="0dp"
+                    style="@style/row_header_text"
+                    android:text="Balance" />
+
+                <TextView
+                    android:imeOptions="actionDone"
+                    android:textColorHint="#CCBEBEBE"
+                    android:inputType="textCapWords"
+                    android:textColor="@color/primary_dark"
+                    android:gravity="center_vertical"
+                    android:layout_weight=".7"
+                    android:id="@+id/txtBalance"
+                    android:background="@android:color/transparent"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+
+            </LinearLayout>
+
+            <View style="@style/row_group_divider" />
+
+            <View android:id="@+id/headerPlaceholder" android:layout_height="wrap_content" android:layout_width="match_parent"/>
+            <ListView android:id="@+id/assetList" android:layout_height="wrap_content" android:layout_width="match_parent"/>
+
+        </LinearLayout>
+
+
+    </ScrollView>
+
+</LinearLayout>

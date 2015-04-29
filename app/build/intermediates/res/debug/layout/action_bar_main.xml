@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_alignParentStart="true"
+        android:id="@+id/createAccount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ACCOUNTS"
+        android:layout_centerVertical="true"
+        style="@style/HeaderText"/>
+
+</RelativeLayout>
+<!-- From: file:/D:/Projects/JayClient/app/src/main/res/layout/action_bar_main.xml -->

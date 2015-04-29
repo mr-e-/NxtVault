@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_margin="16dp">
+
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/lineItemTitle"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:singleLine="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:textAlignment="inherit"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp"
+        android:text="From Account: "/>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <TextView
+            android:id="@+id/lineItem"
+            android:text="JSJD-DSAD-SDAS-SDAS-SDAS"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:layout_marginBottom="10dp"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:id="@+id/lineAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:layout_marginBottom="10dp"
+            android:textSize="14sp"
+            android:layout_gravity="end"
+            android:text="1200"/>
+
+    </FrameLayout>
+</LinearLayout><!-- From: file:/D:/Projects/JayClient/app/src/main/res/layout/tx_detail_line_item.xml -->

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:materialdesign="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:id="@+id/scrollview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" android:orientation="vertical">
+
+            <LinearLayout style="@style/row_group" >
+
+                <TextView
+                    android:id="@+id/lblName"
+                    android:layout_weight=".3"
+                    android:layout_width="0dp"
+                    style="@style/row_header_text"
+                    android:text="Name" />
+
+                <EditText
+                    android:imeOptions="actionDone"
+                    android:textColorHint="#CCBEBEBE"
+                    android:hint="Enter Account Name"
+                    android:inputType="textCapWords"
+                    android:textColor="@color/primary_dark"
+                    android:gravity="center_vertical"
+                    android:layout_weight=".7"
+                    android:id="@+id/accountName"
+                    android:background="@android:color/transparent"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+
+            </LinearLayout>
+
+            <View style="@style/row_group_divider" />
+
+            <LinearLayout style="@style/row_group">
+
+                <TextView
+                    android:id="@+id/lblAccount"
+                    android:layout_weight=".3"
+                    android:layout_width="0dp"
+                    style="@style/row_header_text"
+                    android:text="Account" />
+
+                <TextView
+
+                    android:textIsSelectable="true"
+                    android:id="@+id/accountRs"
+                    android:layout_weight=".7"
+                    android:layout_width="0dp"
+                    android:gravity="center_vertical"
+                    android:background="@android:color/transparent"
+                    android:layout_height="match_parent" />
+
+            </LinearLayout>
+
+            <View style="@style/row_group_divider" />
+
+            <LinearLayout style="@style/row_group" android:layout_height="55dp">
+
+                <TextView
+                    android:id="@+id/lblPubKey"
+                    android:layout_weight=".3"
+                    android:layout_width="0dp"
+                    style="@style/row_header_text"
+                    android:text="Pub Key" />
+
+                <TextView
+                    android:layout_height="match_parent"
+                    android:textIsSelectable="true"
+                    android:id="@+id/publicKey"
+                    android:layout_weight=".7"
+                    android:layout_width="0dp"
+                    android:background="@android:color/transparent" />
+
+            </LinearLayout>
+
+            <View style="@style/row_group_divider" />
+
+            <RelativeLayout style="@style/row_group" android:orientation="vertical" android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/lblPassphrase"
+                    style="@style/row_header_text"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="Passphrase"
+                    android:layout_marginTop="10dp"/>
+
+                <com.nxt.jayclient.controls.MultiLineDoneEditText
+                    android:enabled="false"
+                    android:textColor="@android:color/tertiary_text_dark"
+                    android:id="@+id/passphrase"
+                    android:layout_below="@+id/lblPassphrase"
+                    android:background="@android:color/transparent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lines="3"
+                    android:imeOptions="actionDone"
+                    android:layout_marginTop="10dp"/>
+
+                <ImageView android:id="@+id/showHidePrivateKey"
+                    android:src="@drawable/eye_open"
+                    android:layout_height="30dp"
+                    android:layout_width="40dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_gravity="center_vertical"  />
+
+            </RelativeLayout>
+
+            <View style="@style/row_group_divider" />
+        </LinearLayout>
+
+    </ScrollView>
+
+    <com.gc.materialdesign.views.ButtonFloat
+        android:id="@+id/btnSave"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="12dp"
+        android:layout_centerHorizontal="true"
+        android:background="@color/primary_dark"
+        materialdesign:animate="false" />
+
+    <FrameLayout
+        android:id="@+id/progress"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="-35dp"
+            android:indeterminate="true"
+            />
+        <TextView
+            android:id="@+id/txtProgress"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center"
+            android:textSize="24sp"
+            android:layout_height="wrap_content" android:text="Creating Account..." />
+    </FrameLayout>
+
+</RelativeLayout><!-- From: file:/D:/Projects/JayClient/app/src/main/res/layout/fragment_manage_account.xml -->

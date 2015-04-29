@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout style="@style/row_group" >
+
+        <TextView
+            android:id="@+id/lblVersion"
+            android:layout_weight=".4"
+            android:layout_width="0dp"
+            style="@style/row_header_text"
+            android:text="Version" />
+
+        <TextView
+            android:imeOptions="actionDone"
+            android:textColorHint="#CCBEBEBE"
+            android:textColor="@color/primary_dark"
+            android:gravity="center_vertical"
+            android:layout_weight=".6"
+            android:id="@+id/txtVersion"
+            android:background="@android:color/transparent"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+
+    <View style="@style/row_group_divider" />
+
+    <LinearLayout style="@style/row_group" >
+
+        <TextView
+            android:id="@+id/lblBuildDate"
+            android:layout_weight=".4"
+            android:layout_width="0dp"
+            style="@style/row_header_text"
+            android:text="Build Date" />
+
+        <TextView
+            android:imeOptions="actionDone"
+            android:textColorHint="#CCBEBEBE"
+            android:textColor="@color/primary_dark"
+            android:gravity="center_vertical"
+            android:layout_weight=".6"
+            android:id="@+id/txtBuildDate"
+            android:background="@android:color/transparent"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+
+    <View style="@style/row_group_divider" />
+
+    <LinearLayout style="@style/row_group" >
+
+        <TextView
+            android:id="@+id/lblCreatedBy"
+            android:layout_weight=".4"
+            android:layout_width="0dp"
+            style="@style/row_header_text"
+            android:text="Created By" />
+
+        <TextView
+            android:imeOptions="actionDone"
+            android:textColorHint="#CCBEBEBE"
+            android:inputType="textCapWords"
+            android:textColor="@color/primary_dark"
+            android:gravity="center_vertical"
+            android:layout_weight=".6"
+            android:id="@+id/txtCreatedBy"
+            android:background="@android:color/transparent"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+
+    <View style="@style/row_group_divider" />
+
+    <LinearLayout style="@style/row_group" >
+
+        <TextView
+            android:id="@+id/lblSpecialThanks"
+            android:layout_weight=".4"
+            android:layout_width="0dp"
+            style="@style/row_header_text"
+            android:text="Special Thanks" />
+
+        <TextView
+            android:imeOptions="actionDone"
+            android:textColorHint="#CCBEBEBE"
+            android:inputType="textCapWords"
+            android:textColor="@color/primary_dark"
+            android:gravity="center_vertical"
+            android:layout_weight=".6"
+            android:id="@+id/txtSpecialThanks"
+            android:background="@android:color/transparent"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+
+    <View style="@style/row_group_divider" />
+
+    <LinearLayout style="@style/row_group" >
+
+        <TextView
+            android:id="@+id/lblSupport"
+            android:layout_weight=".4"
+            android:layout_width="0dp"
+            style="@style/row_header_text"
+            android:text="Support" />
+
+        <TextView
+            android:autoLink="email"
+            android:text="nxtvault@gmail.com"
+            android:imeOptions="actionDone"
+            android:textColorHint="#CCBEBEBE"
+            android:inputType="textCapWords"
+            android:textColor="@color/primary_dark"
+            android:gravity="center_vertical"
+            android:layout_weight=".6"
+            android:id="@+id/txtSupport"
+            android:background="@android:color/transparent"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+
+    <View style="@style/row_group_divider" />
+
+</LinearLayout>

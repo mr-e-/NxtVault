@@ -1,0 +1,55 @@
+<resources>
+    <string name="app_name">NxtVault</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_about">About</string>
+    <string name="action_change_pin">Change PIN</string>
+    <string name="action_scantx">Scan Tx</string>
+    <string name="action_export">Export</string>
+    <string name="account">Account</string>
+    <string name="info">Info</string>
+    <string name="import1">Import</string>
+    <string name="export">Export</string>
+    <string name="change_node">Change Node</string>
+    <string name="new_account">New Account</string>
+    <string name="transaction">Transaction</string>
+    <string name="cont">Continue</string>
+    <string name="verifyToken">Verify Token</string>
+    <string name="createToken">Create Token</string>
+    <string name="address">Address</string>
+    <string name="recovery_key">Recovery Key</string>
+    <string name="write_it_down">Be sure to write your passphrase down in a secure place. It cannot be recovered if lost.</string>
+    <string name="title_activity_sign_tx">SignTxActivity</string>
+    <string name="recovery_works_as">Recovery key works as an Nxt secret phrase.</string>
+    <string name="sign_tx">Sign Transaction</string>
+    <string name="sign_broadcast">SIGN AND BROADCAST</string>
+    <string name="select_account">NXTVAULT - SHARE ACCOUNT</string>
+    <string name="signtx">SIGN TX</string>
+    <string name="nxtvault_signtx">NXTVAULT - SIGN TX</string>
+    <string name="access_denied">Access Denied</string>
+    <string name="invalid_transaction">Invalid Transaction</string>
+    <string name="unknown_error">Unknown Error</string>
+    <string name="error_broadcasting">"Error broadcasting tx: "</string>
+    <string name="time_btwen_last_pin_entry">preferences.xml</string>
+    <string name="preference_file_key">preferences.xml</string>
+    <string name="pin">pin</string>
+    <string name="add_account">ADD ACCOUNT</string>
+    <string name="view_account">VIEW ACCOUNT</string>
+    <string name="settings">SETTINGS</string>
+    <string name="accounts">ACCOUNTS</string>
+    <string name="server_preference">server_preference</string>
+    <string name="testnet_preference">testnet_preference</string>
+    <string name="about">ABOUT</string>
+    <string name="pin_timeout">pin_timeout</string>
+
+    <string name="crash_toast_text">Ooooops, NxtVault has crashed! Please email the crash report in order to help diagnose the issue.</string>
+
+    <string name="crash_dialog_title">CrashTest has crashed</string>
+<string name="crash_dialog_text">An unexpected error occurred forcing the
+    application to stop. Please help us fix this by sending us error data,
+    all you have to do is click OK.</string>
+    <string name="crash_dialog_comment_prompt">You might add your comments about the problem below:</string>
+    <string name="crash_dialog_ok_toast">Thank you !</string>
+    <string name="poowhip">poo whip</string>
+</resources>

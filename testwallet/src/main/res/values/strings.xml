@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Test App</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_add_account">Add Account</string>
+    <string name="preference_file_key">preference.xml</string>
+    <string name="server_preference">server_preference</string>
+    <string name="testnet_preference">testnet_preference</string>
+    <string name="crash_toast_text">Ooooops, TestWallet has crashed! Please email the crash report in order to help diagnose the issue.</string>
+</resources>

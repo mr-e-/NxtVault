@@ -1,0 +1,26 @@
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:key="@string/server_preference"
+        android:title="Specify Broadcast Server"
+        android:summary="Broadcast txs directly to this node address rather then a random node" />
+
+    <CheckBoxPreference
+        android:key="@string/testnet_preference"
+        android:title="Use TestNet"
+        android:summary="Switches the port number to 6876. Should be used in conjunction with a specified server" />
+
+    <ListPreference
+        android:key="pin_timeout"
+        android:title="PIN Timout"
+        android:summary="How long before the app requires your pin number"
+        android:entries="@array/minutes"
+        android:entryValues="@array/minutes"
+        android:defaultValue="5" />
+
+    <!--<CheckBoxPreference-->
+        <!--android:key="checkbox_preference"-->
+        <!--android:title="Google Push Notifications"-->
+        <!--android:summary="Register with Google servers to allow txs to be pushed direct to your device" />-->
+</PreferenceScreen>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:angle="130"
+        android:endColor="@color/nxt_end"
+        android:startColor="@color/nxt_start" />
+</shape><!-- From: file:/D:/Projects/JayClient/app/src/main/res/drawable/action_bar_color.xml -->

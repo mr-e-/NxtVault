@@ -1,0 +1,21 @@
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ListPreference
+        android:key="pin_timeout"
+        android:title="PIN Timout"
+        android:summary="How long before the app requires your pin number"
+        android:entries="@array/minutes"
+        android:entryValues="@array/minutes"
+        android:defaultValue="5" />
+
+    <EditTextPreference
+        android:key="@string/server_preference"
+        android:title="Specify Broadcast Server"
+        android:summary="Broadcast txs directly to this node address rather then a random node" />
+
+    <!--<CheckBoxPreference-->
+        <!--android:key="checkbox_preference"-->
+        <!--android:title="Google Push Notifications"-->
+        <!--android:summary="Register with Google servers to allow txs to be pushed direct to your device" />-->
+</PreferenceScreen><!-- From: file:/D:/Projects/JayClient/app/src/main/res/xml/preferences.xml -->

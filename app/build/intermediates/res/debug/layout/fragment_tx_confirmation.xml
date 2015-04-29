@@ -1,0 +1,61 @@
+ <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:materialdesign="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ListView android:id="@+id/tx_details_list"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent" android:layout_marginBottom="80dp" />
+
+    <LinearLayout
+        android:id="@+id/buttons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true">
+
+        <com.gc.materialdesign.views.ButtonFloat
+            android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="12dp"
+            android:layout_centerHorizontal="true"
+            android:background="@color/delete"
+            materialdesign:animate="false"
+            android:layout_marginRight="24dp"/>
+
+        <com.gc.materialdesign.views.ButtonFloat
+            android:id="@+id/btnConfirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="12dp"
+            android:layout_centerHorizontal="true"
+            android:background="@color/primary_dark"
+            materialdesign:animate="false" />
+    </LinearLayout>
+
+     <FrameLayout
+         android:id="@+id/progress"
+         android:visibility="gone"
+         android:alpha="0"
+         android:layout_width="match_parent"
+         android:layout_height="match_parent">
+         <ProgressBar
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_gravity="center"
+             android:layout_marginTop="-35dp"
+             android:indeterminate="true"
+             />
+         <TextView
+             android:id="@+id/txtProgress"
+             android:layout_width="wrap_content"
+             android:layout_gravity="center"
+             android:textSize="24sp"
+             android:layout_height="wrap_content" android:text="Submitting Transaction..." />
+     </FrameLayout>
+</RelativeLayout>
+<!-- From: file:/D:/Projects/JayClient/app/src/main/res/layout/fragment_tx_confirmation.xml -->

@@ -1,0 +1,78 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+
+        <!-- Customize your theme here. -->
+        <!-- customize the color palette -->
+        <item name="windowActionBar">true</item>
+
+        <!--<item name="android:actionBarStyle">@style/MyActionBar</item>-->
+
+        <!--&lt;!&ndash; Support library compatibility &ndash;&gt;-->
+        <!--<item name="actionBarStyle">@style/MyActionBar</item>-->
+
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/primary_dark</item>
+        <item name="android:textColorPrimary">@android:color/black</item>
+    </style>
+
+    <!-- ActionBar styles -->
+    <style name="MyActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@drawable/action_bar_color</item>
+        <!-- Support library compatibility -->
+        <item name="background">@drawable/action_bar_color</item>
+    </style>
+
+    <style name="Button" parent="Button">
+        <item name="android:background">@color/primary_light</item>
+    </style>
+
+    <style name="HeaderText" parent="AppTheme">
+        <item name="android:colorForeground">@android:color/white</item>
+        <item name="android:textSize">20dp</item>
+    </style>
+
+    <style name="header_text">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">24dp</item>
+    </style>
+
+    <style name="row_header_text">
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:textSize">16dp</item>
+        <item name="android:textColor">@android:color/primary_text_light</item>
+    </style>
+
+    <style name="text_entry">
+        <item name="android:textColor">@color/primary_dark</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="row_group">
+        <item name="android:weightSum">1</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">50dp</item>
+    </style>
+
+    <style name="row_group_divider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:background">?android:attr/listDivider</item>
+    </style>
+    <style name="SettingsFragmentStyle">
+        <item name="android:textColorSecondary">#222</item>
+        <item name="android:textColor">#CCC</item>
+        <item name="android:background">#999</item>
+    </style>
+
+</resources>

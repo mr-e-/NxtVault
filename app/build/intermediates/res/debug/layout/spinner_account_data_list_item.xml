@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_marginTop="10dp"
+        android:id="@+id/accountName"
+        android:textColor="@android:color/background_dark"
+        style="?android:attr/spinnerItemStyle"
+        android:singleLine="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:textAlignment="inherit"/>
+
+    <TextView
+        android:id="@+id/accountRs"
+        android:textColor="@android:color/background_dark"
+        android:singleLine="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:textAlignment="inherit"
+        android:textStyle="italic"
+        android:textSize="12sp"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="15dp"/>
+</LinearLayout><!-- From: file:/D:/Projects/JayClient/app/src/main/res/layout/spinner_account_data_list_item.xml -->
