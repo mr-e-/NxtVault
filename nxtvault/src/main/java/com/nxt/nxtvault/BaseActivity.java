@@ -40,14 +40,8 @@ public abstract class BaseActivity extends ActionBarActivity {
         segoel = Typeface.createFromAsset(getAssets(), "fonts/segoeui.ttf");
 
         sharedPref = getSharedPreferences(
-                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+                getString(R.string.app_file_key), Context.MODE_PRIVATE);
 
-//        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-//            @Override
-//            public void uncaughtException(Thread thread, Throwable ex) {
-//                Log.e("Unhandled Exception", ex.getMessage());
-//            }
-//        });
     }
 
     public SharedPreferences getSharedPref(){
@@ -59,7 +53,7 @@ public abstract class BaseActivity extends ActionBarActivity {
         super.onResume();
 
         String pin = sharedPref.getString(getString(R.string.pin), null);
-        int pinTimeout = sharedPref.getInt(getString(R.string.pin_timeout), 5) * 60 * 1000;
+        int pinTimeout = Integer.parseInt(sharedPref.getString(getString(R.string.pin_timeout), "5")) * 60 * 1000;
 
         long time = System.currentTimeMillis() - sharedPref.getLong(getString(R.string.time_btwen_last_pin_entry), 0);
 

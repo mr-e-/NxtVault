@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -20,14 +19,12 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.nxt.nxtvaultclientlib.jay.IJavascriptLoadedListener;
-import com.nxt.nxtvaultclientlib.jay.JayApi;
 import com.nxt.nxtvaultclientlib.jay.RequestMethods;
 import com.nxt.nxtvaultclientlib.nxtvault.BaseVaultActivity;
 import com.nxt.nxtvaultclientlib.nxtvault.NxtVault;
 import com.nxt.nxtvaultclientlib.nxtvault.model.Account;
 import com.nxt.nxtvaultclientlib.nxtvault.model.AccountSelectionResult;
 import com.nxt.nxtvaultclientlib.nxtvault.model.Asset;
-import com.nxt.testwallet.file.FileReader;
 import com.nxt.testwallet.model.AccountViewModel;
 import com.nxt.testwallet.model.AssetViewModel;
 import com.nxt.testwallet.screens.AssetTransferFragment;
@@ -194,6 +191,8 @@ public class MainActivity extends BaseVaultActivity {
     }
 
     private void loadAccountData() {
+        setServerInfo();
+
         if (mNxtVaultAccount != null) {
             //Load account information from NRS
             getJay().getAccount(mNxtVaultAccount.AccountRs, new ValueCallback<Account>() {
@@ -206,28 +205,32 @@ public class MainActivity extends BaseVaultActivity {
 
                         //need runOnUiThread otherwise javascript still thinks it is within
                         // the context of it callback and won't allow a second call
+                        numAssetRequests = account.Assets.size();
                         synchronized (syncLock) {
                             for (final Account.Asset accountAsset : account.Assets) {
                                 boolean found = false;
 
-                                if (mAssetList != null) {
-                                    for (Asset fullAsset : mAssetList) {
-                                        if (fullAsset.AssetId.equals(accountAsset.AssetId)) {
-                                            AssetViewModel assetVM = new AssetViewModel(fullAsset, Double.parseDouble(accountAsset.BalanceQNT));
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        getJay().getAsset(accountAsset.AssetId, new ValueCallback<Asset>() {
+                                            @Override
+                                            public void onReceiveValue(Asset value) {
 
-                                            mAccountInfo.Assets.add(assetVM);
-                                            found = true;
-                                            break;
-                                        }
+                                                mAccountInfo.Assets.add(new AssetViewModel(value, accountAsset.BalanceQNT));
+
+                                                if (--numAssetRequests == 0){
+                                                    updateCurrentPage();
+                                                }
+                                            }
+                                        });
                                     }
-                                }
+                                });
                             }
                         }
                     } else {
                         Toast.makeText(MainActivity.this, "ErrorCode: " + account.ErrorCode + " - '" + account.ErrorDescription + "'", Toast.LENGTH_LONG).show();
                     }
-
-                    updateCurrentPage();
                 }
             });
         }
@@ -269,6 +272,8 @@ public class MainActivity extends BaseVaultActivity {
 
         if (success) {
             Toast.makeText(this, "Transaction Sent Successfully!", Toast.LENGTH_LONG).show();
+
+            loadAccountData();
         } else {
             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         }

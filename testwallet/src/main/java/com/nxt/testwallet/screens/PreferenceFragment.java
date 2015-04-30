@@ -15,6 +15,7 @@ public class PreferenceFragment extends com.github.machinarius.preferencefragmen
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        getPreferenceManager().setSharedPreferencesName(getString(R.string.preference_file_key));
         addPreferencesFromResource(R.xml.preferences);
     }
 

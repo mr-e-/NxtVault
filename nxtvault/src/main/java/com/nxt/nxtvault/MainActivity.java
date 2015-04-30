@@ -73,11 +73,6 @@ public class MainActivity extends BaseActivity {
                 public void onLoaded() {
                     setServerInfo();
 
-                    //Load the list of assets on first time only. TODO: determine when it a good time to refresh this list
-                    if (mAssetList == null || mAssetList.size() == 0){
-                        loadAssets();
-                    }
-
                     refreshAccounts(null);
                 }
             });
@@ -115,19 +110,6 @@ public class MainActivity extends BaseActivity {
 
                 if (completedCallback != null){
                     completedCallback.onReceiveValue(null);
-                }
-            }
-        });
-    }
-
-    private void loadAssets() {
-        getJay().getAllAssets(new ValueCallback<ArrayList<Asset>>() {
-            @Override
-            public void onReceiveValue(ArrayList<Asset> assets) {
-                if (assets != null) {
-                    sharedPref.edit().putString("assets", gson.toJson(assets)).apply();
-
-                    mAssetList = assets;
                 }
             }
         });

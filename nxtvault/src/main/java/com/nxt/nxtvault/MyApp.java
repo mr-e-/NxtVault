@@ -1,7 +1,5 @@
 package com.nxt.nxtvault;
 
-import android.app.Application;
-
 import org.acra.ACRA;
 import org.acra.ReportField;
 import org.acra.ReportingInteractionMode;

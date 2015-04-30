@@ -44,7 +44,14 @@ var AndroidExtensions = {
     },
 
     signTrfBytes: function(sender, trfBytes, secretPhrase){
-        var bytes = this.startTRF(sender, trfBytes);
+        var bytes;
+
+        if (trfBytes.indexOf("TX_") > -1){
+            bytes = this.startTRF(sender, trfBytes);
+        }
+        else{
+            bytes = trfBytes;
+        }
 
         var sig = signBytes(bytes, secretPhrase);
         var signed = bytes.slice(0,96);
@@ -115,8 +122,14 @@ var AndroidExtensions = {
     extractBytesData: function(sender, trfBytes)
     {
             this.reviewData = [];
+            var bytes;
 
-            var bytes = this.startTRF(sender, trfBytes);
+            if (trfBytes.indexOf("TX_") > -1){
+                bytes = this.startTRF(sender, trfBytes);
+            }
+            else{
+                bytes = trfBytes;
+            }
 
             // lets think here.
         	// first we take out the version and subversion, and then think from there
@@ -508,4 +521,4 @@ var AndroidExtensions = {
     }
 };
 
-AndroidExtensions.extractBytesData('NXT-FGCK-QBW6-8XQH-5KE5S', 'TX_1rTR8ipk1tXQK4BleqxgIRJ1KaHtPbadJhJGlYZlyKHBH6xe1JiT8HeuSb2KngVU');
+AndroidExtensions.extractBytesData('NXT-FGCK-QBW6-8XQH-5KE5S', 'TX_1rTPZi6IrckN1fVo3mZ7T2yWGcR8aMoXEQncrlNT3qhStjhOghm3mGich6cOJzKC');

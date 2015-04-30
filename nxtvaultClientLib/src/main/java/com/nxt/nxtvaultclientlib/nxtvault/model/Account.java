@@ -14,18 +14,18 @@ public class Account extends NrsResult {
     @SerializedName("description")
     public String Description;
 
-    @SerializedName("balanceNQT")
+    @SerializedName("unconfirmedBalanceNQT")
     public String BalanceNQT;
 
     @SerializedName("accountRS")
     public String Rs;
 
-    @SerializedName("assetBalances")
+    @SerializedName("unconfirmedAssetBalances")
     public ArrayList<Asset> Assets;
 
     public class Asset{
         @SerializedName("balanceQNT")
-        public String BalanceQNT;
+        public double BalanceQNT;
         @SerializedName("asset")
         public String AssetId;
         @SerializedName("name")
