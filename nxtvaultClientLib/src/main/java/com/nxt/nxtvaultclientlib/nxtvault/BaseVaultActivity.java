@@ -17,7 +17,7 @@ import java.util.ArrayList;
  * Created by Brandon on 4/20/2015.
  */
 public abstract class BaseVaultActivity extends ActionBarActivity {
-    private static JayApi jay;
+    protected static JayApi jay;
     ArrayList<IJavascriptLoadedListener> mJayLoadedListeners;
     protected boolean mIsJayLoaded;
 

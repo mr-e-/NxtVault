@@ -194,13 +194,6 @@ public class SignTxActivity extends MainActivity {
                         }
                         else {
                             if (broadcast) {
-                                //override node from preferences
-                                String userSetServer = sharedPref.getString(getString(R.string.server_preference), null);
-                                if (userSetServer != null && !userSetServer.isEmpty()){
-                                    getJay().setNode(userSetServer, getIsTestNet());
-                                }
-
-
                                 getJay().broadcast(signedBytesString, new ValueCallback<BroadcastTxResponse>() {
                                     @Override
                                     public void onReceiveValue(BroadcastTxResponse response) {

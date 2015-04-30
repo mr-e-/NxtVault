@@ -29,7 +29,11 @@ public class JayApi {
 
     private IJavascriptLoadedListener mLoadedListener;
 
+    protected Context mContext;
+
     public JayApi(Context context, Uri path, IJavascriptLoadedListener listener){
+        mContext = context;
+
         mLoadedListener = listener;
         gson = new Gson();
 
@@ -93,6 +97,7 @@ public class JayApi {
 
     @JavascriptInterface
     public void onRequestFailed(String result){
+        Log.e("jay request failed", result);
         requestFailed.onReceiveValue(result);
     }
 
@@ -174,12 +179,7 @@ public class JayApi {
     }
 
     public void sendMoney(String accountRs, float amount, String message, final ValueCallback<String> callback) {
-        String messageJs = "";
-
-        if (message != null){
-            mWebView.evaluateJavascript("AndroidExtensions.messageAppendage = Jay.addAppendage(Jay.appendages.message, '" + message + "');", null);
-            messageJs = ", AndroidExtensions.messageAppendage";
-        }
+        String messageJs = getMessage(message);
 
         mWebView.evaluateJavascript("Jay.sendMoney('" + accountRs + "', " + amount + messageJs + ");", new ValueCallback<String>() {
             @Override
@@ -190,14 +190,9 @@ public class JayApi {
     }
 
     public void transferAsset(String accountRs, Asset asset, float amount, String message, final ValueCallback<String> callback) {
-        String messageJs = "";
-
         long num = Math.round(amount*Math.pow(10, asset.Decimals));
 
-        if (message != null){
-            mWebView.evaluateJavascript("AndroidExtensions.messageAppendage = Jay.addAppendage(Jay.appendages.message, '" + message + "');", null);
-            messageJs = ", AndroidExtensions.messageAppendage";
-        }
+        String messageJs = getMessage(message);
 
         mWebView.evaluateJavascript("Jay.transferAsset('" + accountRs + "', '" + asset.AssetId + "', " + num + messageJs + ");", new ValueCallback<String>() {
             @Override
@@ -205,5 +200,15 @@ public class JayApi {
                 callback.onReceiveValue(gson.fromJson(value, String.class));
             }
         });
+    }
+
+    private String getMessage(String message) {
+        String messageJs = "";
+
+        if (message != null && !message.isEmpty()){
+            mWebView.evaluateJavascript("AndroidExtensions.messageAppendage = Jay.addAppendage(Jay.appendages.message, '" + message + "');", null);
+            messageJs = ", AndroidExtensions.messageAppendage";
+        }
+        return messageJs;
     }
 }

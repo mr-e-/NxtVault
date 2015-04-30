@@ -1,13 +1,16 @@
 package com.nxt.testwallet.screens;
 
+import android.app.ListActivity;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TableLayout;
 import android.widget.TextView;
 
 import com.nxt.testwallet.R;
@@ -67,10 +70,10 @@ public class BalanceFragment extends BaseFragment {
             txtAccountName.setText(account.Name);
             txtDescription.setText(account.Description);
 
-            ArrayList<Map<String, String>> assetsMap = new ArrayList<>();
+            ArrayList<HashMap<String, String>> assetsMap = new ArrayList<>();
 
             for (AssetViewModel asset : account.Assets) {
-                Map<String, String> map = new HashMap<>();
+                HashMap<String, String> map = new HashMap<>();
 
                 map.put("Asset Id", asset.AssetId);
                 map.put("Asset Name", asset.Name);
@@ -83,10 +86,7 @@ public class BalanceFragment extends BaseFragment {
         }
     }
 
-    private void createAssetAdapter(ArrayList<Map<String, String>> assetsMap) {
-        SimpleAdapter simpleAdapter = new SimpleAdapter(getActivity(), assetsMap,
-                R.layout.asset_list_row, new String[]{"Asset Id", "Asset Name", "Amount Owned"},
-                new int[]{R.id.assetId, R.id.assetName, R.id.assetBalance});
+    private void createAssetAdapter(ArrayList<HashMap<String, String>> assetsMap) {
 
         View headerView = LayoutInflater.from(getActivity()).inflate(R.layout.asset_list_row, listAssets, false);
         TextView txtAssetId = (TextView)headerView.findViewById(R.id.assetId);
@@ -114,7 +114,14 @@ public class BalanceFragment extends BaseFragment {
         //Not sure why this isn't working, fake header added above
         //listAssets.addHeaderView(headerView, null, false);
 
+        SimpleAdapter simpleAdapter = new SimpleAdapter(getActivity(), assetsMap,
+                R.layout.asset_list_row, new String[]{"Asset Id", "Asset Name", "Amount Owned"},
+                new int[]{R.id.assetId, R.id.assetName, R.id.assetBalance});
+
         listAssets.setAdapter(simpleAdapter);
+        simpleAdapter.notifyDataSetChanged();
+
+        setListViewHeightBasedOnChildren(listAssets);
     }
 
     @Override
@@ -122,5 +129,27 @@ public class BalanceFragment extends BaseFragment {
         super.onSaveInstanceState(outState);
 
         outState.putString("balance", txtAccountBalance.getText().toString());
+    }
+
+    public static void setListViewHeightBasedOnChildren(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null) {
+            return;
+        }
+        int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.AT_MOST);
+        int totalHeight = 0;
+        View view = null;
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            view = listAdapter.getView(i, view, listView);
+            if (i == 0) {
+                view.setLayoutParams(new ViewGroup.LayoutParams(desiredWidth, TableLayout.LayoutParams.WRAP_CONTENT));
+            }
+            view.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
+            totalHeight += view.getMeasuredHeight();
+        }
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
+        listView.requestLayout();
     }
 }

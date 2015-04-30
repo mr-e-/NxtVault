@@ -59,7 +59,7 @@
 
 var Jay = {};
 
-	Jay.commonNodes = ["69.163.40.132","jnxt.org","nxt.noip.me","23.88.59.40","162.243.122.251"];
+	Jay.commonNodes = ["69.163.40.132", "jnxt.org","nxt.noip.me","23.88.59.40","162.243.122.251"];
 
 	Jay.msTimeout = 1000;
 
@@ -266,6 +266,7 @@ var Jay = {};
 	Jay.subtypes.accountInfo = 5;
 	Jay.subtypes.aliasSell = 6;
 	Jay.subtypes.aliasBuy = 7;
+	Jay.subtypes.aliasDelete = 8;
 	Jay.subtypes.assetIssuance = 0;
 	Jay.subtypes.assetTransfer = 1;
 	Jay.subtypes.askOrderPlacement = 2;
@@ -476,7 +477,7 @@ var Jay = {};
 		attachment.push(name.length);
 		attachment = attachment.concat(converters.stringToByteArray(name));
 		attachment = attachment.concat(Jay.wordBytes(description.length));
-		attachment = attachment.concat(converters.stringToByteArray(data));
+		attachment = attachment.concat(converters.stringToByteArray(description));
 		return Jay.createTrf(Jay.types.messaging, Jay.subtypes.accountInfo, Jay.genesisRS, 0, 1, attachment, appendages);
 	}
 
@@ -484,9 +485,9 @@ var Jay = {};
 	{
 		var attachment = [];
 		attachment.push(Jay.transactionVersion);
-		attechment.push(alias.length);
+		attachment.push(alias.length);
 		attachment = attachment.concat(converters.stringToByteArray(alias));
-		attachment = attachment.concat(Jay.numberToBytes(Math.round(price*oneNxt)));
+		attachment = attachment.concat(Jay.numberToBytes(Math.round(price*Jay.oneNxt)));
 		if(recipient == undefined || recipient == "anyone" || recipient == "") return Jay.createTrf(Jay.types.messaging, Jay.subtypes.aliasSell, [0,0,0,0,0,0,0,0], 0, 1, attachment, appendages);
 		return Jay.createTrf(Jay.types.messaging, Jay.subtypes.aliasSell, recipient, 0, 1, attachment, appendages);
 	}
@@ -500,10 +501,19 @@ var Jay = {};
 		return Jay.createTrf(Jay.types.messaging, Jay.subtypes.aliasBuy, recipient, amount, 1, attachment, appendages);
 	}
 
+	Jay.deleteAlias = function(alias)
+	{
+		var attachment = [];
+		attachment.push(Jay.transactionVersion);
+		attachment.push(alias.length);
+		attachment = attachment.concat(converters.stringToByteArray(alias));
+		return Jay.createTrf(Jay.types.messaging, Jay.subtypes.aliasDelete, Jay.genesisRS, 0, 1, attachment, appendages);
+	}
+
 	Jay.issueAsset = function(name, description, quantity, decimals, appendages)
 	{
 		var attachment = [];
-		attachment.push(transactionVersion);
+		attachment.push(Jay.transactionVersion);
 		attachment.push(name.length);
 		attachment = attachment.concat(converters.stringToByteArray(name));
 		attachment = attachment.concat(Jay.wordBytes(description.length));
@@ -522,23 +532,43 @@ var Jay = {};
 		return Jay.createTrf(Jay.types.asset, Jay.subtypes.assetTransfer, recipient, 0, 1, attachment, appendages);
 	}
 
-	Jay.placeAskOrder = function(assetId, quantityQNT, price, appendages)
+	Jay.placeAskOrder = function(assetId, quantityQNT, priceNQT, decimals, appendages)
 	{
 		var attachment = [];
 		attachment.push(Jay.transactionVersion);
 		attachment = attachment.concat(Jay.numberToBytes(assetId));
-		attachment = attachment.concat(Jay.numberToBytes(quantityQNT));
-		attachment = attachment.concat(Jay.numberToBytes(Math.round(price*Jay.oneNxt)));
+
+		if(decimals == undefined || typeof(decimals) != "number")
+		{
+			attachment = attachment.concat(Jay.numberToBytes(quantityQNT));
+			attachment = attachment.concat(Jay.numberToBytes(priceNQT));
+			appendages = decimals;
+		}
+		else
+		{
+			attachment = attachment.concat(Jay.numberToBytes(Math.round(quantityQNT*Math.pow(10, decimals))));
+			attachment = attachment.concat(Jay.numberToBytes(Math.round(priceNQT*Math.pow(10, 8-decimals))));
+		}
 		return Jay.createTrf(Jay.types.asset, Jay.subtypes.askOrderPlacement, Jay.genesisRS, 0, 1, attachment, appendages);
 	}
 
-	Jay.placeBidOrder = function(assetId, quantityQNT, price, appendages)
+	Jay.placeBidOrder = function(assetId, quantityQNT, priceNQT, decimals, appendages)
 	{
 		var attachment = [];
 		attachment.push(Jay.transactionVersion);
 		attachment = attachment.concat(Jay.numberToBytes(assetId));
-		attachment = attachment.concat(Jay.numberToBytes(quantityQNT));
-		attachment = attachment.concat(Jay.numberToBytes(Math.round(price*Jay.oneNxt)));
+		
+		if(decimals == undefined || typeof(decimals) != "number")
+		{
+			attachment = attachment.concat(Jay.numberToBytes(quantityQNT));
+			attachment = attachment.concat(Jay.numberToBytes(priceNQT));
+			appendages = decimals;
+		}
+		else
+		{
+			attachment = attachment.concat(Jay.numberToBytes(Math.round(quantityQNT*Math.pow(10, decimals))));
+			attachment = attachment.concat(Jay.numberToBytes(Math.round(priceNQT*Math.pow(10, 8-decimals))));
+		}
 		return Jay.createTrf(Jay.types.asset, Jay.subtypes.bidOrderPlacement, Jay.genesisRS, 0, 1, attachment, appendages);
 	}
 

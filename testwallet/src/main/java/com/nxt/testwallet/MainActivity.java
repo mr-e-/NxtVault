@@ -19,12 +19,15 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.nxt.nxtvaultclientlib.jay.IJavascriptLoadedListener;
+import com.nxt.nxtvaultclientlib.jay.JayApi;
 import com.nxt.nxtvaultclientlib.jay.RequestMethods;
 import com.nxt.nxtvaultclientlib.nxtvault.BaseVaultActivity;
 import com.nxt.nxtvaultclientlib.nxtvault.NxtVault;
 import com.nxt.nxtvaultclientlib.nxtvault.model.Account;
 import com.nxt.nxtvaultclientlib.nxtvault.model.AccountSelectionResult;
 import com.nxt.nxtvaultclientlib.nxtvault.model.Asset;
+import com.nxt.testwallet.file.FileReader;
 import com.nxt.testwallet.model.AccountViewModel;
 import com.nxt.testwallet.model.AssetViewModel;
 import com.nxt.testwallet.screens.AssetTransferFragment;
@@ -73,6 +76,18 @@ public class MainActivity extends BaseVaultActivity {
         }
 
         initializeJay(Uri.parse("file:///android_asset/jayClient/request.html"));
+    }
+
+    @Override
+    protected void initializeJay(Uri url) {
+        jay = new JayClientApi(this, url, new IJavascriptLoadedListener() {
+            @Override
+            public void onLoaded() {
+                //Fired when the webview finished loading. You cannot make any Jay requests
+                //before this event is fired
+                jayLoaded();
+            }
+        });
     }
 
     @Override
@@ -146,18 +161,12 @@ public class MainActivity extends BaseVaultActivity {
         slidingTabLayout.setViewPager(mViewPager);
         slidingTabLayout.setOnPageChangeListener(pageChangedListener);
 
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                loadAssets(new ValueCallback<ArrayList>() {
+        loadAssets(new ValueCallback<ArrayList>() {
                     @Override
                     public void onReceiveValue(ArrayList value) {
                         loadAccountData();
                     }
                 });
-            }
-        }, 5000);
     }
 
     private void loadAssets(final ValueCallback<ArrayList> assetListCallback) {

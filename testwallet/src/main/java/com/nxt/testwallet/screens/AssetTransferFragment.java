@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.nxt.nxtvaultclientlib.nxtvault.model.Asset;
 import com.nxt.testwallet.R;
+import com.nxt.testwallet.model.AssetViewModel;
 
 import java.util.Arrays;
 
@@ -28,9 +29,9 @@ public class AssetTransferFragment extends BaseFragment {
     TextView txtMessage;
     Button btnSend;
 
-    Asset mSelectedAsset;
+    AssetViewModel mSelectedAsset;
 
-    Asset[] mAssetList;
+    AssetViewModel[] mAssetList;
 
     private static AssetTransferFragment mInstance;
 
@@ -62,7 +63,7 @@ public class AssetTransferFragment extends BaseFragment {
         super.loadData();
 
         if (mActivity.getAssetList() != null && mActivity.getAssetList().size() > 0) {
-            mAssetList = mActivity.getAssetList().toArray(new Asset[mActivity.getAssetList().size()]);
+            mAssetList = mActivity.getCurrentAccount().Assets.toArray(new AssetViewModel[mActivity.getCurrentAccount().Assets.size()]);
             Arrays.sort(mAssetList);
 
             final ArrayAdapter adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, mAssetList);
@@ -83,7 +84,7 @@ public class AssetTransferFragment extends BaseFragment {
             txtAssetId.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    mSelectedAsset = (Asset) adapter.getItem(position);
+                    mSelectedAsset = (AssetViewModel) adapter.getItem(position);
                     Log.v("Test", "Asset selected: " + mSelectedAsset.Name);
                 }
             });
@@ -93,7 +94,7 @@ public class AssetTransferFragment extends BaseFragment {
                 public boolean isValid(CharSequence text) {
                     boolean valid = false;
 
-                    for (Asset asset : mActivity.getAssetList()) {
+                    for (AssetViewModel asset : mAssetList) {
                         if (asset.Name.equals(text.toString())) {
                             valid = true;
                             break;
@@ -116,7 +117,7 @@ public class AssetTransferFragment extends BaseFragment {
                 if (mSelectedAsset == null) {
                     txtAssetId.setError("Please select a valid asset");
                 } else {
-                    mActivity.getJay().transferAsset(txtRecip.getText().toString(), mSelectedAsset, Float.parseFloat(txtAmount.getText().toString()), txtMessage.getText().toString(), new ValueCallback<String>() {
+                    mActivity.getJay().transferAsset(txtRecip.getText().toString(), mSelectedAsset.getAsset(), Float.parseFloat(txtAmount.getText().toString()), txtMessage.getText().toString(), new ValueCallback<String>() {
                         @Override
                         public void onReceiveValue(String value) {
                             mActivity.getNxtVault().signAndBroadcastTx(mActivity, mActivity.getAccessToken(), value);
