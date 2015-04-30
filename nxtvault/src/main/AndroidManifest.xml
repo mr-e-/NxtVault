@@ -7,7 +7,7 @@
     <application
         android:name=".MyApp"
         android:allowBackup="true"
-        android:icon="@drawable/app_icon13"
+        android:icon="@drawable/app_icon14"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
