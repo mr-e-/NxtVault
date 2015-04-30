@@ -25,6 +25,7 @@ import com.nxt.nxtvaultclientlib.nxtvault.NxtVault;
 import com.nxt.nxtvaultclientlib.nxtvault.model.Account;
 import com.nxt.nxtvaultclientlib.nxtvault.model.AccountSelectionResult;
 import com.nxt.nxtvaultclientlib.nxtvault.model.Asset;
+import com.nxt.nxtvaultclientlib.nxtvault.model.PreferredServerResult;
 import com.nxt.testwallet.model.AccountViewModel;
 import com.nxt.testwallet.model.AssetViewModel;
 import com.nxt.testwallet.screens.AssetTransferFragment;
@@ -144,6 +145,8 @@ public class MainActivity extends BaseVaultActivity {
     @Override
     protected void jayLoaded() {
         super.jayLoaded();
+
+        mNxtVault.requestPreferredServer(this);
 
         setServerInfo();
 
@@ -284,6 +287,17 @@ public class MainActivity extends BaseVaultActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    @Override
+    protected void onRequestPreferredServer(PreferredServerResult result) {
+        //pull the server information from nxt vault
+        sharedPref.edit().putString(getString(R.string.server_preference), result.PreferredServer).apply();
+        sharedPref.edit().putBoolean(getString(R.string.testnet_preference), result.IsTestNet).apply();
+
+        setServerInfo();
+
+        super.onRequestPreferredServer(result);
     }
 
     @Override

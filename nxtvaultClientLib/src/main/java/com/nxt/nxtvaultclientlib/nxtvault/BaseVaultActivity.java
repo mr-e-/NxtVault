@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import com.nxt.nxtvaultclientlib.jay.IJavascriptLoadedListener;
 import com.nxt.nxtvaultclientlib.jay.JayApi;
 import com.nxt.nxtvaultclientlib.nxtvault.model.AccountSelectionResult;
+import com.nxt.nxtvaultclientlib.nxtvault.model.PreferredServerResult;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -61,6 +62,8 @@ public abstract class BaseVaultActivity extends ActionBarActivity {
         }
     }
 
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -83,6 +86,11 @@ public abstract class BaseVaultActivity extends ActionBarActivity {
 
                 onSign(true, null, bytes);
             }
+            else if (requestCode == NxtVault.REQUEST_PREFERRED_ACCOUNT){
+                PreferredServerResult result = gson.fromJson(data.getAction(), PreferredServerResult.class);
+
+                onRequestPreferredServer(result);
+            }
         }
         else if (resultCode == RESULT_CANCELED){
             if (requestCode == NxtVault.REQUEST_REQUESTACCOUNT) {
@@ -99,5 +107,6 @@ public abstract class BaseVaultActivity extends ActionBarActivity {
 
     protected void onAccountRequestResult(boolean success, AccountSelectionResult accountSelectionResult){}
     protected void onSignAndBroadcast(boolean success, String message){}
+    protected void onRequestPreferredServer(PreferredServerResult result){}
     protected void onSign(boolean success, String message, byte[] signedBytes){}
 }

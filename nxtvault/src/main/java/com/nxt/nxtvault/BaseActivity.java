@@ -1,7 +1,5 @@
 package com.nxt.nxtvault;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.nxt.nxtvault.preference.PreferenceManager;
 import com.nxt.nxtvault.security.pin.IPinEnteredListener;
 import com.nxt.nxtvault.security.pin.PinEntryView;
 
@@ -21,7 +20,7 @@ import com.nxt.nxtvault.security.pin.PinEntryView;
  * Created by bcollins on 2015-04-17.
  */
 public abstract class BaseActivity extends ActionBarActivity {
-    protected SharedPreferences sharedPref;
+    public PreferenceManager mPreferences;
 
     private PinMode mCurrentPinMode;
     PinFragment pinFragment;
@@ -39,23 +38,19 @@ public abstract class BaseActivity extends ActionBarActivity {
         segoeb = Typeface.createFromAsset(getAssets(), "fonts/segoeuib.ttf");
         segoel = Typeface.createFromAsset(getAssets(), "fonts/segoeui.ttf");
 
-        sharedPref = getSharedPreferences(
-                getString(R.string.app_file_key), Context.MODE_PRIVATE);
-
+        mPreferences = new PreferenceManager(this);
     }
 
-    public SharedPreferences getSharedPref(){
-        return sharedPref;
-    }
+
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        String pin = sharedPref.getString(getString(R.string.pin), null);
-        int pinTimeout = Integer.parseInt(sharedPref.getString(getString(R.string.pin_timeout), "5")) * 60 * 1000;
+        String pin = mPreferences.getPin();
+        int pinTimeout = Integer.parseInt(mPreferences.getPinTimeout()) * 60 * 1000;
 
-        long time = System.currentTimeMillis() - sharedPref.getLong(getString(R.string.time_btwen_last_pin_entry), 0);
+        long time = System.currentTimeMillis() - mPreferences.getLastPinEntry();
 
         if (time > pinTimeout && !mPinShowing){
             if (pin == null || pin.isEmpty()){
@@ -100,14 +95,7 @@ public abstract class BaseActivity extends ActionBarActivity {
 
     void storePin(String pin){
         //Store the entered pin number for later verification
-        sharedPref.edit()
-                .putString(getString(R.string.pin), pin)
-                .apply();
-    }
-
-    public String getPin(){
-        //get the current pin number from storage
-        return sharedPref.getString(getString(R.string.pin), null);
+        mPreferences.putPin(pin);
     }
 
     public static class PinFragment extends Fragment{
@@ -133,9 +121,7 @@ public abstract class BaseActivity extends ActionBarActivity {
                         @Override
                         public void run() {
                             if (verifyPin(pin)) {
-                                ((BaseActivity)getActivity()).sharedPref.edit()
-                                        .putLong(getString(R.string.time_btwen_last_pin_entry), System.currentTimeMillis())
-                                        .apply();
+                                ((BaseActivity)getActivity()).mPreferences.putLastPinEntry(System.currentTimeMillis());
 
                                 mActivity.pinAccepted();
                                 pinEntryView.clearKeyBoard();
@@ -188,7 +174,7 @@ public abstract class BaseActivity extends ActionBarActivity {
             }
             else if (mActivity.mCurrentPinMode == PinMode.Enter){
                 //verify pin and allow access to application
-                if (mActivity.getPin() != null && mActivity.getPin().equals(s)){
+                if (mActivity.mPreferences.getPin() != null && mActivity.mPreferences.getPin().equals(s)){
                     accept = true;
                 }
                 else{
@@ -198,7 +184,7 @@ public abstract class BaseActivity extends ActionBarActivity {
             else if (mActivity.mCurrentPinMode == PinMode.Change){
                 //Enter in the old pin number first
                 if (mOldPin == null) {
-                    if (s.equals(mActivity.getPin())) {
+                    if (s.equals(mActivity.mPreferences.getPin())) {
                         mOldPin = s;
 
                         headerText.setText("Enter your new PIN number");

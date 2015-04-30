@@ -40,7 +40,7 @@ public class SignTxActivity extends MainActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mProvider = new AccessTokenProvider(sharedPref);
+        mProvider = new AccessTokenProvider(mPreferences.getSharedPref());
 
     }
 
@@ -154,7 +154,7 @@ public class SignTxActivity extends MainActivity {
 
     private String getPublicKeyFromToken(Intent intent, String accessToken) {
         String publicKey;//check if request came from within our own app, if so we don't need an access token
-        if (getSharedPref().getString("tempToken", "").equals(accessToken)){
+        if (mPreferences.getSharedPref().getString("tempToken", "").equals(accessToken)){
             publicKey = intent.getExtras().getString("PublicKey");
         }
         else{
@@ -182,7 +182,7 @@ public class SignTxActivity extends MainActivity {
                 setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.access_denied)));
             }
             else {
-                accountData.key = getPin();
+                accountData.key = mPreferences.getPin();
 
                 getJay().sign(accountData, txData, new ValueCallback<String>() {
                     @Override
@@ -217,6 +217,8 @@ public class SignTxActivity extends MainActivity {
         return false;
     }
 
+
+
     private void setResultAndFinish(int result, Intent intent){
         setResult(result, intent);
         finish();
@@ -245,12 +247,12 @@ public class SignTxActivity extends MainActivity {
         finish();
     }
 
+
+
     /**
      * A placeholder fragment containing a simple view.
      */
     public static class AccountAccessFragment extends BaseFragment {
-        Runnable animationComplete;
-
         public AccountAccessFragment() {
         }
 

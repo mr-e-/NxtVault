@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.nxt.nxtvault"  >
+    package="com.nxt.nxtvault" >
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -11,9 +11,9 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.nxt.nxtvault.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name"
-            android:windowSoftInputMode="adjustPan">
+            android:windowSoftInputMode="adjustPan" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,32 +21,43 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.nxt.nxtvault.SignTxActivity"
+            android:name=".SignTxActivity"
             android:label="@string/title_activity_sign_tx"
             android:launchMode="singleTop"
-            android:windowSoftInputMode="adjustPan">
-
+            android:windowSoftInputMode="adjustPan" >
             <intent-filter>
-                <action android:name="nxtvault.intent.action.SIGN"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="text/plain"/>
+                <action android:name="nxtvault.intent.action.SIGN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/plain" />
             </intent-filter>
-
             <intent-filter>
-                <action android:name="nxtvault.intent.action.SIGNANDBROADCAST"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="nxtvault.intent.action.SIGNANDBROADCAST" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
             <intent-filter>
-                <action android:name="nxtvault.intent.action.REQUESTACCOUNT"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="nxtvault.intent.action.REQUESTACCOUNT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name="org.acra.CrashReportDialog"
-            android:theme="@style/Theme.Dialog"
-            android:launchMode="singleInstance"
+        <activity
+            android:name="org.acra.CrashReportDialog"
             android:excludeFromRecents="true"
-            android:finishOnTaskLaunch="true" />
+            android:finishOnTaskLaunch="true"
+            android:launchMode="singleInstance"
+            android:theme="@style/Theme.Dialog" />
+        <activity
+            android:name=".ApiActivity"
+            android:label="@string/title_activity_api">
+            <intent-filter>
+                <action android:name="nxtvault.intent.action.REQUESTPREFERREDSERVER" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

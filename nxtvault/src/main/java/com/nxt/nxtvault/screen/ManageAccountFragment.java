@@ -124,9 +124,8 @@ public class ManageAccountFragment extends BaseFragment {
         return rootView;
     }
 
-
-
     private MainActivity mActivity;
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -147,7 +146,7 @@ public class ManageAccountFragment extends BaseFragment {
         mActivity.getJay().generateSecretPhrase(new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
-                mActivity.getJay().getNewAccount(value, mActivity.getPin(), new ValueCallback<AccountData>() {
+                mActivity.getJay().getNewAccount(value, mActivity.mPreferences.getPin(), new ValueCallback<AccountData>() {
                     @Override
                     public void onReceiveValue(AccountData value) {
                         accountData = value;
@@ -339,7 +338,7 @@ public class ManageAccountFragment extends BaseFragment {
     }
 
     private void showPassphrase() {
-        accountData.key = getMainActivity().getPin();
+        accountData.key = getMainActivity().mPreferences.getPin();
         getMainActivity().getJay().decryptSecretPhrase(accountData, new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
@@ -371,7 +370,7 @@ public class ManageAccountFragment extends BaseFragment {
     }
 
     private void generateAccount() {
-        getMainActivity().getJay().getNewAccount(txtPassphrase.getText().toString(), getMainActivity().getPin(), new ValueCallback<AccountData>() {
+        getMainActivity().getJay().getNewAccount(txtPassphrase.getText().toString(), getMainActivity().mPreferences.getPin(), new ValueCallback<AccountData>() {
             @Override
             public void onReceiveValue(final AccountData value) {
             accountData = value;
@@ -425,7 +424,7 @@ public class ManageAccountFragment extends BaseFragment {
                         generateAccount();
                     } else if (mRequestCode.equals(REQUEST_SCAN_TX)) {
                         String tempToken = UUID.randomUUID().toString();
-                        getMainActivity().getSharedPref().edit().putString("tempToken", tempToken).commit();
+                        getMainActivity().mPreferences.getSharedPref().edit().putString("tempToken", tempToken).commit();
 
                         Intent intent = new Intent("nxtvault.intent.action.SIGNANDBROADCAST");
 

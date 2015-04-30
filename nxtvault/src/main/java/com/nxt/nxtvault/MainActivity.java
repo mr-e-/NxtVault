@@ -45,13 +45,7 @@ public class MainActivity extends BaseActivity {
 
     private ArrayList<Asset> mAssetList;
 
-    public boolean getIsTestNet(){
-        return sharedPref.getBoolean(getString(R.string.testnet_preference), false);
-    }
 
-    public String getCustomServer(){
-        return sharedPref.getString(getString(R.string.server_preference), null);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,8 +54,8 @@ public class MainActivity extends BaseActivity {
 
         mSavedInstanceState = savedInstanceState;
 
-        if (sharedPref.getString("assets", null) != null) {
-            mAssetList = gson.fromJson(sharedPref.getString("assets", null), new TypeToken<ArrayList<Asset>>() { }.getType());
+        if (mPreferences.getSharedPref().getString("assets", null) != null) {
+            mAssetList = gson.fromJson(mPreferences.getSharedPref().getString("assets", null), new TypeToken<ArrayList<Asset>>() { }.getType());
         }
 
         if (savedInstanceState != null){
@@ -88,15 +82,15 @@ public class MainActivity extends BaseActivity {
     }
 
     public void setServerInfo() {
-        if (getCustomServer() != null){
-            getJay().setNode(getCustomServer());
+        if (mPreferences.getCustomServer() != null){
+            getJay().setNode(mPreferences.getCustomServer());
             getJay().setRequestMethod(RequestMethods.Single);
         }
         else{
             getJay().setRequestMethod(RequestMethods.Fastest);
         }
 
-        getJay().setIsTestnet(getIsTestNet());
+        getJay().setIsTestnet(mPreferences.getIsTestNet());
     }
 
     private void refreshAccounts(final ValueCallback<String> completedCallback) {
