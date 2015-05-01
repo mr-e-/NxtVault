@@ -201,7 +201,11 @@ public class SignTxActivity extends MainActivity {
                                         if (response != null && response.ErrorCode == 0)
                                             setResultAndFinish(RESULT_OK, new Intent(gson.toJson(response, BroadcastTxResponse.class)));
                                         else {
-                                            setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.error_broadcasting) + response.ErrorCode + " - " + response.ErrorDescription));
+                                            if (response != null)
+                                                setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.error_broadcasting) + response.ErrorCode + " - " + response.ErrorDescription));
+                                            else{
+                                                setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.error_broadcasting) + "Unknown error. Please check your settings if you've overriden the broadcast server and make sure it is correct."));
+                                            }
                                         }
                                     }
                                 });

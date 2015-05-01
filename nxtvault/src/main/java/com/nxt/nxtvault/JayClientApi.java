@@ -2,6 +2,7 @@ package com.nxt.nxtvault;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 import android.webkit.ValueCallback;
 
 import com.google.gson.reflect.TypeToken;
@@ -116,6 +117,7 @@ public class JayClientApi extends JayApi {
         }, new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
+                Log.e("broadcastTransaction", value);
                 callback.onReceiveValue(null);
             }
         });

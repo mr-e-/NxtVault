@@ -14,6 +14,8 @@ import org.acra.annotation.ReportsCrashes;
         mode = ReportingInteractionMode.TOAST,
         resToastText = R.string.crash_toast_text)
 public class MyApp extends android.app.Application {
+    public JayClientApi jay;
+
     @Override
     public void onCreate() {
         super.onCreate();

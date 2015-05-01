@@ -26,7 +26,7 @@ import java.util.ArrayList;
 
 
 public class MainActivity extends BaseActivity {
-    private static JayClientApi jay;
+
     Gson gson = new Gson();
 
     private static AccountInfo mAccountInfo;
@@ -40,12 +40,10 @@ public class MainActivity extends BaseActivity {
     }
 
     public JayClientApi getJay(){
-        return jay;
+        return ((MyApp)getApplication()).jay;
     }
 
     private ArrayList<Asset> mAssetList;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +59,8 @@ public class MainActivity extends BaseActivity {
         if (savedInstanceState != null){
             mAccountInfo = (AccountInfo)savedInstanceState.getSerializable("mAccountInfo");
         }
-        else{
-            jay = new JayClientApi(this, new IJavascriptLoadedListener() {
+        else if (((MyApp)getApplication()).jay == null){
+            ((MyApp)getApplication()).jay = new JayClientApi(this, new IJavascriptLoadedListener() {
                 @Override
                 public void onLoaded() {
                     setServerInfo();
@@ -70,6 +68,11 @@ public class MainActivity extends BaseActivity {
                     refreshAccounts(null);
                 }
             });
+        }
+        else{
+            setServerInfo();
+
+            refreshAccounts(null);
         }
 
         //set up action bar
@@ -82,7 +85,7 @@ public class MainActivity extends BaseActivity {
     }
 
     public void setServerInfo() {
-        if (mPreferences.getCustomServer() != null){
+        if (mPreferences.getCustomServer() != null && !mPreferences.getCustomServer().isEmpty()){
             getJay().setNode(mPreferences.getCustomServer());
             getJay().setRequestMethod(RequestMethods.Single);
         }
