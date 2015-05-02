@@ -206,7 +206,7 @@ public class MainActivity extends BaseVaultActivity {
 
                         if (account.Assets != null) {
                             numAssetRequests = account.Assets.size();
-                            
+
                             synchronized (syncLock) {
                                 for (final Account.Asset accountAsset : account.Assets) {
                                     runOnUiThread(new Runnable() {

@@ -48,7 +48,7 @@ public abstract class BaseActivity extends ActionBarActivity {
         super.onResume();
 
         String pin = mPreferences.getPin();
-        int pinTimeout = 0;//Integer.parseInt(mPreferences.getPinTimeout()) * 60 * 1000;
+        int pinTimeout = Integer.parseInt(mPreferences.getPinTimeout()) * 60 * 1000;
 
         long time = System.currentTimeMillis() - mPreferences.getLastPinEntry();
 

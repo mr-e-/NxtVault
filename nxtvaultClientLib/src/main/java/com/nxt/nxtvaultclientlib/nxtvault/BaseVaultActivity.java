@@ -49,8 +49,6 @@ public abstract class BaseVaultActivity extends ActionBarActivity {
         }
     }
 
-    boolean getIsTestNet(){return true;}
-
     public IJayApi getJay(){
         return jay;
     }
@@ -62,8 +60,6 @@ public abstract class BaseVaultActivity extends ActionBarActivity {
             loadedListener.onLoaded();
         }
     }
-
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
