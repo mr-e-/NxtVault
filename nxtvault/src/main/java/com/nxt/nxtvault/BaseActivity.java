@@ -41,8 +41,6 @@ public abstract class BaseActivity extends ActionBarActivity {
         mPreferences = new PreferenceManager(this);
     }
 
-
-
     @Override
     protected void onResume() {
         super.onResume();
