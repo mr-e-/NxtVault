@@ -111,7 +111,7 @@ public class ManageAccountFragment extends BaseFragment {
         ButtonFloat btnSave = (ButtonFloat)rootView.findViewById(R.id.btnSave);
         btnSave.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
         btnSave.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_accept));
-        
+
         if (savedInstanceState != null){
             accountData = (AccountData)savedInstanceState.getSerializable("accountData");
             newAccount = savedInstanceState.getBoolean("newAccount");
