@@ -1,6 +1,7 @@
 package com.nxt.nxtvault.controls;
 
 import android.content.Context;
+import android.text.InputType;
 import android.util.AttributeSet;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
@@ -22,6 +23,8 @@ public class MultiLineDoneEditText extends EditText {
         super(context, attrs, defStyleAttr);
     }
 
+
+
     @Override
     public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
         InputConnection connection = super.onCreateInputConnection(outAttrs);
@@ -35,6 +38,7 @@ public class MultiLineDoneEditText extends EditText {
         if ((outAttrs.imeOptions&EditorInfo.IME_FLAG_NO_ENTER_ACTION) != 0) {
             outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NO_ENTER_ACTION;
         }
+
         return connection;
     }
 }

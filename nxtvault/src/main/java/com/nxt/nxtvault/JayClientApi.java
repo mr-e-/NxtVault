@@ -48,10 +48,11 @@ public class JayClientApi extends JayApi {
 
     @JavascriptInterface
     public void getNewAccountResult(final String result){
+        final AccountData accountData = gson.fromJson(result, AccountData.class);
         ((Activity)mContext).runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                getNewAccountCallback.onReceiveValue(gson.fromJson(result, AccountData.class));
+                getNewAccountCallback.onReceiveValue(accountData);
             }
         });
     }

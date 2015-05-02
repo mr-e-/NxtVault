@@ -5,6 +5,7 @@
 
     <TextView
         android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
         android:id="@+id/createAccount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

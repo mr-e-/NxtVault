@@ -3,10 +3,10 @@ apply plugin: 'com.android.application'
 android {
     signingConfigs {
         config {
-            keyAlias 'alias'
-            keyPassword 'w3J8jHC6I5nW'
-            storeFile file('D:/Projects/Nxt/jaymobile/keystore.jks')
-            storePassword 'w3J8jHC6I5nW'
+            keyAlias 'nxtvault'
+            keyPassword 'klsiII898sjYQui290KSiioaq'
+            storeFile file('D:\\Projects\\Nxt\\NxtVault-bitbucket\\keystore.jks')
+            storePassword 'klsiII898sjYQui290KSiioaq'
         }
     }
     compileSdkVersion 21
@@ -20,11 +20,13 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.config
+            debuggable true
         }
         debug{
+            applicationIdSuffix ".debug"
         }
     }
 }

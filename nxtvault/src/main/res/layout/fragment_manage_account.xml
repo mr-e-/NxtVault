@@ -96,6 +96,7 @@
                     android:layout_marginTop="10dp"/>
 
                 <com.nxt.nxtvault.controls.MultiLineDoneEditText
+                    android:inputType="textMultiLine|textNoSuggestions|textVisiblePassword"
                     android:enabled="false"
                     android:textColor="@android:color/tertiary_text_dark"
                     android:id="@+id/passphrase"
@@ -112,6 +113,7 @@
                     android:layout_height="30dp"
                     android:layout_width="40dp"
                     android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
                     android:layout_gravity="center_vertical"  />
 
             </RelativeLayout>
