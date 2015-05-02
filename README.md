@@ -3,6 +3,8 @@ NxtVault is a secure passphrase manager and transaction signer for the NXT crypt
 
 The purpse of NxtVault is to safely and securely protect your Nxt passphrases from viruses, hackers, keyloggers. The security of an Android application is much stronger then that of a PC due to Android's unique sandboxing mechanisms. Other application installed on your device cannot access the contents of NxtVault's storage. NxtVault can sign transactions on behalf of other applications without ever exposing your passphrase.
 
+This project also contains a demo wallet that shows how to plug into the nxtvault and jay apis.
+
 Features
 
 -Keep your passphrases safe, locked inside Android's secure sandboxed storage. No apps on your device can access this storage, including any malicious apps.
@@ -14,6 +16,7 @@ Features
 -Scan Jay Tx codes or unsigned bytes with your camera to have it signed and broadcast to the network.
 
 -Acts as a "light" node - dynamically discovers available public nodes and uses them to query data and broadcast transactions.
+
 
 
 Testing 
