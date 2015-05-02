@@ -204,10 +204,9 @@ public class MainActivity extends BaseVaultActivity {
                     if (account.ErrorCode == 0) {
                         mAccountInfo = new AccountViewModel(account);
 
-                        numAssetRequests = account.Assets.size();
-
                         if (account.Assets != null) {
                             numAssetRequests = account.Assets.size();
+                            
                             synchronized (syncLock) {
                                 for (final Account.Asset accountAsset : account.Assets) {
                                     runOnUiThread(new Runnable() {
@@ -228,7 +227,7 @@ public class MainActivity extends BaseVaultActivity {
                                 }
                             }
                         }
-                        else{
+                        else {
                             updateCurrentPage();
                         }
                     } else {
