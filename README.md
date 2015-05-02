@@ -5,15 +5,15 @@ The purpse of NxtVault is to safely and securely protect your Nxt passphrases fr
 
 Features
 
-Keep your passphrases safe, locked inside Android's secure sandboxed storage. No apps on your device can access this storage, including any malicious apps.
+-Keep your passphrases safe, locked inside Android's secure sandboxed storage. No apps on your device can access this storage, including any malicious apps.
 
-Exposes an API for third party apps on your device to gain read access to your accounts, as well as sign and broadcast your tx on their behalf.
+-Exposes an API for third party apps on your device to gain read access to your accounts, as well as sign and broadcast your tx on their behalf.
 
-Displays a full report of the details of a transaction, giving you a final chance to confirm the tx is correct before signing and broadcasting it.
+-Displays a full report of the details of a transaction, giving you a final chance to confirm the tx is correct before signing and broadcasting it.
 
-Scan Jay Tx codes or unsigned bytes with your camera to have it signed and broadcast to the network.
+-Scan Jay Tx codes or unsigned bytes with your camera to have it signed and broadcast to the network.
 
-Acts as a "light" node - dynamically discovers available public nodes and uses them to query data and broadcast transactions.
+-Acts as a "light" node - dynamically discovers available public nodes and uses them to query data and broadcast transactions.
 
 
 Testing 
