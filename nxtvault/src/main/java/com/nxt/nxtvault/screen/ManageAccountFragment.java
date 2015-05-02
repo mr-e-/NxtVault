@@ -352,19 +352,13 @@ public class ManageAccountFragment extends BaseFragment {
     }
 
     private void setButton() {
-        if (newAccount){
-            btnSave.setBackgroundColor(getResources().getColor(R.color.primary__extra_light));
-            btnSave.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_new));
+        if (mIsEdited || newAccount) {
+            btnSave.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
+            btnSave.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_accept));
         }
         else{
-            if (mIsEdited) {
-                btnSave.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
-                btnSave.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_accept));
-            }
-            else{
-                btnSave.setBackgroundColor(getResources().getColor(R.color.delete));
-                btnSave.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_discard));
-            }
+            btnSave.setBackgroundColor(getResources().getColor(R.color.delete));
+            btnSave.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_discard));
         }
     }
 

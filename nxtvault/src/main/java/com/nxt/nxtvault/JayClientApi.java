@@ -1,8 +1,10 @@
 package com.nxt.nxtvault;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
+import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 
 import com.google.gson.reflect.TypeToken;
@@ -20,20 +22,36 @@ public class JayClientApi extends JayApi {
         super(context, Uri.parse("file:///android_asset/jay/index.html"), listener);
     }
 
+    ValueCallback<String> generateSecretPhraseCallback;
     public void generateSecretPhrase(final ValueCallback<String> callback){
-        mWebView.evaluateJavascript("generateSecretPhrase()", new ValueCallback<String>() {
+        generateSecretPhraseCallback = callback;
+
+        mWebView.loadUrl("javascript: MyInterface.generateSecretPhraseResult(AndroidExtensions.generatePassPhrase());");
+    }
+
+    @JavascriptInterface
+    public void generateSecretPhraseResult(final String result){
+        ((Activity)mContext).runOnUiThread(new Runnable() {
             @Override
-            public void onReceiveValue(String value) {
-            callback.onReceiveValue(gson.fromJson(value, String.class));
+            public void run() {
+                generateSecretPhraseCallback.onReceiveValue(result);
             }
         });
     }
 
+    ValueCallback<AccountData> getNewAccountCallback;
     public void getNewAccount(String secretPhrase, String pin, final ValueCallback<AccountData> callback){
-        mWebView.evaluateJavascript("newAccount('" + secretPhrase + "', '" + pin + "')", new ValueCallback<String>() {
+        getNewAccountCallback = callback;
+
+        mWebView.loadUrl("javascript: MyInterface.getNewAccountResult(JSON.stringify(newAccount('" + secretPhrase + "', '" + pin + "')));");
+    }
+
+    @JavascriptInterface
+    public void getNewAccountResult(final String result){
+        ((Activity)mContext).runOnUiThread(new Runnable() {
             @Override
-            public void onReceiveValue(String value) {
-            callback.onReceiveValue(gson.fromJson(value, AccountData.class));
+            public void run() {
+                getNewAccountCallback.onReceiveValue(gson.fromJson(result, AccountData.class));
             }
         });
     }
@@ -44,118 +62,132 @@ public class JayClientApi extends JayApi {
                //gson wants to format = ?
                .replace("\\u003d", "=");
 
-        mWebView.evaluateJavascript("AndroidExtensions.storeAccount(" + result + ");", null);
+        mWebView.loadUrl("javascript: AndroidExtensions.storeAccount(" + result + ");", null);
     }
 
+    ValueCallback<String> changePinCallback;
     public void changePin(String mOldPin, String s, final ValueCallback<String> callback) {
-        mWebView.evaluateJavascript("AndroidExtensions.changePin('" + mOldPin + "', '" + s + "');", new ValueCallback<String>() {
+        changePinCallback = callback;
+
+        mWebView.loadUrl("javascript:MyInterface.changePinResult(AndroidExtensions.changePin('" + mOldPin + "', '" + s + "'));");
+    }
+
+    @JavascriptInterface
+    public void changePinResult(final String result){
+        ((Activity)mContext).runOnUiThread(new Runnable() {
             @Override
-            public void onReceiveValue(String value) {
-                callback.onReceiveValue(value);
+            public void run() {
+                changePinCallback.onReceiveValue(result);
             }
         });
     }
 
+    ValueCallback<ArrayList<AccountData>> loadAccountsCallback;
     public void loadAccounts(final ValueCallback<ArrayList<AccountData>> callback){
-        mWebView.evaluateJavascript("(function() { return JSON.parse(localStorage['accounts']); })();", new ValueCallback<String>() {
-            @Override
-            public void onReceiveValue(String value) {
-                ArrayList<AccountData> accounts = gson.fromJson(value, new TypeToken<ArrayList<AccountData>>() {}.getType());
+        loadAccountsCallback = callback;
 
-                callback.onReceiveValue(accounts);
+        mWebView.loadUrl("javascript: MyInterface.loadAccountsResult(AndroidExtensions.getAccounts());");
+    }
+
+    @JavascriptInterface
+    public void loadAccountsResult(final String result){
+        final ArrayList<AccountData> accounts = gson.fromJson(result, new TypeToken<ArrayList<AccountData>>() {
+        }.getType());
+
+        ((Activity)mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                loadAccountsCallback.onReceiveValue(accounts);
             }
         });
     }
 
+    ValueCallback<String> decryptSecretPhraseCallback;
     public void decryptSecretPhrase(AccountData accountData, final ValueCallback<String> callback){
-        mWebView.evaluateJavascript("decryptSecretPhrase('" + accountData.cipher + "', '" + accountData.key + "', '" + accountData.checksum + "');" , new ValueCallback<String>() {
+        decryptSecretPhraseCallback = callback;
+        mWebView.loadUrl("javascript: MyInterface.decryptSecretPhraseResult(decryptSecretPhrase('" + accountData.cipher + "', '" + accountData.key + "', '" + accountData.checksum + "'));");
+    }
+
+    @JavascriptInterface
+    public void decryptSecretPhraseResult(final String result) {
+        ((Activity) mContext).runOnUiThread(new Runnable() {
             @Override
-            public void onReceiveValue(String value) {
-                callback.onReceiveValue(gson.fromJson(value, String.class));
+            public void run() {
+                decryptSecretPhraseCallback.onReceiveValue(result);
             }
         });
     }
 
+    ValueCallback<String> extractTxDetailsCallback;
     public void extractTxDetails(AccountData accountData, final String txData, final ValueCallback<String> callback){
-        mWebView.evaluateJavascript("AndroidExtensions.extractBytesData('" + accountData.accountRS + "', '" + txData + "');", new ValueCallback<String>() {
+        extractTxDetailsCallback = callback;
+        mWebView.loadUrl("javascript: MyInterface.extractTxDetailsResult(JSON.stringify(AndroidExtensions.extractBytesData('" + accountData.accountRS + "', '" + txData + "')));");
+    }
+
+    @JavascriptInterface
+    public void extractTxDetailsResult(final String result) {
+        ((Activity) mContext).runOnUiThread(new Runnable() {
             @Override
-            public void onReceiveValue(String value) {
-            callback.onReceiveValue(value);
+            public void run() {
+                extractTxDetailsCallback.onReceiveValue(result);
             }
         });
     }
 
+
+    ValueCallback<String> signCallback;
     public void sign(final AccountData accountData, final String txData, final ValueCallback<String> callback) {
+        signCallback = callback;
+
         //get the account secret phrase
         decryptSecretPhrase(accountData, new ValueCallback<String>() {
             @Override
             public void onReceiveValue(final String secretPhrase) {
-                mWebView.evaluateJavascript("AndroidExtensions.signTrfBytes('" + accountData.accountRS + "', '" + txData + "', '" + secretPhrase + "')", new ValueCallback<String>() {
-                    @Override
-                    public void onReceiveValue(String signedBytes) {
-                        signedBytes = gson.fromJson(signedBytes, String.class);
+            mWebView.loadUrl("javascript:MyInterface.signResult(JSON.stringify(AndroidExtensions.signTrfBytes('" + accountData.accountRS + "', '" + txData + "', '" + secretPhrase + "')));");
+            }
+        });
+    }
 
-                        callback.onReceiveValue(signedBytes);
-                    }
-                });
+    @JavascriptInterface
+    public void signResult(String signedBytes){
+        final String signedBytesString = gson.fromJson(signedBytes, String.class);
+
+        ((Activity)mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                signCallback.onReceiveValue(signedBytesString);
             }
         });
     }
 
     public void deleteAccount(AccountData accountData) {
-        mWebView.evaluateJavascript("AndroidExtensions.deleteAccount('" + accountData.accountRS + "')", null);
+        mWebView.loadUrl("javascript:AndroidExtensions.deleteAccount('" + accountData.accountRS + "')", null);
     }
 
     public void broadcast(String txBytes, final ValueCallback<BroadcastTxResponse> callback){
         request("broadcastTransaction", "{'transactionBytes': '" + txBytes + "'}", new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
-                BroadcastTxResponse account = gson.fromJson(value, BroadcastTxResponse.class);
+                final BroadcastTxResponse account = gson.fromJson(value, BroadcastTxResponse.class);
 
-                callback.onReceiveValue(account);
+                ((Activity) mContext).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onReceiveValue(account);
+                    }
+                });
             }
-        }, new ValueCallback<String>() {
+            }, new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
                 Log.e("broadcastTransaction", value);
-                callback.onReceiveValue(null);
+                ((Activity) mContext).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onReceiveValue(null);
+                    }
+                });
             }
         });
     }
-
-    String EscapeJavaScriptFunctionParameter(String param) {
-        char[] chars = param.toCharArray();
-
-        StringBuilder sb = new StringBuilder();
-
-        for (int i = 0; i < chars.length; i++) {
-            switch (chars[i]) {
-                case '\\':
-                    sb.append("\\\\");
-                    break;
-                case '\n':
-                    sb.append("\\n");
-                    break;
-                case '\r':
-                    sb.append("\\r");
-                    break;
-                case '\b':
-                    sb.append("\\b");
-                    break;
-                case '\f':
-                    sb.append("\\f");
-                    break;
-                case '\t':
-                    sb.append("\\t");
-                    break;
-                default:
-                    sb.append(chars[i]);
-                    break;
-            }
-        }
-
-        return sb.toString();
-    }
-
-
 }

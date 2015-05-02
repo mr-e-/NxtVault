@@ -3,6 +3,7 @@ package com.nxt.nxtvaultclientlib.jay;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
@@ -14,6 +15,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import com.nxt.jayclientlib.BuildConfig;
 import com.nxt.nxtvaultclientlib.nxtvault.model.Account;
 import com.nxt.nxtvaultclientlib.nxtvault.model.Asset;
 
@@ -23,7 +25,9 @@ import java.util.List;
 /**
  * Created by Brandon on 4/6/2015.
  */
-public class JayApi {
+public class JayApi implements IJayApi {
+    protected Handler mHandler = new Handler();
+
     protected WebView mWebView;
     protected Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 
@@ -66,16 +70,19 @@ public class JayApi {
         mWebView.loadUrl(path.toString());
     }
 
+    @Override
     public void setNode(String nodeAddress){
-        mWebView.evaluateJavascript("Jay.setNode('" + nodeAddress + "')", null);
+        mWebView.loadUrl("javascript:Jay.setNode('" + nodeAddress + "')", null);
     }
 
+    @Override
     public void setIsTestnet(boolean isTestnet){
-        mWebView.evaluateJavascript("Jay.isTestnet=" + isTestnet, null);
+        mWebView.loadUrl("javascript:Jay.isTestnet=" + isTestnet, null);
     }
 
+    @Override
     public void setRequestMethod(RequestMethods requestMethod){
-        mWebView.evaluateJavascript("Jay.setRequestMethod(" + requestMethod.ordinal() + ");", null);
+        mWebView.loadUrl("javascript:Jay.setRequestMethod(" + requestMethod.ordinal() + ");", null);
     }
 
     //*********** Jay Request Functionality ********** Requires to pass in a callback so I've stubbed it out with custom js code in AndroidExtensions to call back to an @Javascript interface API
@@ -83,11 +90,12 @@ public class JayApi {
 
     ValueCallback<String> requestSuccess;
     ValueCallback<String> requestFailed;
+    @Override
     public void request(String requestName, String jsonParams, ValueCallback<String> onSuccess, ValueCallback<String> onFailed){
         requestSuccess = onSuccess;
         requestFailed = onFailed;
 
-        mWebView.evaluateJavascript("Jay.request('" + requestName + "', " + jsonParams + ", AndroidExtensions.onRequestSuccess, AndroidExtensions.onRequestFailed);", null);
+        mWebView.loadUrl("javascript:Jay.request('" + requestName + "', " + jsonParams + ", AndroidExtensions.onRequestSuccess, AndroidExtensions.onRequestFailed);", null);
     }
 
     @JavascriptInterface
@@ -104,20 +112,22 @@ public class JayApi {
     //**********End Jay Request Functionality *****************************************
 
     //same issue as above
-    ValueCallback<List<String>> getBestNodesResult;
+    ValueCallback<List<String>> getBestNodesCallback;
+    @Override
     public void getBestNodes(final ValueCallback<List<String>> callback){
-        getBestNodesResult = callback;
+        getBestNodesCallback = callback;
 
-        mWebView.evaluateJavascript("AndroidExtensions.getBestNodes();", null);
+        mWebView.loadUrl("javascript:AndroidExtensions.getBestNodes();", null);
     }
 
     @JavascriptInterface
     public void getBestNodesResult(String result){
         ArrayList<String> nodes = gson.fromJson(result, new TypeToken<ArrayList<String>>() { }.getType());
 
-        getBestNodesResult.onReceiveValue(nodes);
+        getBestNodesCallback.onReceiveValue(nodes);
     }
 
+    @Override
     public void getAccount(String accountRS, final ValueCallback<Account> callback){
         request("getAccount", "{'account': '" + accountRS + "'}", new ValueCallback<String>() {
             @Override
@@ -134,6 +144,7 @@ public class JayApi {
         });
     }
 
+    @Override
     public void getAsset(String assetId, final ValueCallback<Asset> callback){
         request("getAsset", "{'asset': '" + assetId + "'}", new ValueCallback<String>() {
             @Override
@@ -151,6 +162,7 @@ public class JayApi {
         });
     }
 
+    @Override
     public void getAllAssets(final ValueCallback<ArrayList<Asset>> callback) {
         request("getAllAssets", "{}", new ValueCallback<String>() {
             @Override
@@ -178,35 +190,44 @@ public class JayApi {
         });
     }
 
+    ValueCallback<String> sendMoneyCallback;
+    @Override
     public void sendMoney(String accountRs, float amount, String message, final ValueCallback<String> callback) {
+        sendMoneyCallback = callback;
+
         String messageJs = getMessage(message);
 
-        mWebView.evaluateJavascript("Jay.sendMoney('" + accountRs + "', " + amount + messageJs + ");", new ValueCallback<String>() {
-            @Override
-            public void onReceiveValue(String value) {
-                callback.onReceiveValue(gson.fromJson(value, String.class));
-            }
-        });
+        mWebView.loadUrl("javascript:MyInterface.sendMoneyResult(Jay.sendMoney('" + accountRs + "', " + amount + messageJs + "));");
     }
 
+    @JavascriptInterface
+    public void sendMoneyResult(String result) {
+        sendMoneyCallback.onReceiveValue(gson.fromJson(result, String.class));
+    }
+
+
+    ValueCallback<String> transferAssetCallback;
+    @Override
     public void transferAsset(String accountRs, Asset asset, float amount, String message, final ValueCallback<String> callback) {
+        transferAssetCallback = callback;
+
         long num = Math.round(amount*Math.pow(10, asset.Decimals));
 
         String messageJs = getMessage(message);
 
-        mWebView.evaluateJavascript("Jay.transferAsset('" + accountRs + "', '" + asset.AssetId + "', " + num + messageJs + ");", new ValueCallback<String>() {
-            @Override
-            public void onReceiveValue(String value) {
-                callback.onReceiveValue(gson.fromJson(value, String.class));
-            }
-        });
+        mWebView.loadUrl("MyInterface.transferAssetResult(Jay.transferAsset('" + accountRs + "', '" + asset.AssetId + "', " + num + messageJs + "));");
+    }
+
+    @JavascriptInterface
+    public void transferAssetResult(String result) {
+        transferAssetCallback.onReceiveValue(gson.fromJson(result, String.class));
     }
 
     private String getMessage(String message) {
         String messageJs = "";
 
         if (message != null && !message.isEmpty()){
-            mWebView.evaluateJavascript("AndroidExtensions.messageAppendage = Jay.addAppendage(Jay.appendages.message, '" + message + "');", null);
+            mWebView.loadUrl("javascript:AndroidExtensions.messageAppendage = Jay.addAppendage(Jay.appendages.message, '" + message + "');");
             messageJs = ", AndroidExtensions.messageAppendage";
         }
         return messageJs;

@@ -7,6 +7,7 @@ import android.support.v7.app.ActionBarActivity;
 
 import com.google.gson.Gson;
 import com.nxt.nxtvaultclientlib.jay.IJavascriptLoadedListener;
+import com.nxt.nxtvaultclientlib.jay.IJayApi;
 import com.nxt.nxtvaultclientlib.jay.JayApi;
 import com.nxt.nxtvaultclientlib.nxtvault.model.AccountSelectionResult;
 import com.nxt.nxtvaultclientlib.nxtvault.model.PreferredServerResult;
@@ -18,7 +19,7 @@ import java.util.ArrayList;
  * Created by Brandon on 4/20/2015.
  */
 public abstract class BaseVaultActivity extends ActionBarActivity {
-    protected static JayApi jay;
+    protected static IJayApi jay;
     ArrayList<IJavascriptLoadedListener> mJayLoadedListeners;
     protected boolean mIsJayLoaded;
 
@@ -50,7 +51,7 @@ public abstract class BaseVaultActivity extends ActionBarActivity {
 
     boolean getIsTestNet(){return true;}
 
-    public JayApi getJay(){
+    public IJayApi getJay(){
         return jay;
     }
 

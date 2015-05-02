@@ -206,30 +206,30 @@ public class MainActivity extends BaseVaultActivity {
 
                         numAssetRequests = account.Assets.size();
 
-                        //need runOnUiThread otherwise javascript still thinks it is within
-                        // the context of it callback and won't allow a second call
-                        numAssetRequests = account.Assets.size();
-                        synchronized (syncLock) {
-                            for (final Account.Asset accountAsset : account.Assets) {
-                                boolean found = false;
+                        if (account.Assets != null) {
+                            numAssetRequests = account.Assets.size();
+                            synchronized (syncLock) {
+                                for (final Account.Asset accountAsset : account.Assets) {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            getJay().getAsset(accountAsset.AssetId, new ValueCallback<Asset>() {
+                                                @Override
+                                                public void onReceiveValue(Asset value) {
+                                                    mAccountInfo.Assets.add(new AssetViewModel(value, accountAsset.BalanceQNT));
 
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        getJay().getAsset(accountAsset.AssetId, new ValueCallback<Asset>() {
-                                            @Override
-                                            public void onReceiveValue(Asset value) {
-
-                                                mAccountInfo.Assets.add(new AssetViewModel(value, accountAsset.BalanceQNT));
-
-                                                if (--numAssetRequests == 0){
-                                                    updateCurrentPage();
+                                                    if (--numAssetRequests == 0) {
+                                                        updateCurrentPage();
+                                                    }
                                                 }
-                                            }
-                                        });
-                                    }
-                                });
+                                            });
+                                        }
+                                    });
+                                }
                             }
+                        }
+                        else{
+                            updateCurrentPage();
                         }
                     } else {
                         Toast.makeText(MainActivity.this, "ErrorCode: " + account.ErrorCode + " - '" + account.ErrorDescription + "'", Toast.LENGTH_LONG).show();

@@ -3,6 +3,7 @@ package com.nxt.nxtvault;
 import android.animation.ObjectAnimator;
 import android.app.ActionBar;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
@@ -97,15 +98,20 @@ public class MainActivity extends BaseActivity {
     }
 
     private void refreshAccounts(final ValueCallback<String> completedCallback) {
-        loadAccounts(new ValueCallback<ArrayList<AccountData>>() {
+        getJay().loadAccounts(new ValueCallback<ArrayList<AccountData>>() {
             @Override
             public void onReceiveValue(ArrayList<AccountData> value) {
                 mAccountInfo = new AccountInfo(value);
 
-                if (!mPinShowing)
-                    pinAccepted();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!mPinShowing)
+                            pinAccepted();
+                    }
+                });
 
-                if (completedCallback != null){
+                if (completedCallback != null) {
                     completedCallback.onReceiveValue(null);
                 }
             }
@@ -156,10 +162,6 @@ public class MainActivity extends BaseActivity {
         super.onSaveInstanceState(outState);
 
         outState.putSerializable("mAccountInfo", mAccountInfo);
-    }
-
-    private void loadAccounts( ValueCallback<ArrayList<AccountData>> callback) {
-        getJay().loadAccounts(callback);
     }
 
     public void addNewAccountToUI(AccountData accountData) {
