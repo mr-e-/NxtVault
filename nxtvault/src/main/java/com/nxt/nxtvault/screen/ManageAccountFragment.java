@@ -3,6 +3,8 @@ package com.nxt.nxtvault.screen;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -227,6 +229,15 @@ public class ManageAccountFragment extends BaseFragment {
         txtAccountName.setOnFocusChangeListener(listener);
         txtPassphrase.setOnFocusChangeListener(listener);
 
+        txtAccountRs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ClipboardManager clipboard = (ClipboardManager)getMainActivity().getSystemService(getMainActivity().CLIPBOARD_SERVICE);
+                clipboard.setPrimaryClip(ClipData.newPlainText("Account RS", txtAccountRs.getText().toString()));
+
+                Toast.makeText(getMainActivity(), txtAccountRs.getText().toString() + " copied to clipboard!", Toast.LENGTH_SHORT).show();
+            }
+        });
 
 
         if (newAccount){
