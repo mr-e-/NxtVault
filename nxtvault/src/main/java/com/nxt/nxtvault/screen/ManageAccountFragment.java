@@ -37,6 +37,8 @@ import java.util.UUID;
  * Created by Brandon on 4/18/2015.
  */
 public class ManageAccountFragment extends BaseFragment {
+    public static final String ENCRYPTED_PASSPHRASE = "****************************************";
+
     TextView txtAccountName;
     TextView txtAccountRs;
     TextView txtPublicKey;
@@ -138,13 +140,7 @@ public class ManageAccountFragment extends BaseFragment {
     }
 
     private void generateNewAccount(final View rootView) {
-        //show loading spinner
-        final View progress = rootView.findViewById(R.id.progress);
-        //final TextView txtProgressText = (TextView)rootView.findViewById(R.id.txtProgress);
-        //txtProgressText.setTypeface(getMainActivity().segoe);
-        progress.setVisibility(View.VISIBLE);
-        rootView.findViewById(R.id.scrollview).setVisibility(View.INVISIBLE);
-        rootView.findViewById(R.id.btnSave).setVisibility(View.INVISIBLE);
+        showLoadingSpinner(rootView, null);
 
         //generate the account
         mActivity.getJay().generateSecretPhrase(new ValueCallback<String>() {
@@ -157,18 +153,42 @@ public class ManageAccountFragment extends BaseFragment {
 
                         hydrate(rootView);
 
-                        ObjectAnimator.ofFloat(progress, View.ALPHA, 1, 0).setDuration(500).start();
-                        ObjectAnimator.ofFloat(rootView.findViewById(R.id.scrollview), View.ALPHA, 0, 1).setDuration(500).start();
-                        ObjectAnimator.ofFloat(rootView.findViewById(R.id.btnSave), View.ALPHA, 0, 1).setDuration(500).start();
-
-                        rootView.findViewById(R.id.scrollview).setVisibility(View.VISIBLE);
-                        rootView.findViewById(R.id.btnSave).setVisibility(View.VISIBLE);
-
-                        progress.setVisibility(View.INVISIBLE);
+                        hideLoadingSpinner(rootView);
                     }
                 });
             }
         });
+    }
+
+    private void showLoadingSpinner(View rootView, String message) {
+        //show loading spinner
+        final View progress = rootView.findViewById(R.id.progress);
+
+        if (message != null) {
+            final TextView txtProgressText = (TextView) rootView.findViewById(R.id.txtProgress);
+            txtProgressText.setText(message);
+        }
+
+        ObjectAnimator.ofFloat(progress, View.ALPHA, 0, 1).setDuration(500).start();
+        ObjectAnimator.ofFloat(rootView.findViewById(R.id.scrollview), View.ALPHA, 1, 0).setDuration(500).start();
+        ObjectAnimator.ofFloat(rootView.findViewById(R.id.btnSave), View.ALPHA, 1, 0).setDuration(500).start();
+
+        progress.setVisibility(View.VISIBLE);
+        rootView.findViewById(R.id.scrollview).setVisibility(View.INVISIBLE);
+        rootView.findViewById(R.id.btnSave).setVisibility(View.INVISIBLE);
+    }
+
+    private void hideLoadingSpinner(View rootView) {
+        final View progress = rootView.findViewById(R.id.progress);
+
+        ObjectAnimator.ofFloat(progress, View.ALPHA, 1, 0).setDuration(500).start();
+        ObjectAnimator.ofFloat(rootView.findViewById(R.id.scrollview), View.ALPHA, 0, 1).setDuration(500).start();
+        ObjectAnimator.ofFloat(rootView.findViewById(R.id.btnSave), View.ALPHA, 0, 1).setDuration(500).start();
+
+        rootView.findViewById(R.id.scrollview).setVisibility(View.VISIBLE);
+        rootView.findViewById(R.id.btnSave).setVisibility(View.VISIBLE);
+
+        progress.setVisibility(View.INVISIBLE);
     }
 
     private void hydrate(View rootView) {
@@ -215,7 +235,7 @@ public class ManageAccountFragment extends BaseFragment {
             getMainActivity().setTitle(getMainActivity().getString(R.string.add_account));
         }
         else{
-            txtPassphrase.setText("****************************************");
+            txtPassphrase.setText(ENCRYPTED_PASSPHRASE);
             imgPassphrase.setVisibility(View.VISIBLE);
             getMainActivity().setTitle(getMainActivity().getString(R.string.view_account));
         }
@@ -259,7 +279,7 @@ public class ManageAccountFragment extends BaseFragment {
             imgPassphrase.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showPassphrase();
+                    showHidePassphrase();
                 }
             });
         }
@@ -341,14 +361,23 @@ public class ManageAccountFragment extends BaseFragment {
         integrator.initiateScan();
     }
 
-    private void showPassphrase() {
-        accountData.key = getMainActivity().mPreferences.getPin();
-        getMainActivity().getJay().decryptSecretPhrase(accountData, new ValueCallback<String>() {
-            @Override
-            public void onReceiveValue(String value) {
-            txtPassphrase.setText(value);
-            }
-        });
+    private void showHidePassphrase() {
+        if (txtPassphrase.getText().toString().equals(ENCRYPTED_PASSPHRASE)) {
+            showLoadingSpinner(getView(), "Decrypting passphrase");
+
+            accountData.key = getMainActivity().mPreferences.getPin();
+            getMainActivity().getJay().decryptSecretPhrase(accountData, new ValueCallback<String>() {
+                @Override
+                public void onReceiveValue(String value) {
+                    txtPassphrase.setText(value);
+
+                    hideLoadingSpinner(getView());
+                }
+            });
+        }
+        else{
+            txtPassphrase.setText(ENCRYPTED_PASSPHRASE);
+        }
     }
 
     private void setButton() {
