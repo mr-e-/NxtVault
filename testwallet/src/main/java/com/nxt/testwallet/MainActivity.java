@@ -49,8 +49,6 @@ public class MainActivity extends BaseVaultActivity {
 
     ViewPager mViewPager;
 
-    int numAssetRequests;
-
     private AccountViewModel mAccountInfo;
     private AccountSelectionResult mNxtVaultAccount;
     private ArrayList<Asset> mAssetList;
@@ -204,28 +202,8 @@ public class MainActivity extends BaseVaultActivity {
                     if (account.ErrorCode == 0) {
                         mAccountInfo = new AccountViewModel(account);
 
-                        if (account.Assets != null) {
-                            numAssetRequests = account.Assets.size();
-
-                            synchronized (syncLock) {
-                                for (final Account.Asset accountAsset : account.Assets) {
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            getJay().getAsset(accountAsset.AssetId, new ValueCallback<Asset>() {
-                                                @Override
-                                                public void onReceiveValue(Asset value) {
-                                                    mAccountInfo.Assets.add(new AssetViewModel(value, accountAsset.BalanceQNT));
-
-                                                    if (--numAssetRequests == 0) {
-                                                        updateCurrentPage();
-                                                    }
-                                                }
-                                            });
-                                        }
-                                    });
-                                }
-                            }
+                        if (account.Assets != null && account.Assets.size() > 0) {
+                            loadAssetsRecursive(account.Assets, 0);
                         }
                         else {
                             updateCurrentPage();
@@ -233,6 +211,28 @@ public class MainActivity extends BaseVaultActivity {
                     } else {
                         Toast.makeText(MainActivity.this, "ErrorCode: " + account.ErrorCode + " - '" + account.ErrorDescription + "'", Toast.LENGTH_LONG).show();
                     }
+                }
+
+                //if we run async and start too many threads some of the calls will fail. loading 1 asset at a time for now.
+                private void loadAssetsRecursive(final ArrayList<Account.Asset> assets, final int i) {
+                    final Account.Asset current = assets.get(i);
+
+                    getJay().getAsset(current.AssetId, new ValueCallback<Asset>() {
+                        @Override
+                        public void onReceiveValue(Asset value) {
+                            if (value != null) {
+                                mAccountInfo.Assets.add(new AssetViewModel(value, current.BalanceQNT));
+                            }
+
+                            int next = i + 1;
+                            if (next == assets.size()) {
+                                updateCurrentPage();
+                            }
+                            else{
+                                loadAssetsRecursive(assets, next);
+                            }
+                        }
+                    });
                 }
             });
         }

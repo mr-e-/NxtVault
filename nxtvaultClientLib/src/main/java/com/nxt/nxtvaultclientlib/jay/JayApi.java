@@ -1,5 +1,6 @@
 package com.nxt.nxtvaultclientlib.jay;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
@@ -90,10 +91,12 @@ public class JayApi implements IJayApi {
 
     ValueCallback<String> requestSuccess;
     ValueCallback<String> requestFailed;
+    String json;
     @Override
     public void request(String requestName, String jsonParams, ValueCallback<String> onSuccess, ValueCallback<String> onFailed){
         requestSuccess = onSuccess;
         requestFailed = onFailed;
+        json = jsonParams;
 
         mWebView.loadUrl("javascript:Jay.request('" + requestName + "', " + jsonParams + ", AndroidExtensions.onRequestSuccess, AndroidExtensions.onRequestFailed);", null);
     }
@@ -106,7 +109,7 @@ public class JayApi implements IJayApi {
     @JavascriptInterface
     public void onRequestFailed(String result){
         Log.e("jay request failed", result);
-        requestFailed.onReceiveValue(result);
+        requestFailed.onReceiveValue(json);
     }
 
     //**********End Jay Request Functionality *****************************************
@@ -122,9 +125,14 @@ public class JayApi implements IJayApi {
 
     @JavascriptInterface
     public void getBestNodesResult(String result){
-        ArrayList<String> nodes = gson.fromJson(result, new TypeToken<ArrayList<String>>() { }.getType());
+        final ArrayList<String> nodes = gson.fromJson(result, new TypeToken<ArrayList<String>>() { }.getType());
 
-        getBestNodesCallback.onReceiveValue(nodes);
+        ((Activity) mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                getBestNodesCallback.onReceiveValue(nodes);
+            }
+        });
     }
 
     @Override
@@ -132,14 +140,24 @@ public class JayApi implements IJayApi {
         request("getAccount", "{'account': '" + accountRS + "'}", new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
-                Account account = gson.fromJson(value, Account.class);
+                final Account account = gson.fromJson(value, Account.class);
 
-                callback.onReceiveValue(account);
+                ((Activity) mContext).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onReceiveValue(account);
+                    }
+                });
             }
         }, new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
-                callback.onReceiveValue(null);
+                ((Activity) mContext).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onReceiveValue(null);
+                    }
+                });
             }
         });
     }
@@ -149,15 +167,26 @@ public class JayApi implements IJayApi {
         request("getAsset", "{'asset': '" + assetId + "'}", new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
-                Asset account = gson.fromJson(value, Asset.class);
+                final Asset account = gson.fromJson(value, Asset.class);
 
-                callback.onReceiveValue(account);
+                ((Activity)mContext).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onReceiveValue(account);
+                    }
+                });
             }
         }, new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
                 Log.e("getAsset", value);
-                callback.onReceiveValue(null);
+
+                ((Activity)mContext).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onReceiveValue(null);
+                    }
+                });
             }
         });
     }
@@ -201,10 +230,14 @@ public class JayApi implements IJayApi {
     }
 
     @JavascriptInterface
-    public void sendMoneyResult(String result) {
-        sendMoneyCallback.onReceiveValue(gson.fromJson(result, String.class));
+    public void sendMoneyResult(final String result) {
+        ((Activity) mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                sendMoneyCallback.onReceiveValue(gson.fromJson(result, String.class));
+            }
+        });
     }
-
 
     ValueCallback<String> transferAssetCallback;
     @Override
@@ -219,8 +252,13 @@ public class JayApi implements IJayApi {
     }
 
     @JavascriptInterface
-    public void transferAssetResult(String result) {
-        transferAssetCallback.onReceiveValue(gson.fromJson(result, String.class));
+    public void transferAssetResult(final String result) {
+        ((Activity) mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                transferAssetCallback.onReceiveValue(gson.fromJson(result, String.class));
+            }
+        });
     }
 
     private String getMessage(String message) {

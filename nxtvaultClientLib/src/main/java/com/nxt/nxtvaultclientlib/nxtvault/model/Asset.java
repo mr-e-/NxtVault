@@ -13,7 +13,7 @@ public class Asset extends NrsResult implements Comparable<Asset>{
     @SerializedName("description")
     public String Description;
     @SerializedName("decimals")
-    public double Decimals;
+    public long Decimals;
     @SerializedName("numberOfAccounts")
     public int numberOfAccounts;
     @SerializedName("numberOfTransfers")

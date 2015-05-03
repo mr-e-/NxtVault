@@ -10,7 +10,7 @@ import java.util.Comparator;
 public class AssetViewModel implements Comparable<AssetViewModel> {
     private Asset mAsset;
 
-    public AssetViewModel(Asset asset, double balance){
+    public AssetViewModel(Asset asset, long balance){
         mAsset = asset;
         Name = asset.Name;
         Decimals = asset.Decimals;
@@ -19,9 +19,9 @@ public class AssetViewModel implements Comparable<AssetViewModel> {
     }
 
     public String Name;
-    public double BalanceNQT;
+    public long BalanceNQT;
     public String AssetId;
-    public double Decimals;
+    public long Decimals;
 
     public double getBalance(){
          return BalanceNQT / Math.pow(10, Decimals);

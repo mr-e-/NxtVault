@@ -24,13 +24,13 @@ public class Account extends NrsResult {
     public ArrayList<Asset> Assets;
 
     public class Asset{
-        @SerializedName("balanceQNT")
-        public double BalanceQNT;
+        @SerializedName("unconfirmedBalanceQNT")
+        public long BalanceQNT;
         @SerializedName("asset")
         public String AssetId;
         @SerializedName("name")
         public String Name;
         @SerializedName("decimals")
-        public double Decimals;
+        public long Decimals;
     }
 }
