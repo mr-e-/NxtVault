@@ -169,11 +169,6 @@ public class PinEntryView extends ViewGroup {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        // Measure children
-        for (int i = 0; i < getChildCount(); i ++) {
-            getChildAt(i).measure(widthMeasureSpec, heightMeasureSpec);
-        }
-
         // Calculate the size of the view
         int width = (mDigitWidth * mDigits) + (mDigitSpacing * (mDigits - 1));
         setMeasuredDimension(
@@ -290,17 +285,17 @@ public class PinEntryView extends ViewGroup {
     /**
      * Create views and add them to the view group
      */
-    @TargetApi(21)
     private void addViews() {
         // Add a digit view for each digit
         for (int i = 0; i < mDigits; i++) {
-            DigitView digitView = new DigitView(getContext());
+            TextView digitView = new DigitView(getContext());
             digitView.setWidth(mDigitWidth);
             digitView.setHeight(mDigitHeight);
             digitView.setBackgroundResource(mDigitBackground);
             digitView.setTextColor(mDigitTextColor);
             digitView.setTextSize(mDigitTextSize);
             digitView.setGravity(Gravity.CENTER);
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 digitView.setElevation(mDigitElevation);
             }
@@ -355,14 +350,14 @@ public class PinEntryView extends ViewGroup {
                     } else {
                         ((TextView) getChildAt(i)).setText("");
                     }
-                    if (mEditText.hasFocus()) {
-                        getChildAt(i).setSelected(mAccentType == ACCENT_ALL ||
-                                (mAccentType == ACCENT_CHARACTER && (i == length ||
-                                        (i == mDigits - 1 && length == mDigits))));
-                    }
+//                    if (mEditText.hasFocus()) {
+//                        getChildAt(i).setSelected(mAccentType == ACCENT_ALL ||
+//                                (mAccentType == ACCENT_CHARACTER && (i == length ||
+//                                        (i == mDigits - 1 && length == mDigits))));
+//                    }
                 }
 
-                if (s.length() == 4){
+                if (s.length() == mDigits){
                     onPinEntered(s.toString());
                 }
             }
@@ -486,7 +481,5 @@ public class PinEntryView extends ViewGroup {
                 canvas.drawRect(0, getHeight() - mAccentWidth, getWidth(), getHeight(), mPaint);
             }
         }
-
     }
-
 }
