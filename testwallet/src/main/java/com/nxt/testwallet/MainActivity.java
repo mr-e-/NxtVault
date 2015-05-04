@@ -199,7 +199,7 @@ public class MainActivity extends BaseVaultActivity {
             getJay().getAccount(mNxtVaultAccount.AccountRs, new ValueCallback<Account>() {
                 @Override
                 public void onReceiveValue(final Account account) {
-                    if (account.ErrorCode == 0) {
+                    if (account != null && account.ErrorCode == 0) {
                         mAccountInfo = new AccountViewModel(account);
 
                         if (account.Assets != null && account.Assets.size() > 0) {
