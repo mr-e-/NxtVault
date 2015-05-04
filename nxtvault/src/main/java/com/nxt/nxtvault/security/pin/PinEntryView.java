@@ -15,7 +15,6 @@
  */
 package com.nxt.nxtvault.security.pin;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -401,6 +400,8 @@ public class PinEntryView extends ViewGroup {
         mEditText.requestFocus();
         mEditText.requestFocusFromTouch();
     }
+
+
 
     /**
      * Save state of the view

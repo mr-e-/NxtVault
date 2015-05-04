@@ -3,7 +3,6 @@ package com.nxt.nxtvault;
 import android.animation.ObjectAnimator;
 import android.app.ActionBar;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
@@ -14,8 +13,8 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.nxt.nxtvault.model.AccountInfo;
 import com.nxt.nxtvault.model.AccountData;
+import com.nxt.nxtvault.model.AccountInfo;
 import com.nxt.nxtvault.screen.AboutFragment;
 import com.nxt.nxtvault.screen.AccountFragment;
 import com.nxt.nxtvault.screen.PreferenceFragment;
@@ -57,23 +56,27 @@ public class MainActivity extends BaseActivity {
             mAssetList = gson.fromJson(mPreferences.getSharedPref().getString("assets", null), new TypeToken<ArrayList<Asset>>() { }.getType());
         }
 
-        if (savedInstanceState != null){
-            mAccountInfo = (AccountInfo)savedInstanceState.getSerializable("mAccountInfo");
-        }
-        else if (((MyApp)getApplication()).jay == null){
-            ((MyApp)getApplication()).jay = new JayClientApi(this, new IJavascriptLoadedListener() {
-                @Override
-                public void onLoaded() {
+        boolean fromOrientation = mPreferences.getSharedPref().getBoolean("fromOrient", false);
+
+        if (savedInstanceState == null || !fromOrientation){
+            if ( ((MyApp) getApplication()).jay != null){
+                setServerInfo();
+
+                refreshAccounts(null);
+            }
+            else {
+                ((MyApp) getApplication()).jay = new JayClientApi(this, new IJavascriptLoadedListener() {
+                    @Override
+                    public void onLoaded() {
                     setServerInfo();
 
                     refreshAccounts(null);
-                }
-            });
+                    }
+                });
+            }
         }
         else{
-            setServerInfo();
-
-            refreshAccounts(null);
+            mAccountInfo = (AccountInfo)savedInstanceState.getSerializable("mAccountInfo");
         }
 
         //set up action bar
@@ -83,6 +86,20 @@ public class MainActivity extends BaseActivity {
 
         mTitleBar = ((TextView)getSupportActionBar().getCustomView().findViewById(R.id.createAccount));
         mTitleBar.setTypeface(segoe);
+    }
+
+    @Override
+    public Object onRetainCustomNonConfigurationInstance() {
+        mPreferences.getSharedPref().edit().putBoolean("fromOrient", true).apply();
+
+        return super.onRetainCustomNonConfigurationInstance();
+    }
+
+    @Override
+    protected void onDestroy() {
+        mPreferences.getSharedPref().edit().putBoolean("fromOrient", false).apply();
+
+        super.onDestroy();
     }
 
     public void setServerInfo() {

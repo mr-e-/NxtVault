@@ -75,7 +75,7 @@ public abstract class BaseActivity extends ActionBarActivity {
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
-        transaction.add(R.id.pin, pinFragment).commit();
+        transaction.add(R.id.pin, pinFragment, "pin").commit();
 
         findViewById(R.id.pin).setVisibility(View.VISIBLE);
 
@@ -86,6 +86,10 @@ public abstract class BaseActivity extends ActionBarActivity {
     void pinAccepted(){
         //pin has been accepted so we'll hide the pin screen and log the last entry time
         findViewById(R.id.pin).setVisibility(View.GONE);
+        Fragment f = getSupportFragmentManager().findFragmentByTag("pin");
+        if (f != null) {
+            getSupportFragmentManager().beginTransaction().remove(f).commit();
+        }
         getSupportActionBar().show();
 
         mPinShowing = false;
@@ -110,7 +114,6 @@ public abstract class BaseActivity extends ActionBarActivity {
 
             //Set up the pin entry view
             pinEntryView = (PinEntryView)view.findViewById(R.id.pin_entry_view);
-            pinEntryView.setFocus();
             pinEntryView.setOnPinEnteredListener(new IPinEnteredListener() {
                 @Override
                 public void pinEntered(final String pin) {
@@ -122,7 +125,6 @@ public abstract class BaseActivity extends ActionBarActivity {
                                 ((BaseActivity)getActivity()).mPreferences.putLastPinEntry(System.currentTimeMillis());
 
                                 mActivity.pinAccepted();
-                                pinEntryView.clearKeyBoard();
                             }
                             else {
                                 pinEntryView.clearText();
@@ -153,6 +155,15 @@ public abstract class BaseActivity extends ActionBarActivity {
         @Override
         public void onResume() {
             super.onResume();
+
+            pinEntryView.setFocus();
+        }
+
+        @Override
+        public void onPause() {
+            super.onPause();
+
+            pinEntryView.clearKeyBoard();
         }
 
         private boolean verifyPin(String s) {
