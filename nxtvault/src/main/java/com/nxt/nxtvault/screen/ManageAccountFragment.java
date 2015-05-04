@@ -95,7 +95,22 @@ public class ManageAccountFragment extends BaseFragment {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_scan_tx) {
-            startScan(REQUEST_SCAN_TX);
+            //Deleting account
+            new AlertDialog.Builder(getMainActivity())
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle("Delete Account")
+                    .setMessage("Are you sure you wish to delete this account?")
+                    .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            getMainActivity().getJay().deleteAccount(accountData);
+                            getMainActivity().deleteAccount(accountData);
+                            getMainActivity().onBackPressed();
+                        }
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
         }
         else if (id == R.id.action_export_account){
             Intent sendIntent = new Intent(Intent.ACTION_SEND);
@@ -300,22 +315,7 @@ public class ManageAccountFragment extends BaseFragment {
             @Override
             public void onClick(View v) {
                 if (!mIsEdited && !newAccount){
-                    //Deleting account
-                    new AlertDialog.Builder(getMainActivity())
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .setTitle("Delete Account")
-                            .setMessage("Are you sure you wish to delete this account?")
-                            .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    getMainActivity().getJay().deleteAccount(accountData);
-                                    getMainActivity().deleteAccount(accountData);
-                                    getMainActivity().onBackPressed();
-                                }
-                            })
-                            .setNegativeButton("Cancel", null)
-                            .show();
+                    startScan(REQUEST_SCAN_TX);
                 }
                 else {
                     String accountName = txtAccountName.getText().toString();
@@ -397,8 +397,8 @@ public class ManageAccountFragment extends BaseFragment {
             btnSave.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_accept));
         }
         else{
-            btnSave.setBackgroundColor(getResources().getColor(R.color.delete));
-            btnSave.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_discard));
+            btnSave.setBackgroundColor(getResources().getColor(R.color.accent));
+            btnSave.setDrawableIcon(getResources().getDrawable(R.drawable.icon_scan));
         }
     }
 

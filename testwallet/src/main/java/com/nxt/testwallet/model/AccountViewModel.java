@@ -11,11 +11,12 @@ public class AccountViewModel {
     public AccountViewModel(Account account){
         Assets = new ArrayList<>();
 
-        Name = account.Name;
-        Description = account.Description;
-        Rs = account.Rs;
-        BalanceNQT = account.BalanceNQT;
-
+        if (account != null) {
+            Name = account.Name;
+            Description = account.Description;
+            Rs = account.Rs;
+            BalanceNQT = account.BalanceNQT;
+        }
     }
 
     public String Name;
@@ -28,7 +29,10 @@ public class AccountViewModel {
         String result = null;
 
         try {
-            result = String.valueOf(Double.parseDouble(BalanceNQT) / 100000000);
+            if (BalanceNQT == null)
+                result = "";
+            else
+                result = String.valueOf(Double.parseDouble(BalanceNQT) / 100000000);
         } catch (Exception e) {
             e.printStackTrace();
         }

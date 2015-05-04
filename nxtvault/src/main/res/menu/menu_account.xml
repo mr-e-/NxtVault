@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
 
     <item android:id="@+id/action_scan_tx" android:title="@string/action_scantx"
-        android:orderInCategory="99" app:showAsAction="ifRoom" android:icon="@drawable/icon_scan" />
+        android:orderInCategory="99" app:showAsAction="ifRoom" android:icon="@drawable/ic_action_discard" />
     <item android:id="@+id/action_export_account" android:title="@string/action_export"
         android:orderInCategory="99" app:showAsAction="never" android:icon="@drawable/icon_scan" />
 </menu>

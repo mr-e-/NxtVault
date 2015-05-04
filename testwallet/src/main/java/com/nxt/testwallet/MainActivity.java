@@ -209,6 +209,7 @@ public class MainActivity extends BaseVaultActivity {
                             updateCurrentPage();
                         }
                     } else {
+                        mAccountInfo = new AccountViewModel(new Account());
                         Toast.makeText(MainActivity.this, "ErrorCode: " + account.ErrorCode + " - '" + account.ErrorDescription + "'", Toast.LENGTH_LONG).show();
                     }
                 }
