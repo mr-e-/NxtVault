@@ -106,12 +106,12 @@ public class MainActivity extends BaseActivity {
         if (mPreferences.getCustomServer() != null && !mPreferences.getCustomServer().isEmpty()){
             getJay().setNode(mPreferences.getCustomServer());
             getJay().setRequestMethod(RequestMethods.Single);
+            getJay().setIsTestnet(mPreferences.getIsTestNet());
         }
         else{
             getJay().setRequestMethod(RequestMethods.Fastest);
+            getJay().setIsTestnet(false);
         }
-
-        getJay().setIsTestnet(mPreferences.getIsTestNet());
     }
 
     private void refreshAccounts(final ValueCallback<String> completedCallback) {

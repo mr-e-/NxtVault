@@ -8,6 +8,7 @@
 
     <CheckBoxPreference
         android:key="@string/testnet_preference"
+        android:dependency="@string/server_preference"
         android:title="Use TestNet"
-        android:summary="Switches the port number to 6876. Should be used in conjunction with a specified server" />
+        android:summary="Switches the port number to 6876. Must be used in conjunction with a custom testnet server." />
 </PreferenceScreen>

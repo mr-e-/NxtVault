@@ -122,14 +122,14 @@ public class MainActivity extends BaseVaultActivity {
     }
 
     public void setServerInfo() {
-        if (getCustomServer() != null) {
+        if (getCustomServer() != null && !getCustomServer().isEmpty()) {
             getJay().setNode(getCustomServer());
             getJay().setRequestMethod(RequestMethods.Single);
+            getJay().setIsTestnet(getIsTestNet());
         } else {
             getJay().setRequestMethod(RequestMethods.Fastest);
+            getJay().setIsTestnet(false);
         }
-
-        getJay().setIsTestnet(getIsTestNet());
     }
 
     public boolean getIsTestNet() {
@@ -210,7 +210,21 @@ public class MainActivity extends BaseVaultActivity {
                         }
                     } else {
                         mAccountInfo = new AccountViewModel(new Account());
-                        Toast.makeText(MainActivity.this, "ErrorCode: " + account.ErrorCode + " - '" + account.ErrorDescription + "'", Toast.LENGTH_LONG).show();
+
+                        String errorMessage = "";
+                        if (account == null){
+                            if (getCustomServer() != null && !getCustomServer().isEmpty()){
+                                errorMessage = "Problem loading account information. You may have entered an invalid custom server.";
+                            }
+                            else {
+                                errorMessage = "Unknown error. Please try again later";
+                            }
+                        }
+                        else{
+                            errorMessage = "ErrorCode: " +  account.ErrorCode + " - '" + account.ErrorDescription + "'";
+                        }
+
+                        Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                     }
                 }
 
