@@ -12,8 +12,8 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.nxt.nxtvaultclientlib.nxtvault.model.Asset;
 import com.nxt.testwallet.R;
 import com.nxt.testwallet.model.AssetViewModel;
 
@@ -114,16 +114,28 @@ public class AssetTransferFragment extends BaseFragment {
             btnSend.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                if (mSelectedAsset == null) {
-                    txtAssetId.setError("Please select a valid asset");
-                } else {
-                    mActivity.getJay().transferAsset(txtRecip.getText().toString(), mSelectedAsset.getAsset(), Float.parseFloat(txtAmount.getText().toString()), txtMessage.getText().toString(), new ValueCallback<String>() {
-                        @Override
-                        public void onReceiveValue(String value) {
-                            mActivity.getNxtVault().signAndBroadcastTx(mActivity, mActivity.getAccessToken(), value);
+                    try {
+                        String amount = txtAmount.getText().toString();
+                        String recip = txtRecip.getText().toString();
+
+                        if (amount != null && !amount.isEmpty() && recip != null && !recip.isEmpty()) {
+                            if (mSelectedAsset == null) {
+                                txtAssetId.setError("Please select a valid asset");
+                            } else {
+                                mActivity.getJay().transferAsset(txtRecip.getText().toString(), mSelectedAsset.getAsset(), Float.parseFloat(amount), txtMessage.getText().toString(), new ValueCallback<String>() {
+                                    @Override
+                                    public void onReceiveValue(String value) {
+                                        mActivity.getNxtVault().signAndBroadcastTx(mActivity, mActivity.getAccessToken(), value);
+                                    }
+                                });
+                            }
+                        }else {
+                            Toast.makeText(getActivity(), "Please enter valid data", Toast.LENGTH_SHORT).show();
                         }
-                    });
-                }
+                    }
+                    catch (Exception ex){
+                        Toast.makeText(getActivity(), "Please enter valid data", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
         }

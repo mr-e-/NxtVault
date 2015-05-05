@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.webkit.ValueCallback;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.nxt.testwallet.R;
 
@@ -52,12 +53,25 @@ public class PaymentFragment extends BaseFragment {
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mActivity.getJay().sendMoney(txtRecip.getText().toString(), Float.parseFloat(txtAmount.getText().toString()), txtMessage.getText().toString(), new ValueCallback<String>() {
-                    @Override
-                    public void onReceiveValue(String value) {
-                        mActivity.getNxtVault().signAndBroadcastTx(mActivity, mActivity.getAccessToken(), value);
+                try {
+                    String account = txtRecip.getText().toString();
+                    String amount = txtAmount.getText().toString();
+
+                    if (account != null && !account.isEmpty() && amount != null && !amount.isEmpty()) {
+                        float amountF = Float.parseFloat(amount);
+                        mActivity.getJay().sendMoney(txtRecip.getText().toString(), amountF, txtMessage.getText().toString(), new ValueCallback<String>() {
+                            @Override
+                            public void onReceiveValue(String value) {
+                                mActivity.getNxtVault().signAndBroadcastTx(mActivity, mActivity.getAccessToken(), value);
+                            }
+                        });
+                    } else {
+                        Toast.makeText(getActivity(), "Please enter valid data", Toast.LENGTH_SHORT).show();
                     }
-                });
+                }catch (Exception ex){
+                    Toast.makeText(getActivity(), "Please enter valid data", Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
     }
