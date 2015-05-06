@@ -57,7 +57,7 @@ public class NxtVault {
 
     //Will only sign the TX and return the signed bytes back to the calling application
     public void signTx(Activity activity, String accessToken, String jayTx){
-        Intent intent = new Intent("nxtvault.intent.action.SIGNANDBROADCAST");
+        Intent intent = new Intent("nxtvault.intent.action.SIGN");
 
         if (confirmAppInstalled(activity, intent)) {
             intent.putExtra("AccessToken", accessToken);
