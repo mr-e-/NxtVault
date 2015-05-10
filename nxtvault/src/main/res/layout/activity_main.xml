@@ -28,7 +28,7 @@
             android:layout_margin="12dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/nxt2"
+            android:src="@drawable/nxt"
             android:alpha=".1"/>
 
         <FrameLayout

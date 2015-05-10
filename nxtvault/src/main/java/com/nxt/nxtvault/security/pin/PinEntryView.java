@@ -277,6 +277,9 @@ public class PinEntryView extends ViewGroup {
      */
     public void clearText() {
         mEditText.setText("");
+        for (int i = 0; i < mDigits; i++) {
+            ((TextView) getChildAt(i)).setText(null);
+        }
 
         mEditText.requestFocus();
     }
@@ -340,24 +343,21 @@ public class PinEntryView extends ViewGroup {
 
             @Override
             public void afterTextChanged(Editable s) {
-                int length = s.length();
-                for (int i = 0; i < mDigits; i++) {
-                    if (s.length() > i) {
-                        String mask = mMask == null || mMask.length() == 0 ?
-                                String.valueOf(s.charAt(i)) : mMask;
-                        ((TextView) getChildAt(i)).setText(mask);
-                    } else {
-                        ((TextView) getChildAt(i)).setText("");
+                if (PinEntryView.this.isEnabled()) {
+                    int length = s.length();
+                    for (int i = 0; i < mDigits; i++) {
+                        if (s.length() > i) {
+                            String mask = mMask == null || mMask.length() == 0 ?
+                                    String.valueOf(s.charAt(i)) : mMask;
+                            ((TextView) getChildAt(i)).setText(mask);
+                        } else {
+                            ((TextView) getChildAt(i)).setText("");
+                        }
                     }
-//                    if (mEditText.hasFocus()) {
-//                        getChildAt(i).setSelected(mAccentType == ACCENT_ALL ||
-//                                (mAccentType == ACCENT_CHARACTER && (i == length ||
-//                                        (i == mDigits - 1 && length == mDigits))));
-//                    }
-                }
 
-                if (s.length() == mDigits){
-                    onPinEntered(s.toString());
+                    if (s.length() == mDigits) {
+                        onPinEntered(s.toString());
+                    }
                 }
             }
         });

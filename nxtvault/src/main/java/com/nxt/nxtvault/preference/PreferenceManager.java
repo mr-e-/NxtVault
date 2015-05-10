@@ -35,6 +35,18 @@ public class PreferenceManager {
                 .apply();
     }
 
+    public void putPinTryAttempts(long attempts){
+        sharedPref.edit()
+                .putLong(mContext.getString(R.string.pin_lockout_time), attempts)
+                .apply();
+    }
+
+    public void putPinTryLockoutTime(long lockoutTime){
+        sharedPref.edit()
+                .putLong(mContext.getString(R.string.pin_attempts), lockoutTime)
+                .apply();
+    }
+
     public boolean getIsTestNet(){
         return sharedPref.getBoolean(mContext.getString(R.string.testnet_preference), false);
     }
@@ -53,5 +65,17 @@ public class PreferenceManager {
 
     public Long getLastPinEntry(){
         return sharedPref.getLong(mContext.getString(R.string.time_btwen_last_pin_entry), 0);
+    }
+
+    public Long getPinTryAttempts(){
+        return sharedPref.getLong(mContext.getString(R.string.pin_lockout_time), 0);
+    }
+
+    public Long getPinTryLockoutTime(){
+        return sharedPref.getLong(mContext.getString(R.string.pin_attempts), 0);
+    }
+
+    public void wipe() {
+        sharedPref.edit().clear().apply();
     }
 }

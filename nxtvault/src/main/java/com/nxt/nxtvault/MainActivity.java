@@ -195,6 +195,15 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
+    protected void wipeDevice() {
+        for (AccountData account : mAccountInfo.getAccountData()){
+            getJay().deleteAccount(account);
+        }
+
+        mPreferences.wipe();
+    }
+
+    @Override
     protected void pinChanged(String mOldPin, final String s) {
         super.pinChanged(mOldPin, s);
 

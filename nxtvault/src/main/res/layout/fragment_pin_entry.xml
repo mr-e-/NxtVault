@@ -24,7 +24,8 @@
             android:text="Please enter a new pin number" android:layout_gravity="center_horizontal"
             android:textColor="#ffffffff" style="@style/header_text"
             android:layout_marginBottom="20dp"
-            android:layout_marginTop="20dp"/>
+            android:layout_marginTop="20dp"
+            android:gravity="center_horizontal"/>
 
         <com.nxt.nxtvault.security.pin.PinEntryView
             android:id="@+id/pin_entry_view"

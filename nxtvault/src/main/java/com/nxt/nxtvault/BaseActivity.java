@@ -106,6 +106,9 @@ public abstract class BaseActivity extends ActionBarActivity {
         BaseActivity mActivity;
         TextView headerText;
 
+        long lockoutTime;
+        long numPinTries;
+
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
             mActivity = (BaseActivity)getActivity();
@@ -123,6 +126,8 @@ public abstract class BaseActivity extends ActionBarActivity {
                         public void run() {
                             if (verifyPin(pin)) {
                                 ((BaseActivity)getActivity()).mPreferences.putLastPinEntry(System.currentTimeMillis());
+                                ((BaseActivity)getActivity()).mPreferences.putPinTryLockoutTime(0);
+                                ((BaseActivity)getActivity()).mPreferences.putPinTryAttempts(0);
 
                                 mActivity.pinAccepted();
                             }
@@ -133,6 +138,9 @@ public abstract class BaseActivity extends ActionBarActivity {
                     }, 500);
                 };
             });
+
+            numPinTries = ((BaseActivity)getActivity()).mPreferences.getPinTryAttempts();
+            lockoutTime = ((BaseActivity)getActivity()).mPreferences.getPinTryLockoutTime();
 
             //determine what instructions to give the user.
             //we are either entering pin for the first time (requires second confirmation entry)
@@ -147,6 +155,11 @@ public abstract class BaseActivity extends ActionBarActivity {
             }
             else if (mActivity.mCurrentPinMode == PinMode.Change){
                 headerText.setText("Enter your current PIN number");
+            }
+
+            if (!canEnterPin()){
+                setPinLockoutMessage();
+                pinEntryView.setEnabled(false);
             }
 
             return view;
@@ -169,52 +182,51 @@ public abstract class BaseActivity extends ActionBarActivity {
         private boolean verifyPin(String s) {
             boolean accept = false;
 
-            if (mActivity.mCurrentPinMode == PinMode.Initialize){
+            if (mActivity.mCurrentPinMode == PinMode.Initialize) {
                 //check if entering first time, request second to confirm
-                if (mFirstPinEntry == null){
+                if (mFirstPinEntry == null) {
                     mFirstPinEntry = s;
 
                     headerText.setText("Confirm your PIN Number");
 
-                }
-                else{
+                } else {
                     accept = storePin(s);
                 }
-            }
-            else if (mActivity.mCurrentPinMode == PinMode.Enter){
-                //verify pin and allow access to application
-                if (mActivity.mPreferences.getPin() != null && mActivity.mPreferences.getPin().equals(s)){
-                    accept = true;
+            } else if (mActivity.mCurrentPinMode == PinMode.Enter) {
+                if (canEnterPin()) {
+                    //verify pin and allow access to application
+                    if (mActivity.mPreferences.getPin() != null && mActivity.mPreferences.getPin().equals(s)) {
+                        accept = true;
+                    } else {
+                        headerText.setText("Please try again");
+                        handleIncorrectPin();
+                    }
+                } else {
+                    setPinLockoutMessage();
+                    pinEntryView.setEnabled(false);
                 }
-                else{
-                    headerText.setText("Please try again");
-                }
-            }
-            else if (mActivity.mCurrentPinMode == PinMode.Change){
+            } else if (mActivity.mCurrentPinMode == PinMode.Change) {
                 //Enter in the old pin number first
                 if (mOldPin == null) {
                     if (s.equals(mActivity.mPreferences.getPin())) {
                         mOldPin = s;
 
                         headerText.setText("Enter your new PIN number");
-                    }
-                    else{
+                    } else {
                         headerText.setText("Incorrect, enter your current PIN");
                     }
                 }
                 //enter the new pin number
-                else if (mFirstPinEntry == null){
+                else if (mFirstPinEntry == null) {
                     mFirstPinEntry = s;
                     headerText.setText("Confirm your PIN Number");
-                }
-                else{
+                } else {
                     //confirm the new pin numbers match
                     if (mFirstPinEntry.equals(s)) {
                         //reencrypt the accounts that are currently encrypted with the old pin
                         mActivity.pinChanged(mOldPin, s);
                         accept = true;
-                    }
-                    else{
+                    } else {
                         pinEntryView.clearText();
                         mFirstPinEntry = null;
                         headerText.setText("PIN mismatch. Try again.");
@@ -223,6 +235,75 @@ public abstract class BaseActivity extends ActionBarActivity {
             }
 
             return accept;
+        }
+
+        private void setPinLockoutMessage() {
+            headerText.setText("PIN Lockout. Please try again in " + getRemainingLockoutTime());
+        }
+
+        private boolean canEnterPin() {
+            return System.currentTimeMillis() > lockoutTime;
+        }
+
+        private void handleIncorrectPin() {
+            numPinTries++;
+
+            if (numPinTries == 3){
+                lockoutTime = System.currentTimeMillis() + (60*60*1000);
+            }
+            if (numPinTries == 4){
+                lockoutTime = System.currentTimeMillis() + (24*60*60*1000);
+            }
+            if (numPinTries == 5){
+                mActivity.wipeDevice();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        System.exit(0);
+                    }
+                }, 2000);
+            }
+
+            ((BaseActivity)mActivity).mPreferences.putPinTryAttempts(numPinTries);
+            ((BaseActivity)mActivity).mPreferences.putPinTryLockoutTime(lockoutTime);
+
+            String message = getPinLockoutString();
+
+            if (message != null) {
+                headerText.setText(message);
+                pinEntryView.setEnabled(false);
+                pinEntryView.clearText();
+            }
+        }
+
+        public String getPinLockoutString() {
+            if (numPinTries == 3){
+                return "Three bad attempts. Device locked for one hour.";
+            }
+            if (numPinTries == 4){
+                return "Four bad attempts. Device locked for 24 hours.";
+            }
+            if (numPinTries == 5){
+                return "Five bad attempts. Wiping all data...";
+            }
+
+            return null;
+        }
+
+        public String getRemainingLockoutTime(){
+            Long remaining = lockoutTime - System.currentTimeMillis();
+
+            if (remaining > (1000 * 60 * 60)){
+                return (remaining / 1000 / 60 / 60) + " hours";
+            }
+            else if (remaining > 1000 * 60){
+                return  (remaining / 1000 / 60) + " minutes";
+            }
+            else if (remaining > 1000){
+                return (remaining / 1000) + " seconds";
+            }
+
+            return null;
         }
 
         private boolean storePin(String s) {
@@ -242,6 +323,8 @@ public abstract class BaseActivity extends ActionBarActivity {
             return accept;
         }
     }
+
+    protected abstract void wipeDevice();
 
     protected void pinChanged(String mOldPin, String s){}
 }

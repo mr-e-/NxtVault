@@ -43,6 +43,8 @@
     <string name="testnet_preference">testnet_preference</string>
     <string name="about">ABOUT</string>
     <string name="pin_timeout">pin_timeout</string>
+    <string name="pin_lockout_time">pin_lockout</string>
+    <string name="pin_attempts">pin_attempts</string>
 
     <string name="crash_toast_text">Ooooops, NxtVault has crashed! Please email the crash report in order to help diagnose the issue.</string>
 
