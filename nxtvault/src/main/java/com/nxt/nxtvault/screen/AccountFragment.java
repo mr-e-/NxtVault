@@ -35,7 +35,12 @@ public class AccountFragment extends BaseFragment {
 
         ListView listView = (ListView)view.findViewById(R.id.accountList);
 
-        mAccountData = getMainActivity().getAccountInfo().getAccountData();
+        if (savedInstanceState != null){
+            mAccountData = (ArrayList<AccountData>)savedInstanceState.getSerializable("mAccountData");
+        }
+        else {
+            mAccountData = getMainActivity().getAccountInfo().getAccountData();
+        }
 
         final AccountAdapter accountAdapter = new AccountAdapter(getMainActivity(), R.layout.account_item);
         for(AccountData accountData : mAccountData){
@@ -87,6 +92,13 @@ public class AccountFragment extends BaseFragment {
         if (mAccountData.size() == 0){
             createNewAccount();
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putSerializable("mAccountInfo", mAccountData);
     }
 
     private class AccountAdapter extends ArrayAdapter<AccountData> {
