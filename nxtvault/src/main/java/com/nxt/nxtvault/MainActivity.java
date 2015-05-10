@@ -286,8 +286,18 @@ public class MainActivity extends BaseActivity {
 
             return true;
         }
+        else if (id == R.id.action_logout){
+            logout();
+
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void logout() {
+        mPreferences.putLastPinEntry(0L);
+        System.exit(0);
     }
 
     public void deleteAccount(AccountData accountData) {

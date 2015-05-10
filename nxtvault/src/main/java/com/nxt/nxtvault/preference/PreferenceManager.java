@@ -32,7 +32,7 @@ public class PreferenceManager {
     public void putLastPinEntry(Long millis){
         sharedPref.edit()
                 .putLong(mContext.getString(R.string.time_btwen_last_pin_entry), millis)
-                .apply();
+                .commit();
     }
 
     public void putPinTryAttempts(long attempts){
@@ -77,5 +77,9 @@ public class PreferenceManager {
 
     public void wipe() {
         sharedPref.edit().clear().apply();
+    }
+
+    public void logout() {
+
     }
 }
