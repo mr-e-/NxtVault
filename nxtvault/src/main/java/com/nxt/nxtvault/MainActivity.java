@@ -27,6 +27,8 @@ import java.util.ArrayList;
 
 public class MainActivity extends BaseActivity {
 
+    private boolean mJayLoaded;
+
     Gson gson = new Gson();
 
     private static AccountInfo mAccountInfo;
@@ -34,6 +36,8 @@ public class MainActivity extends BaseActivity {
     Bundle mSavedInstanceState;
 
     private TextView mTitleBar;
+
+    ArrayList<IJayLoadedListener> mJayLoadedListeners;
 
     public AccountInfo getAccountInfo(){
         return mAccountInfo;
@@ -43,12 +47,33 @@ public class MainActivity extends BaseActivity {
         return ((MyApp)getApplication()).jay;
     }
 
+    public boolean getIsJayLoaded() {
+        return mJayLoaded;
+    }
+
+    public void setIsJayLoaded(boolean loaded) {
+        mJayLoaded = loaded;
+
+        if (mJayLoaded){
+            for(IJayLoadedListener listener : mJayLoadedListeners){
+                listener.onLoaded();
+            }
+        }
+    }
+
+    public void subscribeJayLoaded(IJayLoadedListener listener){
+        mJayLoadedListeners.add(listener);
+    }
+
+
     private ArrayList<Asset> mAssetList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mJayLoadedListeners = new ArrayList<>();
 
         mSavedInstanceState = savedInstanceState;
 
@@ -76,6 +101,8 @@ public class MainActivity extends BaseActivity {
             }
         }
         else{
+            mJayLoaded = true;
+
             mAccountInfo = (AccountInfo)savedInstanceState.getSerializable("mAccountInfo");
         }
 
@@ -127,6 +154,8 @@ public class MainActivity extends BaseActivity {
                             pinAccepted();
                     }
                 });
+
+                setIsJayLoaded(true);
 
                 if (completedCallback != null) {
                     completedCallback.onReceiveValue(null);

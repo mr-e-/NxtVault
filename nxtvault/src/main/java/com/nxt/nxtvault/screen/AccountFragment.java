@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.gc.materialdesign.views.ButtonFloat;
+import com.nxt.nxtvault.IJayLoadedListener;
 import com.nxt.nxtvault.JayClientApi;
 import com.nxt.nxtvault.R;
 import com.nxt.nxtvault.model.AccountData;
@@ -30,16 +32,35 @@ public class AccountFragment extends BaseFragment {
     ArrayList<AccountData> mAccountData;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        ViewGroup view = (ViewGroup)LayoutInflater.from(getActivity()).inflate(R.layout.fragment_account, container, false);
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable final Bundle savedInstanceState) {
+        final ViewGroup view = (ViewGroup)LayoutInflater.from(getActivity()).inflate(R.layout.fragment_account, container, false);
 
-        ListView listView = (ListView)view.findViewById(R.id.accountList);
 
         if (savedInstanceState != null){
             mAccountData = (ArrayList<AccountData>)savedInstanceState.getSerializable("mAccountData");
         }
-        else {
+
+        if (!mActivity.getIsJayLoaded()){
+            mActivity.subscribeJayLoaded(new IJayLoadedListener() {
+                @Override
+                public void onLoaded() {
+                    loadView(view, savedInstanceState);
+                }
+            });
+        }
+        else{
+            loadView(view, savedInstanceState);
+        }
+
+        return view;
+    }
+
+    private void loadView(ViewGroup view, Bundle savedInstanceState) {
+        ListView listView = (ListView)view.findViewById(R.id.accountList);
+
+        if (savedInstanceState == null){
             mAccountData = getMainActivity().getAccountInfo().getAccountData();
+            Log.i("FUCK", "loaded accountdata from savestate");
         }
 
         final AccountAdapter accountAdapter = new AccountAdapter(getMainActivity(), R.layout.account_item);
@@ -53,7 +74,7 @@ public class AccountFragment extends BaseFragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            getMainActivity().navigate(ManageAccountFragment.getInstance(false, accountAdapter.getItem(position)), true);
+                getMainActivity().navigate(ManageAccountFragment.getInstance(false, accountAdapter.getItem(position)), true);
             }
         });
 
@@ -67,8 +88,6 @@ public class AccountFragment extends BaseFragment {
 
         btnNewAccount.setBackgroundColor(getResources().getColor(R.color.primary__extra_light));
         btnNewAccount.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_new));
-
-        return view;
     }
 
     private void createNewAccount() {

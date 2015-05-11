@@ -12,11 +12,11 @@ android {
     compileSdkVersion 21
     buildToolsVersion "21.1.2"
     defaultConfig {
-        applicationId "com.jay.nxtvault"
+        applicationId "jay.nxtvault"
         minSdkVersion 14
         targetSdkVersion 21
-        versionCode 1
-        versionName "0.4"
+        versionCode 3
+        versionName "0.81"
     }
     buildTypes {
         release {

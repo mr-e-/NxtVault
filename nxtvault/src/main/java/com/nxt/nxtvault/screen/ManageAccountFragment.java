@@ -26,7 +26,7 @@ import android.widget.Toast;
 import com.gc.materialdesign.views.ButtonFloat;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-import com.nxt.nxtvault.MainActivity;
+import com.nxt.nxtvault.IJayLoadedListener;
 import com.nxt.nxtvault.R;
 import com.nxt.nxtvault.model.AccountData;
 import com.nxt.nxtvault.util.TextValidator;
@@ -124,9 +124,25 @@ public class ManageAccountFragment extends BaseFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable final Bundle savedInstanceState) {
         final View rootView = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_manage_account, container, false);
 
+        if (!mActivity.getIsJayLoaded()){
+            mActivity.subscribeJayLoaded(new IJayLoadedListener() {
+                @Override
+                public void onLoaded() {
+                    loadView(rootView, savedInstanceState);
+                }
+            });
+        }
+        else{
+            loadView(rootView, savedInstanceState);
+        }
+
+        return rootView;
+    }
+
+    private void loadView(View rootView, Bundle savedInstanceState){
         ButtonFloat btnSave = (ButtonFloat)rootView.findViewById(R.id.btnSave);
         btnSave.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
         btnSave.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_accept));
@@ -143,17 +159,6 @@ public class ManageAccountFragment extends BaseFragment {
         else{
             hydrate(rootView);
         }
-
-        return rootView;
-    }
-
-    private MainActivity mActivity;
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        mActivity = (MainActivity)activity;
     }
 
     private void generateNewAccount(final View rootView) {
