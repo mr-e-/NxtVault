@@ -1,10 +1,8 @@
 package com.nxt.nxtvault.screen;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,14 +29,11 @@ public class AccountFragment extends BaseFragment {
 
     ArrayList<AccountData> mAccountData;
 
+    private static final String ACCOUNT_DATA = "mAccountData";
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable final Bundle savedInstanceState) {
         final ViewGroup view = (ViewGroup)LayoutInflater.from(getActivity()).inflate(R.layout.fragment_account, container, false);
-
-
-        if (savedInstanceState != null){
-            mAccountData = (ArrayList<AccountData>)savedInstanceState.getSerializable("mAccountData");
-        }
 
         if (!mActivity.getIsJayLoaded()){
             mActivity.subscribeJayLoaded(new IJayLoadedListener() {
@@ -58,9 +53,13 @@ public class AccountFragment extends BaseFragment {
     private void loadView(ViewGroup view, Bundle savedInstanceState) {
         ListView listView = (ListView)view.findViewById(R.id.accountList);
 
+        jay = getMainActivity().getJay();
+
         if (savedInstanceState == null){
             mAccountData = getMainActivity().getAccountInfo().getAccountData();
-            Log.i("FUCK", "loaded accountdata from savestate");
+        }
+        else{
+            mAccountData = (ArrayList<AccountData>)savedInstanceState.getSerializable(ACCOUNT_DATA);
         }
 
         final AccountAdapter accountAdapter = new AccountAdapter(getMainActivity(), R.layout.account_item);
@@ -88,17 +87,14 @@ public class AccountFragment extends BaseFragment {
 
         btnNewAccount.setBackgroundColor(getResources().getColor(R.color.primary__extra_light));
         btnNewAccount.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_new));
+
+        if (mAccountData.size() == 0){
+            createNewAccount();
+        }
     }
 
     private void createNewAccount() {
         getMainActivity().navigate(ManageAccountFragment.getInstance(true, null), true);
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        jay = getMainActivity().getJay();
     }
 
     @Override
@@ -107,17 +103,13 @@ public class AccountFragment extends BaseFragment {
 
         getMainActivity().setTitle(getMainActivity().getString(R.string.accounts));
         showBackButton(false);
-
-        if (mAccountData.size() == 0){
-            createNewAccount();
-        }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putSerializable("mAccountInfo", mAccountData);
+        outState.putSerializable(ACCOUNT_DATA, mAccountData);
     }
 
     private class AccountAdapter extends ArrayAdapter<AccountData> {
