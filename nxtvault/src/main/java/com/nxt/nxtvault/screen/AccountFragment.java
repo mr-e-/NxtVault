@@ -30,25 +30,9 @@ public class AccountFragment extends BaseFragment {
     ArrayList<AccountData> mAccountData;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable final Bundle savedInstanceState) {
-        final ViewGroup view = (ViewGroup)LayoutInflater.from(getActivity()).inflate(R.layout.fragment_account, container, false);
+    public void onReady(View rootView, Bundle savedInstanceState) {
+        super.onReady(rootView, savedInstanceState);
 
-        if (!mActivity.getIsJayLoaded()){
-            mActivity.subscribeJayLoaded(new IJayLoadedListener() {
-                @Override
-                public void onLoaded() {
-                    loadView(view, savedInstanceState);
-                }
-            });
-        }
-        else{
-            loadView(view, savedInstanceState);
-        }
-
-        return view;
-    }
-
-    private void loadView(ViewGroup rootView, Bundle savedInstanceState) {
         ListView listView = (ListView)rootView.findViewById(R.id.accountList);
 
         jay = getMainActivity().getJay();
@@ -84,6 +68,11 @@ public class AccountFragment extends BaseFragment {
         if (mAccountData.size() == 0){
             createNewAccount();
         }
+    }
+
+    @Override
+    protected View inflateView(LayoutInflater inflater, @Nullable ViewGroup container) {
+        return (ViewGroup)LayoutInflater.from(getActivity()).inflate(R.layout.fragment_account, container, false);
     }
 
     private void createNewAccount() {

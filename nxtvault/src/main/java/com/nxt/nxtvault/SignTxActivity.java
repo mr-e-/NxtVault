@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -261,9 +262,13 @@ public class SignTxActivity extends MainActivity {
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_account_access, container, false);
+        protected View inflateView(LayoutInflater inflater, @Nullable ViewGroup container) {
+            return inflater.inflate(R.layout.fragment_account_access, container, false);
+        }
+
+        @Override
+        public void onReady(View rootView, Bundle savedInstanceState) {
+            super.onReady(rootView, savedInstanceState);
 
             final ListView listView = (ListView)rootView.findViewById(R.id.accountList);
 
@@ -298,8 +303,6 @@ public class SignTxActivity extends MainActivity {
                     }).start();
                 }
             });
-
-            return rootView;
         }
 
         @Override
@@ -361,10 +364,13 @@ public class SignTxActivity extends MainActivity {
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_tx_confirmation, container, false);
+        protected View inflateView(LayoutInflater inflater, @Nullable ViewGroup container) {
+            return inflater.inflate(R.layout.fragment_tx_confirmation, container, false);
+        }
 
+        @Override
+        public void onReady(View rootView, Bundle savedInstanceState) {
+            super.onReady(rootView, savedInstanceState);
 
             final ButtonFloat btnConfirm = (ButtonFloat)rootView.findViewById(R.id.btnConfirm);
             final ButtonFloat btnCancel = (ButtonFloat)rootView.findViewById(R.id.btnCancel);
@@ -377,13 +383,13 @@ public class SignTxActivity extends MainActivity {
             btnConfirm.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                progress.setVisibility(View.VISIBLE);
+                    progress.setVisibility(View.VISIBLE);
 
-                ObjectAnimator.ofFloat(lst_tx_details, View.ALPHA, 1, 0).start();
-                ObjectAnimator.ofFloat(buttons, View.ALPHA, 1, 0).start();
-                ObjectAnimator.ofFloat(progress, View.ALPHA, 0, 1).start();
+                    ObjectAnimator.ofFloat(lst_tx_details, View.ALPHA, 1, 0).start();
+                    ObjectAnimator.ofFloat(buttons, View.ALPHA, 1, 0).start();
+                    ObjectAnimator.ofFloat(progress, View.ALPHA, 0, 1).start();
 
-                activity.signTransaction(true);
+                    activity.signTransaction(true);
                 }
             });
 
@@ -412,9 +418,6 @@ public class SignTxActivity extends MainActivity {
 
             lst_tx_details.setAdapter(adapter);
             adapter.notifyDataSetChanged();
-
-
-            return rootView;
         }
 
         @Override

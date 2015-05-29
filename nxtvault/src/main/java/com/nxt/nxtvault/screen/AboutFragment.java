@@ -35,23 +35,28 @@ public class AboutFragment extends BaseFragment {
     TextView lblSupport;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = LayoutInflater.from(mActivity).inflate(R.layout.fragment_about, null);
+    protected View inflateView(LayoutInflater inflater, @Nullable ViewGroup container) {
+        return LayoutInflater.from(mActivity).inflate(R.layout.fragment_about, null);
+    }
+
+    @Override
+    public void onReady(View rootView, Bundle savedInstanceState) {
+        super.onReady(rootView, savedInstanceState);
 
         setHasOptionsMenu(true);
         showBackButton(true);
 
-        lblVersion = (TextView) view.findViewById(R.id.lblVersion);
-        lblBuildDate = (TextView) view.findViewById(R.id.lblBuildDate);
-        lblCreatedBy = (TextView) view.findViewById(R.id.lblCreatedBy);
-        lblSpecialThanks = (TextView) view.findViewById(R.id.lblSpecialThanks);
-        lblSupport = (TextView) view.findViewById(R.id.lblSupport);
+        lblVersion = (TextView) rootView.findViewById(R.id.lblVersion);
+        lblBuildDate = (TextView) rootView.findViewById(R.id.lblBuildDate);
+        lblCreatedBy = (TextView) rootView.findViewById(R.id.lblCreatedBy);
+        lblSpecialThanks = (TextView) rootView.findViewById(R.id.lblSpecialThanks);
+        lblSupport = (TextView) rootView.findViewById(R.id.lblSupport);
 
-        txtVersion = (TextView) view.findViewById(R.id.txtVersion);
-        txtBuildDate = (TextView) view.findViewById(R.id.txtBuildDate);
-        txtCreatedBy = (TextView) view.findViewById(R.id.txtCreatedBy);
-        txtSpecialThanks = (TextView) view.findViewById(R.id.txtSpecialThanks);
-        txtSupport = (TextView) view.findViewById(R.id.txtSupport);
+        txtVersion = (TextView) rootView.findViewById(R.id.txtVersion);
+        txtBuildDate = (TextView) rootView.findViewById(R.id.txtBuildDate);
+        txtCreatedBy = (TextView) rootView.findViewById(R.id.txtCreatedBy);
+        txtSpecialThanks = (TextView) rootView.findViewById(R.id.txtSpecialThanks);
+        txtSupport = (TextView) rootView.findViewById(R.id.txtSupport);
 
         lblVersion.setTypeface(getMainActivity().segoe);
         lblBuildDate.setTypeface(getMainActivity().segoe);
@@ -65,12 +70,10 @@ public class AboutFragment extends BaseFragment {
         txtSupport.setTypeface(getMainActivity().segoe);
 
 
-        hydrate(view);
-
-        return view;
+        hydrate(rootView);
     }
 
-    private void hydrate(View view) {
+    private void hydrate(View rootView) {
         //get app version number
         try {
             PackageInfo pInfo = mActivity.getPackageManager().getPackageInfo(mActivity.getPackageName(), 0);

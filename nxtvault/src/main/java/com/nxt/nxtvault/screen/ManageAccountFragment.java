@@ -75,6 +75,7 @@ public class ManageAccountFragment extends BaseFragment {
 
     public static ManageAccountFragment getInstance(Boolean newAccount, AccountData accountData){
         ManageAccountFragment fragment = new ManageAccountFragment();
+
         fragment.accountData = accountData;
         fragment.newAccount = newAccount;
 
@@ -124,25 +125,14 @@ public class ManageAccountFragment extends BaseFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable final Bundle savedInstanceState) {
-        final View rootView = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_manage_account, container, false);
-
-        if (!mActivity.getIsJayLoaded()){
-            mActivity.subscribeJayLoaded(new IJayLoadedListener() {
-                @Override
-                public void onLoaded() {
-                    loadView(rootView, savedInstanceState);
-                }
-            });
-        }
-        else{
-            loadView(rootView, savedInstanceState);
-        }
-
-        return rootView;
+    protected View inflateView(LayoutInflater inflater, @Nullable ViewGroup container) {
+        return LayoutInflater.from(getActivity()).inflate(R.layout.fragment_manage_account, container, false);
     }
 
-    private void loadView(View rootView, Bundle savedInstanceState){
+    @Override
+    public void onReady(View rootView, Bundle savedInstanceState) {
+        super.onReady(rootView, savedInstanceState);
+
         ButtonFloat btnSave = (ButtonFloat)rootView.findViewById(R.id.btnSave);
         btnSave.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
         btnSave.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_accept));
@@ -252,7 +242,7 @@ public class ManageAccountFragment extends BaseFragment {
         txtAccountRs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ClipboardManager clipboard = (ClipboardManager)getMainActivity().getSystemService(getMainActivity().CLIPBOARD_SERVICE);
+                ClipboardManager clipboard = (ClipboardManager) getMainActivity().getSystemService(getMainActivity().CLIPBOARD_SERVICE);
                 clipboard.setPrimaryClip(ClipData.newPlainText("Account RS", txtAccountRs.getText().toString()));
 
                 Toast.makeText(getMainActivity(), txtAccountRs.getText().toString() + " copied to clipboard!", Toast.LENGTH_SHORT).show();
@@ -476,16 +466,22 @@ public class ManageAccountFragment extends BaseFragment {
 
                         generateAccount();
                     } else if (mRequestCode.equals(REQUEST_SCAN_TX)) {
-                        String tempToken = UUID.randomUUID().toString();
-                        getMainActivity().mPreferences.getSharedPref().edit().putString("tempToken", tempToken).commit();
+                        if (re.startsWith("NXT-")){
+                            //Scanned an address code, load the sendmoney fragment
+                            getMainActivity().navigate(SendMoneyFragment.getInstance(re), true);
+                        }
+                        else {
+                            String tempToken = UUID.randomUUID().toString();
+                            getMainActivity().mPreferences.getSharedPref().edit().putString("tempToken", tempToken).commit();
 
-                        Intent intent = new Intent("nxtvault.intent.action.SIGNANDBROADCAST");
+                            Intent intent = new Intent("nxtvault.intent.action.SIGNANDBROADCAST");
 
-                        intent.putExtra("AccessToken", tempToken);
-                        intent.putExtra("TransactionData", re);
-                        intent.putExtra("PublicKey", accountData.publicKey);
+                            intent.putExtra("AccessToken", tempToken);
+                            intent.putExtra("TransactionData", re);
+                            intent.putExtra("PublicKey", accountData.publicKey);
 
-                        startActivityForResult(intent, 2);
+                            startActivityForResult(intent, 2);
+                        }
                     }
                 }
             }

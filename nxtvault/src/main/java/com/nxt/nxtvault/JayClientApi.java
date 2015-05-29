@@ -144,7 +144,7 @@ public class JayClientApi extends JayApi {
         decryptSecretPhrase(accountData, new ValueCallback<String>() {
             @Override
             public void onReceiveValue(final String secretPhrase) {
-            mWebView.loadUrl("javascript:MyInterface.signResult(JSON.stringify(AndroidExtensions.signTrfBytes('" + accountData.accountRS + "', '" + txData + "', '" + secretPhrase + "')));");
+                mWebView.loadUrl("javascript:MyInterface.signResult(JSON.stringify(AndroidExtensions.signTrfBytes('" + accountData.accountRS + "', '" + txData + "', '" + secretPhrase + "')));");
             }
         });
     }
