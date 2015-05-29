@@ -75,7 +75,7 @@ public abstract class BaseActivity extends ActionBarActivity {
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
-        transaction.add(R.id.pin, pinFragment, "pin").commit();
+        transaction.replace(R.id.pin, pinFragment, "pin").commit();
 
         findViewById(R.id.pin).setVisibility(View.VISIBLE);
 

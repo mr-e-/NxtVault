@@ -21,6 +21,7 @@
             </intent-filter>
         </activity>
         <activity
+            android:screenOrientation="portrait"
             android:name=".SignTxActivity"
             android:label="@string/title_activity_sign_tx"
             android:launchMode="singleTop"
@@ -51,6 +52,7 @@
             android:theme="@style/Theme.Dialog" />
         <activity
             android:name=".ApiActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_api">
             <intent-filter>
                 <action android:name="nxtvault.intent.action.REQUESTPREFERREDSERVER" />

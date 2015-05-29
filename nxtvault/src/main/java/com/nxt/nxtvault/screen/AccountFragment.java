@@ -29,8 +29,6 @@ public class AccountFragment extends BaseFragment {
 
     ArrayList<AccountData> mAccountData;
 
-    private static final String ACCOUNT_DATA = "mAccountData";
-
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable final Bundle savedInstanceState) {
         final ViewGroup view = (ViewGroup)LayoutInflater.from(getActivity()).inflate(R.layout.fragment_account, container, false);
@@ -50,17 +48,12 @@ public class AccountFragment extends BaseFragment {
         return view;
     }
 
-    private void loadView(ViewGroup view, Bundle savedInstanceState) {
-        ListView listView = (ListView)view.findViewById(R.id.accountList);
+    private void loadView(ViewGroup rootView, Bundle savedInstanceState) {
+        ListView listView = (ListView)rootView.findViewById(R.id.accountList);
 
         jay = getMainActivity().getJay();
 
-        if (savedInstanceState == null){
-            mAccountData = getMainActivity().getAccountInfo().getAccountData();
-        }
-        else{
-            mAccountData = (ArrayList<AccountData>)savedInstanceState.getSerializable(ACCOUNT_DATA);
-        }
+        mAccountData = getMainActivity().getAccountInfo().getAccountData();
 
         final AccountAdapter accountAdapter = new AccountAdapter(getMainActivity(), R.layout.account_item);
         for(AccountData accountData : mAccountData){
@@ -77,7 +70,7 @@ public class AccountFragment extends BaseFragment {
             }
         });
 
-        btnNewAccount = (ButtonFloat)view.findViewById(R.id.new_account);
+        btnNewAccount = (ButtonFloat)rootView.findViewById(R.id.new_account);
         btnNewAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -103,13 +96,6 @@ public class AccountFragment extends BaseFragment {
 
         getMainActivity().setTitle(getMainActivity().getString(R.string.accounts));
         showBackButton(false);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putSerializable(ACCOUNT_DATA, mAccountData);
     }
 
     private class AccountAdapter extends ArrayAdapter<AccountData> {

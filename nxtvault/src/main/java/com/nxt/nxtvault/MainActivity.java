@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator;
 import android.app.ActionBar;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -81,30 +82,47 @@ public class MainActivity extends BaseActivity {
             mAssetList = gson.fromJson(mPreferences.getSharedPref().getString("assets", null), new TypeToken<ArrayList<Asset>>() { }.getType());
         }
 
-        boolean fromOrientation = mPreferences.getSharedPref().getBoolean("fromOrient", false);
+        //boolean fromOrientation = mPreferences.getSharedPref().getBoolean("fromOrient", false);
 
-        if (savedInstanceState == null || !fromOrientation){
-            if ( ((MyApp) getApplication()).jay != null){
-                setServerInfo();
-
-                refreshAccounts(null);
-            }
-            else {
-                ((MyApp) getApplication()).jay = new JayClientApi(this, new IJavascriptLoadedListener() {
-                    @Override
-                    public void onLoaded() {
+        if (((MyApp) getApplication()).jay == null){
+            ((MyApp) getApplication()).jay = new JayClientApi(this, new IJavascriptLoadedListener() {
+                @Override
+                public void onLoaded() {
                     setServerInfo();
 
                     refreshAccounts(null);
-                    }
-                });
-            }
+                }
+            });
         }
         else{
-            mJayLoaded = true;
-
-            mAccountInfo = (AccountInfo)savedInstanceState.getSerializable("mAccountInfo");
+            refreshAccounts(null);
+//            mJayLoaded = true;
+//
+//            mAccountInfo = (AccountInfo)savedInstanceState.getSerializable("mAccountInfo");
         }
+
+//        if (savedInstanceState == null || !fromOrientation){
+//            if ( ((MyApp) getApplication()).jay != null){
+//                setServerInfo();
+//
+//                refreshAccounts(null);
+//            }
+//            else {
+//                ((MyApp) getApplication()).jay = new JayClientApi(this, new IJavascriptLoadedListener() {
+//                    @Override
+//                    public void onLoaded() {
+//                    setServerInfo();
+//
+//                    refreshAccounts(null);
+//                    }
+//                });
+//            }
+//        }
+//        else{
+//            mJayLoaded = true;
+//
+//            mAccountInfo = (AccountInfo)savedInstanceState.getSerializable("mAccountInfo");
+//        }
 
         //set up action bar
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_HOME);
@@ -264,7 +282,7 @@ public class MainActivity extends BaseActivity {
     }
 
     protected void navigateStart(){
-        if (mSavedInstanceState == null){
+        if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
             navigate(new AccountFragment(), false);
         }
     }
