@@ -259,6 +259,16 @@ public class ManageAccountFragment extends BaseFragment {
             }
         });
 
+        txtPublicKey.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ClipboardManager clipboard = (ClipboardManager)getMainActivity().getSystemService(getMainActivity().CLIPBOARD_SERVICE);
+                clipboard.setPrimaryClip(ClipData.newPlainText("Public Key", txtPublicKey.getText().toString()));
+
+                Toast.makeText(getMainActivity(), txtPublicKey.getText().toString() + " copied to clipboard!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
 
         if (newAccount){
             txtPassphrase.setText(accountData.secretPhrase);

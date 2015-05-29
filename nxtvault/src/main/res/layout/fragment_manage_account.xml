@@ -51,8 +51,6 @@
                     android:text="Account" />
 
                 <TextView
-
-                    android:textIsSelectable="true"
                     android:id="@+id/accountRs"
                     android:layout_weight=".7"
                     android:layout_width="0dp"
