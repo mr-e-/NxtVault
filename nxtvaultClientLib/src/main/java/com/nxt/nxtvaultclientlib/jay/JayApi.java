@@ -221,7 +221,7 @@ public class JayApi implements IJayApi {
 
     ValueCallback<String> sendMoneyCallback;
     @Override
-    public void sendMoney(String accountRs, float amount, String message, final ValueCallback<String> callback) {
+    public void sendMoney(String accountRs, double amount, String message, final ValueCallback<String> callback) {
         sendMoneyCallback = callback;
 
         String messageJs = getMessage(message);

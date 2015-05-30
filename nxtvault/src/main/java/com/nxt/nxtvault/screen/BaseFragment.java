@@ -10,12 +10,14 @@ import android.view.ViewGroup;
 
 import com.nxt.nxtvault.IJayLoadedListener;
 import com.nxt.nxtvault.MainActivity;
+import com.nxt.nxtvaultclientlib.jay.JayApi;
 
 /**
  * Created by Brandon on 4/6/2015.
  */
 public abstract class BaseFragment extends Fragment {
-    MainActivity mActivity;
+    protected MainActivity mActivity;
+    protected JayApi mJay;
 
     public MainActivity getMainActivity(){
         return mActivity;
@@ -53,6 +55,6 @@ public abstract class BaseFragment extends Fragment {
     protected abstract View inflateView(LayoutInflater inflater, @Nullable ViewGroup container);
 
     public void onReady(View rootView, Bundle savedInstanceState){
-
+        mJay = mActivity.getJay();
     }
 }

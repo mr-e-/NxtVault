@@ -28,7 +28,7 @@ public interface IJayApi {
 
     void getAllAssets(ValueCallback<ArrayList<Asset>> callback);
 
-    void sendMoney(String accountRs, float amount, String message, ValueCallback<String> callback);
+    void sendMoney(String accountRs, double amount, String message, ValueCallback<String> callback);
 
     void transferAsset(String accountRs, Asset asset, float amount, String message, ValueCallback<String> callback);
 }

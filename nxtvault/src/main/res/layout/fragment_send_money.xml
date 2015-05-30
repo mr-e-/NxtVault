@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:materialdesign="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/lblAmount"
+            android:gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/header_text"
+            android:text="Enter the Amount to Send" />
+
+        <EditText
+            style="@style/text_entry"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:inputType="numberDecimal"
+            android:id="@+id/txtAmount"
+            android:background="@android:color/transparent"
+            android:layout_width="match_parent"
+            android:layout_height="50dp" android:layout_marginStart="10dp" android:layout_marginEnd="10dp" />
+
+        <View style="@style/row_group_divider" android:layout_margin="10dp" />
+
+        <CheckBox
+            android:id="@+id/chkMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Attach a Message"
+            android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp" />
+
+        <LinearLayout
+            android:id="@+id/messageView"
+            android:visibility="invisible"
+            android:orientation="vertical"
+            android:layout_margin="10dp"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Enter Message"
+                style="@style/header_text"
+                android:gravity="center_horizontal"
+                android:layout_marginBottom="10dp"/>
+
+            <com.nxt.nxtvault.controls.MultiLineDoneEditText
+                android:id="@+id/message"
+                android:background="@android:color/transparent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="40dp"/>
+
+            <View style="@style/row_group_divider" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <com.gc.materialdesign.views.ButtonFloat
+        android:id="@+id/btnSend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="12dp"
+        android:layout_centerHorizontal="true"
+        android:background="@color/primary_dark"
+        materialdesign:animate="false" />
+</RelativeLayout>

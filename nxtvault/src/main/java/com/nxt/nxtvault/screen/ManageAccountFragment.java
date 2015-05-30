@@ -28,6 +28,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.nxt.nxtvault.IJayLoadedListener;
 import com.nxt.nxtvault.R;
+import com.nxt.nxtvault.framework.TransactionFactory;
 import com.nxt.nxtvault.model.AccountData;
 import com.nxt.nxtvault.util.TextValidator;
 
@@ -468,16 +469,11 @@ public class ManageAccountFragment extends BaseFragment {
                     } else if (mRequestCode.equals(REQUEST_SCAN_TX)) {
                         if (re.startsWith("NXT-")){
                             //Scanned an address code, load the sendmoney fragment
-                            getMainActivity().navigate(SendMoneyFragment.getInstance(re), true);
+                            getMainActivity().navigate(SendMoneyFragment.getInstance(re, accountData.publicKey), true);
                         }
                         else {
-                            String tempToken = UUID.randomUUID().toString();
-                            getMainActivity().mPreferences.getSharedPref().edit().putString("tempToken", tempToken).commit();
-
-                            Intent intent = new Intent("nxtvault.intent.action.SIGNANDBROADCAST");
-
-                            intent.putExtra("AccessToken", tempToken);
-                            intent.putExtra("TransactionData", re);
+                            TransactionFactory txFactory = TransactionFactory.getTransactionFactory(getMainActivity().mPreferences);
+                            Intent intent = txFactory.createSelfSignedTx("nxtvault.intent.action.SIGNANDBROADCAST", re);
                             intent.putExtra("PublicKey", accountData.publicKey);
 
                             startActivityForResult(intent, 2);
