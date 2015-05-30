@@ -15,6 +15,8 @@ import org.acra.annotation.ReportsCrashes;
         resToastText = R.string.crash_toast_text)
 public class MyApp extends android.app.Application {
     public JayClientApi jay;
+    public static String SessionPin;
+
 
     @Override
     public void onCreate() {

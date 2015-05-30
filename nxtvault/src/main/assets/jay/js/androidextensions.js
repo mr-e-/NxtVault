@@ -9,6 +9,31 @@
 var AndroidExtensions = {
     reviewData: [],
 
+	storePin: function(pin){
+		var pinData = {};
+
+		pinData["cypher"] = encryptSecretPhrase(accountData["secretPhrase"], pin).toString();
+		pinData["checksum"] = converters.byteArrayToHexString(simpleHash(converters.stringToByteArray(accountData["secretPhrase"])));
+
+		localStorage["pin"] = JSON.stringify(pinData);
+	},
+
+	verifyPin: function(pin){
+		var result = false;
+
+		if (localStorage["pin"]){
+			var pinData = JSON.parse(localStorage["pin"]);
+			var cypher = encryptSecretPhrase(accountData["secretPhrase"], pin).toString();
+			var checksum = converters.byteArrayToHexString(simpleHash(converters.stringToByteArray(accountData["secretPhrase"])));
+
+			if (pinData["cypher"] === cypher && pinData["checksum"] == checksum){
+				result = true;
+			}
+		}
+
+		return result;
+	},
+
     getBestNodes: function(){
         Jay.nodeScan(function(){
             MyInterface.getBestNodesResult(JSON.stringify(Jay.bestNodes));

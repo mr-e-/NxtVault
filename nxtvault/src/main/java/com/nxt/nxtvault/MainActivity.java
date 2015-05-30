@@ -19,6 +19,8 @@ import com.nxt.nxtvault.model.AccountInfo;
 import com.nxt.nxtvault.screen.AboutFragment;
 import com.nxt.nxtvault.screen.AccountFragment;
 import com.nxt.nxtvault.screen.PreferenceFragment;
+import com.nxt.nxtvault.upgrade.IUpgradeTask;
+import com.nxt.nxtvault.upgrade.UpgradePinTask;
 import com.nxt.nxtvaultclientlib.jay.IJavascriptLoadedListener;
 import com.nxt.nxtvaultclientlib.jay.RequestMethods;
 import com.nxt.nxtvaultclientlib.nxtvault.model.Asset;
@@ -27,9 +29,6 @@ import java.util.ArrayList;
 
 
 public class MainActivity extends BaseActivity {
-
-    private boolean mJayLoaded;
-
     Gson gson = new Gson();
 
     private static AccountInfo mAccountInfo;
@@ -38,34 +37,9 @@ public class MainActivity extends BaseActivity {
 
     private TextView mTitleBar;
 
-    ArrayList<IJayLoadedListener> mJayLoadedListeners;
-
     public AccountInfo getAccountInfo(){
         return mAccountInfo;
     }
-
-    public JayClientApi getJay(){
-        return ((MyApp)getApplication()).jay;
-    }
-
-    public boolean getIsJayLoaded() {
-        return mJayLoaded;
-    }
-
-    public void setIsJayLoaded(boolean loaded) {
-        mJayLoaded = loaded;
-
-        if (mJayLoaded){
-            for(IJayLoadedListener listener : mJayLoadedListeners){
-                listener.onLoaded();
-            }
-        }
-    }
-
-    public void subscribeJayLoaded(IJayLoadedListener listener){
-        mJayLoadedListeners.add(listener);
-    }
-
 
     private ArrayList<Asset> mAssetList;
 
@@ -74,55 +48,13 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mJayLoadedListeners = new ArrayList<>();
+
 
         mSavedInstanceState = savedInstanceState;
 
         if (mPreferences.getSharedPref().getString("assets", null) != null) {
             mAssetList = gson.fromJson(mPreferences.getSharedPref().getString("assets", null), new TypeToken<ArrayList<Asset>>() { }.getType());
         }
-
-        //boolean fromOrientation = mPreferences.getSharedPref().getBoolean("fromOrient", false);
-
-        if (((MyApp) getApplication()).jay == null){
-            ((MyApp) getApplication()).jay = new JayClientApi(this, new IJavascriptLoadedListener() {
-                @Override
-                public void onLoaded() {
-                    setServerInfo();
-
-                    refreshAccounts(null);
-                }
-            });
-        }
-        else{
-            refreshAccounts(null);
-//            mJayLoaded = true;
-//
-//            mAccountInfo = (AccountInfo)savedInstanceState.getSerializable("mAccountInfo");
-        }
-
-//        if (savedInstanceState == null || !fromOrientation){
-//            if ( ((MyApp) getApplication()).jay != null){
-//                setServerInfo();
-//
-//                refreshAccounts(null);
-//            }
-//            else {
-//                ((MyApp) getApplication()).jay = new JayClientApi(this, new IJavascriptLoadedListener() {
-//                    @Override
-//                    public void onLoaded() {
-//                    setServerInfo();
-//
-//                    refreshAccounts(null);
-//                    }
-//                });
-//            }
-//        }
-//        else{
-//            mJayLoaded = true;
-//
-//            mAccountInfo = (AccountInfo)savedInstanceState.getSerializable("mAccountInfo");
-//        }
 
         //set up action bar
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_HOME);
@@ -132,6 +64,15 @@ public class MainActivity extends BaseActivity {
         mTitleBar = ((TextView)getSupportActionBar().getCustomView().findViewById(R.id.createAccount));
         mTitleBar.setTypeface(segoe);
     }
+
+    @Override
+    protected void jayLoaded() {
+        setServerInfo();
+
+        refreshAccounts(null);
+    }
+
+
 
     @Override
     public Object onRetainCustomNonConfigurationInstance() {

@@ -23,9 +23,9 @@ public class PreferenceManager {
         return sharedPref;
     }
 
-    public void putPin(String pin){
+    public void putPinIsSet(boolean isSet){
         sharedPref.edit()
-                .putString(mContext.getString(R.string.pin), pin)
+                .putBoolean(mContext.getString(R.string.pinIsSet), isSet)
                 .apply();
     }
 
@@ -55,8 +55,8 @@ public class PreferenceManager {
         return sharedPref.getString(mContext.getString(R.string.server_preference), null);
     }
 
-    public String getPin(){
-        return sharedPref.getString(mContext.getString(R.string.pin), null);
+    public boolean getPinIsSet(){
+        return sharedPref.getBoolean(mContext.getString(R.string.pinIsSet), false);
     }
 
     public String getPinTimeout(){

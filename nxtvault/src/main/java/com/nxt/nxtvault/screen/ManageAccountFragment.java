@@ -27,6 +27,7 @@ import com.gc.materialdesign.views.ButtonFloat;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.nxt.nxtvault.IJayLoadedListener;
+import com.nxt.nxtvault.MyApp;
 import com.nxt.nxtvault.R;
 import com.nxt.nxtvault.framework.TransactionFactory;
 import com.nxt.nxtvault.model.AccountData;
@@ -159,7 +160,7 @@ public class ManageAccountFragment extends BaseFragment {
         mActivity.getJay().generateSecretPhrase(new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
-                mActivity.getJay().getNewAccount(value, mActivity.mPreferences.getPin(), new ValueCallback<AccountData>() {
+                mActivity.getJay().getNewAccount(value, MyApp.SessionPin, new ValueCallback<AccountData>() {
                     @Override
                     public void onReceiveValue(AccountData value) {
                         accountData = value;
@@ -382,7 +383,7 @@ public class ManageAccountFragment extends BaseFragment {
         if (txtPassphrase.getText().toString().equals(ENCRYPTED_PASSPHRASE)) {
             showLoadingSpinner(getView(), "Decrypting passphrase");
 
-            accountData.key = getMainActivity().mPreferences.getPin();
+            accountData.key = MyApp.SessionPin;
             getMainActivity().getJay().decryptSecretPhrase(accountData, new ValueCallback<String>() {
                 @Override
                 public void onReceiveValue(String value) {
@@ -414,7 +415,7 @@ public class ManageAccountFragment extends BaseFragment {
     }
 
     private void generateAccount() {
-        getMainActivity().getJay().getNewAccount(txtPassphrase.getText().toString(), getMainActivity().mPreferences.getPin(), new ValueCallback<AccountData>() {
+        getMainActivity().getJay().getNewAccount(txtPassphrase.getText().toString(), MyApp.SessionPin, new ValueCallback<AccountData>() {
             @Override
             public void onReceiveValue(final AccountData value) {
             accountData = value;

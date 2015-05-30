@@ -36,6 +36,7 @@
     <string name="preference_file_key">PrefFile</string>
     <string name="app_file_key">PrefFile</string>
     <string name="pin">pin</string>
+    <string name="pinIsSet">pinIsSet</string>
     <string name="add_account">ADD ACCOUNT</string>
     <string name="view_account">VIEW ACCOUNT</string>
     <string name="settings">SETTINGS</string>

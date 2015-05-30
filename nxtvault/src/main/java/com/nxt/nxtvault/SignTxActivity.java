@@ -183,7 +183,7 @@ public class SignTxActivity extends MainActivity {
                 setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.access_denied)));
             }
             else {
-                accountData.key = mPreferences.getPin();
+                accountData.key = MyApp.SessionPin;
 
                 getJay().sign(accountData, txData, new ValueCallback<String>() {
                     @Override

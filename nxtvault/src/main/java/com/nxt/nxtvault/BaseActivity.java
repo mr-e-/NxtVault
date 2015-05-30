@@ -10,11 +10,17 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.ValueCallback;
 import android.widget.TextView;
 
 import com.nxt.nxtvault.preference.PreferenceManager;
 import com.nxt.nxtvault.security.pin.IPinEnteredListener;
 import com.nxt.nxtvault.security.pin.PinEntryView;
+import com.nxt.nxtvault.upgrade.IUpgradeTask;
+import com.nxt.nxtvault.upgrade.UpgradePinTask;
+import com.nxt.nxtvaultclientlib.jay.IJavascriptLoadedListener;
+
+import java.util.ArrayList;
 
 /**
  * Created by bcollins on 2015-04-17.
@@ -30,6 +36,32 @@ public abstract class BaseActivity extends ActionBarActivity {
     public Typeface segoeb;
     public Typeface segoel;
 
+    ArrayList<IJayLoadedListener> mJayLoadedListeners;
+
+    private boolean mJayLoaded;
+
+    public JayClientApi getJay(){
+        return ((MyApp)getApplication()).jay;
+    }
+
+    public boolean getIsJayLoaded() {
+        return mJayLoaded;
+    }
+
+    public void setIsJayLoaded(boolean loaded) {
+        mJayLoaded = loaded;
+
+        if (mJayLoaded){
+            for(IJayLoadedListener listener : mJayLoadedListeners){
+                listener.onLoaded();
+            }
+        }
+    }
+
+    public void subscribeJayLoaded(IJayLoadedListener listener){
+        mJayLoadedListeners.add(listener);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,19 +71,59 @@ public abstract class BaseActivity extends ActionBarActivity {
         segoel = Typeface.createFromAsset(getAssets(), "fonts/segoeui.ttf");
 
         mPreferences = new PreferenceManager(this);
+
+        mJayLoadedListeners = new ArrayList<>();
+
+        if (((MyApp) getApplication()).jay == null){
+            ((MyApp) getApplication()).jay = new JayClientApi(this, new IJavascriptLoadedListener() {
+                @Override
+                public void onLoaded() {
+                    runUpgrades();
+
+                    jayLoaded();
+                }
+            });
+        }
+        else{
+            jayLoaded();
+        }
+    }
+
+    private void runUpgrades() {
+        ArrayList<IUpgradeTask> upgradeTasks = new ArrayList<>();
+
+        //upgrade pin so it is no longer stored in internal storage
+        upgradeTasks.add(new UpgradePinTask(this, mPreferences, getJay()));
+
+        for(IUpgradeTask task : upgradeTasks){
+            if (task.requiresUpgrade()){
+                task.upgrade();
+            }
+        }
+    }
+
+    abstract protected void jayLoaded();
+
+    void storePin(String pin) {
+        getJay().storePin(pin);
+
+        //Store the entered pin number for later verification
+        mPreferences.putPinIsSet(true);
+
+        MyApp.SessionPin = pin;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        String pin = mPreferences.getPin();
+        boolean pinIsSet = mPreferences.getPinIsSet();
         int pinTimeout = Integer.parseInt(mPreferences.getPinTimeout()) * 60 * 1000;
 
         long time = System.currentTimeMillis() - mPreferences.getLastPinEntry();
 
         if (time > pinTimeout && !mPinShowing){
-            if (pin == null || pin.isEmpty()){
+            if (!pinIsSet){
                 mCurrentPinMode = PinMode.Initialize;
             }
             else
@@ -95,11 +167,6 @@ public abstract class BaseActivity extends ActionBarActivity {
         mPinShowing = false;
     }
 
-    void storePin(String pin){
-        //Store the entered pin number for later verification
-        mPreferences.putPin(pin);
-    }
-
     public static class PinFragment extends Fragment{
         private String mFirstPinEntry, mOldPin;
         PinEntryView pinEntryView;
@@ -124,16 +191,21 @@ public abstract class BaseActivity extends ActionBarActivity {
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            if (verifyPin(pin)) {
-                                ((BaseActivity)getActivity()).mPreferences.putLastPinEntry(System.currentTimeMillis());
-                                ((BaseActivity)getActivity()).mPreferences.putPinTryLockoutTime(0);
-                                ((BaseActivity)getActivity()).mPreferences.putPinTryAttempts(0);
+                            verifyPin(pin, new ValueCallback<Boolean>() {
+                                @Override
+                                public void onReceiveValue(Boolean value) {
+                                    if (value){
+                                        ((BaseActivity)getActivity()).mPreferences.putLastPinEntry(System.currentTimeMillis());
+                                        ((BaseActivity)getActivity()).mPreferences.putPinTryLockoutTime(0);
+                                        ((BaseActivity)getActivity()).mPreferences.putPinTryAttempts(0);
 
-                                mActivity.pinAccepted();
-                            }
-                            else {
-                                pinEntryView.clearText();
-                            }
+                                        mActivity.pinAccepted();
+                                    }
+                                    else{
+                                        pinEntryView.clearText();
+                                    }
+                                }
+                            });
                         }
                     }, 500);
                 };
@@ -179,62 +251,78 @@ public abstract class BaseActivity extends ActionBarActivity {
             pinEntryView.clearKeyBoard();
         }
 
-        private boolean verifyPin(String s) {
+        private void verifyPin(final String s, final ValueCallback<Boolean> callback) {
             boolean accept = false;
 
             if (mActivity.mCurrentPinMode == PinMode.Initialize) {
-                //check if entering first time, request second to confirm
-                if (mFirstPinEntry == null) {
-                    mFirstPinEntry = s;
-
-                    headerText.setText("Confirm your PIN Number");
-
-                } else {
-                    accept = storePin(s);
-                }
+                initializeNewPin(s, callback);
             } else if (mActivity.mCurrentPinMode == PinMode.Enter) {
                 if (canEnterPin()) {
                     //verify pin and allow access to application
-                    if (mActivity.mPreferences.getPin() != null && mActivity.mPreferences.getPin().equals(s)) {
-                        accept = true;
-                    } else {
-                        headerText.setText("Please try again");
-                        handleIncorrectPin();
-                    }
+                    mActivity.getJay().verifyPin(MyApp.SessionPin, new ValueCallback<Boolean>() {
+                        @Override
+                        public void onReceiveValue(Boolean accepted) {
+                            if (!accepted){
+                                headerText.setText("Please try again");
+                                handleIncorrectPin();
+                            }
+
+                            doCallback(callback, accepted);
+                        }
+                    });
+
                 } else {
                     setPinLockoutMessage();
                     pinEntryView.setEnabled(false);
+
+                    doCallback(callback, false);
                 }
             } else if (mActivity.mCurrentPinMode == PinMode.Change) {
                 //Enter in the old pin number first
                 if (mOldPin == null) {
-                    if (s.equals(mActivity.mPreferences.getPin())) {
-                        mOldPin = s;
+                    mActivity.getJay().verifyPin(s, new ValueCallback<Boolean>() {
+                        @Override
+                        public void onReceiveValue(Boolean accepted) {
+                            if (accepted) {
+                                mOldPin = s;
 
-                        headerText.setText("Enter your new PIN number");
-                    } else {
-                        headerText.setText("Incorrect, enter your current PIN");
-                    }
+                                headerText.setText("Enter your new PIN number");
+                            }
+                            else{
+                                headerText.setText("Incorrect, enter your current PIN");
+                            }
+
+                            doCallback(callback, accepted);
+                        }
+                    });
                 }
                 //enter the new pin number
-                else if (mFirstPinEntry == null) {
-                    mFirstPinEntry = s;
-                    headerText.setText("Confirm your PIN Number");
-                } else {
-                    //confirm the new pin numbers match
-                    if (mFirstPinEntry.equals(s)) {
-                        //reencrypt the accounts that are currently encrypted with the old pin
-                        mActivity.pinChanged(mOldPin, s);
-                        accept = true;
-                    } else {
-                        pinEntryView.clearText();
-                        mFirstPinEntry = null;
-                        headerText.setText("PIN mismatch. Try again.");
-                    }
+                else{
+                    initializeNewPin(s, callback);
                 }
             }
+        }
 
-            return accept;
+        private void initializeNewPin(String s, ValueCallback<Boolean> callback) {
+            boolean accept = false;
+
+            //check if entering first time, request second to confirm
+            if (mFirstPinEntry == null) {
+                mFirstPinEntry = s;
+
+                headerText.setText("Confirm your PIN Number");
+
+            } else {
+                accept = storePin(s);
+            }
+
+            doCallback(callback, accept);
+        }
+
+        private void doCallback(ValueCallback<Boolean> callback, boolean accept) {
+            if (callback != null){
+                callback.onReceiveValue(accept);
+            }
         }
 
         private void setPinLockoutMessage() {

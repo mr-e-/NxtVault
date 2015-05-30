@@ -15,7 +15,7 @@ android {
         applicationId "jay.nxtvault"
         minSdkVersion 14
         targetSdkVersion 21
-        versionCode 6
+        versionCode 8
         versionName "0.84"
     }
     buildTypes {
