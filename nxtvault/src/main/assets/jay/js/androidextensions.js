@@ -13,7 +13,7 @@ var AndroidExtensions = {
 		var pinData = {};
 
 		pinData["cypher"] = encryptSecretPhrase("pin", pin).toString();
-		pinData["checksum"] = converters.byteArrayToHexString(simpleHash(converters.stringToByteArray(pin)));
+		pinData["checksum"] = converters.byteArrayToHexString(simpleHash(converters.stringToByteArray("pin")));
 
 		localStorage["pin"] = JSON.stringify(pinData);
 	},
@@ -24,7 +24,7 @@ var AndroidExtensions = {
 		if (localStorage["pin"]){
 			var pinData = JSON.parse(localStorage["pin"]);
 			var cypher = encryptSecretPhrase("pin", pin).toString();
-			var checksum = converters.byteArrayToHexString(simpleHash(converters.stringToByteArray(pin)));
+			var checksum = converters.byteArrayToHexString(simpleHash(converters.stringToByteArray("pin")));
 
 			if (pinData["cypher"] === cypher && pinData["checksum"] == checksum){
 				result = true;
