@@ -277,7 +277,7 @@ public class JayApi implements IJayApi {
     public void verifyPin(String pin, final ValueCallback<Boolean> callback) {
         verifyPinCallback = callback;
 
-        mWebView.loadUrl("MyInterface.verifyPinResult(AndroidExtension.verifyPin('" + pin + "'));");
+        mWebView.loadUrl("javascript:MyInterface.verifyPinResult(AndroidExtensions.verifyPin('" + pin + "'));");
     }
 
     @JavascriptInterface
@@ -295,6 +295,6 @@ public class JayApi implements IJayApi {
     //////Store PIN - no callback
     @Override
     public void storePin(String pin) {
-        mWebView.loadUrl("javascript:AndroidExtension.storePin('" + pin + "');");
+        mWebView.loadUrl("javascript:AndroidExtensions.storePin('" + pin + "');");
     }
 }

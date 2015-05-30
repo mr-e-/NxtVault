@@ -259,7 +259,7 @@ public abstract class BaseActivity extends ActionBarActivity {
             } else if (mActivity.mCurrentPinMode == PinMode.Enter) {
                 if (canEnterPin()) {
                     //verify pin and allow access to application
-                    mActivity.getJay().verifyPin(MyApp.SessionPin, new ValueCallback<Boolean>() {
+                    mActivity.getJay().verifyPin(s, new ValueCallback<Boolean>() {
                         @Override
                         public void onReceiveValue(Boolean accepted) {
                             if (!accepted){
