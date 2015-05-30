@@ -27,6 +27,7 @@ public class UpgradePinTask implements IUpgradeTask{
 
         mJay.storePin(pin);
         mPreferences.getSharedPref().edit().putString(mContext.getString(R.string.pin), null).commit();
+        mPreferences.getSharedPref().edit().putBoolean(mContext.getString(R.string.pinIsSet), true).commit();
     }
 
     @Override
