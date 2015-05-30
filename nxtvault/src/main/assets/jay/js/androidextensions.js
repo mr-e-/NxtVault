@@ -26,7 +26,7 @@ var AndroidExtensions = {
 			var cypher = encryptSecretPhrase("pin", pin).toString();
 			var checksum = converters.byteArrayToHexString(simpleHash(converters.stringToByteArray("pin")));
 
-			if (pinData["cypher"] === cypher && pinData["checksum"] == checksum){
+			if (pinData["cypher"] == cypher && pinData["checksum"] == checksum){
 				result = true;
 			}
 		}
