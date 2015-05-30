@@ -200,6 +200,7 @@ public abstract class BaseActivity extends ActionBarActivity {
                                         ((BaseActivity)getActivity()).mPreferences.putPinTryAttempts(0);
 
                                         mActivity.pinAccepted();
+                                        MyApp.SessionPin = pin;
                                     }
                                     else{
                                         pinEntryView.clearText();
@@ -292,13 +293,27 @@ public abstract class BaseActivity extends ActionBarActivity {
                                 headerText.setText("Incorrect, enter your current PIN");
                             }
 
-                            doCallback(callback, accepted);
+                            doCallback(callback, false);
                         }
                     });
                 }
-                //enter the new pin number
-                else{
-                    initializeNewPin(s, callback);
+                else if (mFirstPinEntry == null) {
+                    mFirstPinEntry = s;
+                    headerText.setText("Confirm your PIN Number");
+                    doCallback(callback, accept);
+                } else {
+                    //confirm the new pin numbers match
+                    if (mFirstPinEntry.equals(s)) {
+                        //reencrypt the accounts that are currently encrypted with the old pin
+                        mActivity.pinChanged(mOldPin, s);
+                        accept = true;
+                    } else {
+                        pinEntryView.clearText();
+                        mFirstPinEntry = null;
+                        headerText.setText("PIN mismatch. Try again.");
+                    }
+
+                    doCallback(callback, accept);
                 }
             }
         }
