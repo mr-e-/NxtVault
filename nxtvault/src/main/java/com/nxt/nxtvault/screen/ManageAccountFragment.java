@@ -24,11 +24,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.gc.materialdesign.views.ButtonFloat;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-import com.nxt.nxtvault.IJayLoadedListener;
 import com.nxt.nxtvault.MyApp;
 import com.nxt.nxtvault.R;
 import com.nxt.nxtvault.framework.PasswordManager;
@@ -38,7 +36,6 @@ import com.nxt.nxtvault.util.TextValidator;
 
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.UUID;
 
 /**
  * Created by Brandon on 4/18/2015.
@@ -156,6 +153,9 @@ public class ManageAccountFragment extends BaseFragment {
         }
 
         if (newAccount && accountData == null){
+            //disable spending password until account is save
+            rootView.findViewById(R.id.spendingPasswordView).setVisibility(View.GONE);
+
             generateNewAccount(rootView);
         }
         else{
@@ -382,13 +382,18 @@ public class ManageAccountFragment extends BaseFragment {
             @Override
             public void onClick(View v) {
                 if (chkSPendingPassword.isChecked()){
-                    mPasswordManager.setSpendingPassword(getMainActivity(), accountData, new ValueCallback<Boolean>() {
-                        @Override
-                        public void onReceiveValue(Boolean value) {
-                            if (!value)
-                                chkSPendingPassword.setChecked(false);
-                        }
-                    });
+                    if (!newAccount) {
+                        mPasswordManager.setSpendingPassword(getMainActivity(), accountData, new ValueCallback<Boolean>() {
+                            @Override
+                            public void onReceiveValue(Boolean value) {
+                                if (!value)
+                                    chkSPendingPassword.setChecked(false);
+                            }
+                        });
+                    }
+                    else{
+
+                    }
                 }
                 else{
                     mPasswordManager.removeSpendingPassword(getMainActivity(), accountData, new ValueCallback<Boolean>() {

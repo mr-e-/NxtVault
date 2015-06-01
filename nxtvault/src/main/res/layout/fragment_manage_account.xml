@@ -118,7 +118,7 @@
 
             <View style="@style/row_group_divider" />
 
-            <LinearLayout style="@style/row_group" android:layout_height="55dp">
+            <LinearLayout style="@style/row_group" android:layout_height="55dp" android:id="@+id/spendingPasswordView">
 
                 <TextView
                     android:id="@+id/lblSpending"
@@ -132,9 +132,11 @@
                     android:id="@+id/chkSpending"
                     android:layout_width="match_parent"/>
 
+                <View style="@style/row_group_divider" />
+
             </LinearLayout>
 
-            <View style="@style/row_group_divider" />
+
         </LinearLayout>
 
     </ScrollView>
