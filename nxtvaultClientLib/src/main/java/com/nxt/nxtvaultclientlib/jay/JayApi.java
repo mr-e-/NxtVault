@@ -292,9 +292,21 @@ public class JayApi implements IJayApi {
 
 
 
-    //////Store PIN - no callback
+    ValueCallback<Boolean> storePinCallback;
     @Override
-    public void storePin(String pin) {
-        mWebView.loadUrl("javascript:AndroidExtensions.storePin('" + pin + "');");
+    public void storePin(String pin, final ValueCallback<Boolean> callback) {
+        storePinCallback = callback;
+
+        mWebView.loadUrl("javascript:MyInterface.storePinResult(AndroidExtensions.storePin('" + pin + "'));");
+    }
+
+    @JavascriptInterface
+    public void storePinResult(final String result) {
+        ((Activity) mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                storePinCallback.onReceiveValue(null);
+            }
+        });
     }
 }

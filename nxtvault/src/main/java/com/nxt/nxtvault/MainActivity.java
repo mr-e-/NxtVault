@@ -209,13 +209,16 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void onReceiveValue(String value) {
                         //Store the changed pin
-                        storePin(s);
+                        storePin(s, new ValueCallback<Boolean>() {
+                            @Override
+                            public void onReceiveValue(Boolean value) {
+                                View progress = findViewById(R.id.progress);
+                                ObjectAnimator.ofFloat(progress, View.ALPHA, 1, 0).start();
+                                progress.setVisibility(View.GONE);
 
-                        View progress = findViewById(R.id.progress);
-                        ObjectAnimator.ofFloat(progress, View.ALPHA, 1, 0).start();
-                        progress.setVisibility(View.GONE);
-
-                        ObjectAnimator.ofFloat(findViewById(R.id.mainView), View.ALPHA, 0, 1).start();
+                                ObjectAnimator.ofFloat(findViewById(R.id.mainView), View.ALPHA, 0, 1).start();
+                            }
+                        });
                     }
                 });
             }

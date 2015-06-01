@@ -35,5 +35,5 @@ public interface IJayApi {
     void verifyPin(String pin, ValueCallback<Boolean> callback);
 
     //////Store PIN - no callback
-    void storePin(String pin);
+    void storePin(String pin, final ValueCallback<Boolean> callback);
 }

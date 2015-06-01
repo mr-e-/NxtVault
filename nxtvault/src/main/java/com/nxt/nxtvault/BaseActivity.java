@@ -40,6 +40,8 @@ public abstract class BaseActivity extends ActionBarActivity {
 
     private boolean mJayLoaded;
 
+    int count = 0;
+
     public JayClientApi getJay(){
         return ((MyApp)getApplication()).jay;
     }
@@ -78,9 +80,12 @@ public abstract class BaseActivity extends ActionBarActivity {
             ((MyApp) getApplication()).jay = new JayClientApi(this, new IJavascriptLoadedListener() {
                 @Override
                 public void onLoaded() {
-                    runUpgrades();
-
-                    jayLoaded();
+                    runUpgrades(new ValueCallback<Void>() {
+                        @Override
+                        public void onReceiveValue(Void value) {
+                            jayLoaded();
+                        }
+                    });
                 }
             });
         }
@@ -89,28 +94,45 @@ public abstract class BaseActivity extends ActionBarActivity {
         }
     }
 
-    private void runUpgrades() {
-        ArrayList<IUpgradeTask> upgradeTasks = new ArrayList<>();
+    private void runUpgrades(final ValueCallback<Void> callback) {
+        final ArrayList<IUpgradeTask> upgradeTasks = new ArrayList<>();
 
         //upgrade pin so it is no longer stored in internal storage
         upgradeTasks.add(new UpgradePinTask(this, mPreferences, getJay()));
 
         for(IUpgradeTask task : upgradeTasks){
             if (task.requiresUpgrade()){
-                task.upgrade();
+                task.upgrade(new ValueCallback<Void>() {
+                    @Override
+                    public void onReceiveValue(Void value) {
+                        if (++count == upgradeTasks.size()){
+                            callback.onReceiveValue(null);
+                        }
+                    }
+                });
+            }
+            else{
+                if (++count == upgradeTasks.size()){
+                    callback.onReceiveValue(null);
+                }
             }
         }
     }
 
     abstract protected void jayLoaded();
 
-    void storePin(String pin) {
-        getJay().storePin(pin);
+    void storePin(final String pin, final ValueCallback<Boolean> callback) {
+        getJay().storePin(pin, new ValueCallback<Boolean>() {
+            @Override
+            public void onReceiveValue(Boolean value) {
+                //Store the entered pin number for later verification
+                mPreferences.putPinIsSet(true);
 
-        //Store the entered pin number for later verification
-        mPreferences.putPinIsSet(true);
+                MyApp.SessionPin = pin;
 
-        MyApp.SessionPin = pin;
+                callback.onReceiveValue(value);
+            }
+        });
     }
 
     @Override
@@ -318,20 +340,21 @@ public abstract class BaseActivity extends ActionBarActivity {
             }
         }
 
-        private void initializeNewPin(String s, ValueCallback<Boolean> callback) {
-            boolean accept = false;
-
+        private void initializeNewPin(String s, final ValueCallback<Boolean> callback) {
             //check if entering first time, request second to confirm
             if (mFirstPinEntry == null) {
                 mFirstPinEntry = s;
 
                 headerText.setText("Confirm your PIN Number");
-
+                doCallback(callback, false);
             } else {
-                accept = storePin(s);
+                storePin(s, new ValueCallback<Boolean>() {
+                    @Override
+                    public void onReceiveValue(Boolean value) {
+                        doCallback(callback, value);
+                    }
+                });
             }
-
-            doCallback(callback, accept);
         }
 
         private void doCallback(ValueCallback<Boolean> callback, boolean accept) {
@@ -409,21 +432,18 @@ public abstract class BaseActivity extends ActionBarActivity {
             return null;
         }
 
-        private boolean storePin(String s) {
-            boolean accept = false;
-
+        private void storePin(String s, ValueCallback<Boolean> callback) {
             //Store the pin for good
             if (mFirstPinEntry.equals(s)){
-                mActivity.storePin(s);
-                accept = true;
+                mActivity.storePin(s, callback);
             }
             else{
                 pinEntryView.clearText();
                 mFirstPinEntry = null;
                 headerText.setText("PIN mismatch. Try again.");
-            }
 
-            return accept;
+                callback.onReceiveValue(false);
+            }
         }
     }
 
