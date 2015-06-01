@@ -16,7 +16,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import com.nxt.jayclientlib.BuildConfig;
 import com.nxt.nxtvaultclientlib.nxtvault.model.Account;
 import com.nxt.nxtvaultclientlib.nxtvault.model.Asset;
 
