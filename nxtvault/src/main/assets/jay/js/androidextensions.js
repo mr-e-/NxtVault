@@ -16,6 +16,8 @@ var AndroidExtensions = {
 		pinData["checksum"] = converters.byteArrayToHexString(simpleHash(converters.stringToByteArray("pin")));
 
 		localStorage["pin"] = JSON.stringify(pinData);
+
+		return true;
 	},
 
 	verifyPin: function(pin){

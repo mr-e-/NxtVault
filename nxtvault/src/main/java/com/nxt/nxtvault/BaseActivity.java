@@ -130,7 +130,7 @@ public abstract class BaseActivity extends ActionBarActivity {
 
                 MyApp.SessionPin = pin;
 
-                callback.onReceiveValue(value);
+                callback.onReceiveValue(true);
             }
         });
     }
