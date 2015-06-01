@@ -43,6 +43,10 @@ public class JayClientApi extends JayApi {
     public void getNewAccount(String secretPhrase, String pin, final ValueCallback<AccountData> callback){
         getNewAccountCallback = callback;
 
+        if (secretPhrase.contains("'")) {
+            secretPhrase = secretPhrase.replace("'", "\\'");
+        }
+
         mWebView.loadUrl("javascript: MyInterface.getNewAccountResult(JSON.stringify(newAccount('" + secretPhrase + "', '" + pin + "')));");
     }
 
