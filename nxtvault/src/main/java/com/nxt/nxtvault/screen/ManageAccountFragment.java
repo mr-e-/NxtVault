@@ -198,7 +198,7 @@ public class ManageAccountFragment extends BaseFragment {
         ObjectAnimator.ofFloat(rootView.findViewById(R.id.btnSave), View.ALPHA, 1, 0).setDuration(500).start();
 
         progress.setVisibility(View.VISIBLE);
-        rootView.findViewById(R.id.scrollview).setVisibility(View.INVISIBLE);
+        //rootView.findViewById(R.id.scrollview).setVisibility(View.INVISIBLE);
         rootView.findViewById(R.id.btnSave).setVisibility(View.INVISIBLE);
     }
 
@@ -212,7 +212,7 @@ public class ManageAccountFragment extends BaseFragment {
         rootView.findViewById(R.id.scrollview).setVisibility(View.VISIBLE);
         rootView.findViewById(R.id.btnSave).setVisibility(View.VISIBLE);
 
-        progress.setVisibility(View.INVISIBLE);
+        progress.setVisibility(View.GONE);
     }
 
     private void hydrate(View rootView) {

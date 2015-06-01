@@ -122,18 +122,15 @@
 
                 <TextView
                     android:id="@+id/lblSpending"
-                    android:layout_weight=".5"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     style="@style/row_header_text"
                     android:text="Spending Password" />
 
                 <CheckBox
+                    android:layout_marginLeft="10dp"
                     android:layout_height="match_parent"
-                    android:textIsSelectable="true"
                     android:id="@+id/chkSpending"
-                    android:layout_weight=".5"
-                    android:layout_width="0dp"
-                    android:background="@android:color/transparent" />
+                    android:layout_width="match_parent"/>
 
             </LinearLayout>
 

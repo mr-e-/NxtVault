@@ -34,6 +34,8 @@ public class PasswordManager {
                 .title("Set Spending Password")
                 .customView(R.layout.spending_passphrase_view, false)
                 .positiveText("Accept")
+                .negativeText("Cancel")
+                .cancelable(false)
                 .callback(new MaterialDialog.ButtonCallback() {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
@@ -58,6 +60,13 @@ public class PasswordManager {
                             callback.onReceiveValue(false);
                         }
                     }
+
+                    @Override
+                    public void onNegative(MaterialDialog dialog) {
+                        super.onNegative(dialog);
+
+                        callback.onReceiveValue(false);
+                    }
                 })
                 .build();
 
@@ -73,7 +82,9 @@ public class PasswordManager {
         MaterialDialog d = new MaterialDialog.Builder(mainActivity)
                 .title("Remove Spending Password")
                 .customView(R.layout.remove_spending_passphrase_view, false)
+                .cancelable(false)
                 .positiveText("Accept")
+                .negativeText("Cancel")
                 .callback(new MaterialDialog.ButtonCallback() {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
@@ -101,6 +112,13 @@ public class PasswordManager {
                                 }
                             }
                         });
+                    }
+
+                    @Override
+                    public void onNegative(MaterialDialog dialog) {
+                        super.onNegative(dialog);
+
+                        callback.onReceiveValue(false);
                     }
                 })
                 .build();
