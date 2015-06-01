@@ -18,17 +18,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.ValueCallback;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.gc.materialdesign.views.ButtonFloat;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.nxt.nxtvault.IJayLoadedListener;
 import com.nxt.nxtvault.MyApp;
 import com.nxt.nxtvault.R;
+import com.nxt.nxtvault.framework.PasswordManager;
 import com.nxt.nxtvault.framework.TransactionFactory;
 import com.nxt.nxtvault.model.AccountData;
 import com.nxt.nxtvault.util.TextValidator;
@@ -53,9 +56,14 @@ public class ManageAccountFragment extends BaseFragment {
     EditText txtPassphrase;
     ImageView imgPassphrase;
     ButtonFloat btnSave;
+    CheckBox chkSPendingPassword;
+
+    EditText p1, p2;
 
     boolean newAccount;
     AccountData accountData;
+
+    PasswordManager mPasswordManager;
 
     private boolean mIsEdited;
 
@@ -134,6 +142,8 @@ public class ManageAccountFragment extends BaseFragment {
     @Override
     public void onReady(View rootView, Bundle savedInstanceState) {
         super.onReady(rootView, savedInstanceState);
+
+        mPasswordManager = new PasswordManager(getMainActivity().getJay());
 
         ButtonFloat btnSave = (ButtonFloat)rootView.findViewById(R.id.btnSave);
         btnSave.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
@@ -217,6 +227,8 @@ public class ManageAccountFragment extends BaseFragment {
         txtPassphrase = (EditText) rootView.findViewById(R.id.passphrase);
         imgPassphrase = (ImageView) rootView.findViewById(R.id.showHidePrivateKey);
 
+        chkSPendingPassword = (CheckBox)rootView.findViewById(R.id.chkSpending);
+
         txtAccountName.setTypeface(getMainActivity().segoe);
         txtAccountRs.setTypeface(getMainActivity().segoe);
         txtPublicKey.setTypeface(getMainActivity().segoe);
@@ -229,6 +241,7 @@ public class ManageAccountFragment extends BaseFragment {
         txtAccountName.setText(accountData.accountName);
         txtAccountRs.setText(accountData.accountRS);
         txtPublicKey.setText(accountData.publicKey);
+
 
         View.OnFocusChangeListener listener =new View.OnFocusChangeListener() {
             @Override
@@ -272,6 +285,8 @@ public class ManageAccountFragment extends BaseFragment {
             imgPassphrase.setVisibility(View.VISIBLE);
             getMainActivity().setTitle(getMainActivity().getString(R.string.view_account));
         }
+
+        chkSPendingPassword.setChecked(accountData.getIsSpendingPasswordEnabled());
 
         if (newAccount){
             txtPassphrase.setTextColor(getResources().getColor(R.color.primary_dark));
@@ -363,6 +378,30 @@ public class ManageAccountFragment extends BaseFragment {
                 setButton();
             }
         });
+
+        chkSPendingPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (chkSPendingPassword.isChecked()){
+                    mPasswordManager.setSpendingPassword(getMainActivity(), accountData, new ValueCallback<Boolean>() {
+                        @Override
+                        public void onReceiveValue(Boolean value) {
+                            if (!value)
+                                chkSPendingPassword.setChecked(false);
+                        }
+                    });
+                }
+                else{
+                    mPasswordManager.removeSpendingPassword(getMainActivity(), accountData, new ValueCallback<Boolean>() {
+                        @Override
+                        public void onReceiveValue(Boolean value) {
+                            if (!value)
+                                chkSPendingPassword.setChecked(true);
+                        }
+                    });
+                }
+            }
+        });
     }
 
     @Override
@@ -383,19 +422,33 @@ public class ManageAccountFragment extends BaseFragment {
         if (txtPassphrase.getText().toString().equals(ENCRYPTED_PASSPHRASE)) {
             showLoadingSpinner(getView(), "Decrypting passphrase");
 
-            accountData.key = MyApp.SessionPin;
-            getMainActivity().getJay().decryptSecretPhrase(accountData, new ValueCallback<String>() {
-                @Override
-                public void onReceiveValue(String value) {
-                    txtPassphrase.setText(value);
-
-                    hideLoadingSpinner(getView());
-                }
-            });
+            if (accountData.getIsSpendingPasswordEnabled()){
+                mPasswordManager.getAccountKey(getMainActivity(), accountData, new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String value) {
+                        decryptSecretPhrase(value);
+                    }
+                });
+            }
+            else{
+                decryptSecretPhrase("");
+            }
         }
         else{
             txtPassphrase.setText(ENCRYPTED_PASSPHRASE);
         }
+    }
+
+    private void decryptSecretPhrase(String password) {
+        accountData.key = MyApp.SessionPin;
+        getMainActivity().getJay().decryptSecretPhrase(accountData, MyApp.SessionPin, password, new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+                txtPassphrase.setText(value);
+
+                hideLoadingSpinner(getView());
+            }
+        });
     }
 
     private void setButton() {

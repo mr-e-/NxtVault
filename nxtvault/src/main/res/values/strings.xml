@@ -31,6 +31,7 @@
     <string name="access_denied">Access Denied</string>
     <string name="invalid_transaction">Invalid Transaction</string>
     <string name="unknown_error">Unknown Error</string>
+    <string name="password_incorrect">Password Incorrect</string>
     <string name="error_broadcasting">"Error broadcasting tx: "</string>
     <string name="time_btwen_last_pin_entry">preferences.xml</string>
     <string name="preference_file_key">PrefFile</string>

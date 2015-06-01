@@ -48,8 +48,6 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-
         mSavedInstanceState = savedInstanceState;
 
         if (mPreferences.getSharedPref().getString("assets", null) != null) {

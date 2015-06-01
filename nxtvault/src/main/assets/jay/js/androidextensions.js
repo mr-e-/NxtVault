@@ -9,7 +9,7 @@
 var AndroidExtensions = {
     reviewData: [],
 
-	storePin: function(pin){
+	storePinChecksum: function(pin){
 		var pinData = {};
 
 		pinData["cipher"] = encryptSecretPhrase("pin", pin).toString();
@@ -96,23 +96,74 @@ var AndroidExtensions = {
         return converters.byteArrayToHexString(signed);
     },
 
+	findAccountByRs: function (accountRs) {
+		var sto = [];
+		if (localStorage["accounts"]) {
+			sto = JSON.parse(localStorage["accounts"]);
+		}
+
+		var acc = this.findExistingAccount(accountRs, sto);
+		return {accounts: sto, acc: acc};
+	},
+
+	setSpendingPassword: function(accountRs, pin, oldPassword, newPassword) {
+		var __ret = this.findAccountByRs(accountRs);
+		var sto = __ret.accounts;
+		var acc = __ret.acc;
+
+		if (acc != null) {
+			var secretPhrase = decryptSecretPhrase(acc.cipher, oldPassword + pin, acc.checksum);
+
+			acc["cipher"] = encryptSecretPhrase(secretPhrase, newPassword + pin).toString();
+			acc["checksum"] = converters.byteArrayToHexString(simpleHash(converters.stringToByteArray(secretPhrase)));
+			acc["spendingPassphrase"] = newPassword != undefined && newPassword != "";
+		}
+
+		localStorage["accounts"] = JSON.stringify(sto);
+
+		return JSON.stringify(acc);
+	},
+
+	//verifies that the password can decrypt this account
+	verifySpendingPassword: function(accountRs, pin, password){
+		var __ret = this.findAccountByRs(accountRs);
+		var acc = __ret.acc;
+
+		if (acc != null) {
+			var secretPhrase = decryptSecretPhrase(acc.cipher, pin, acc.checksum);
+
+			if (!secretPhrase){
+				return false;
+			}
+
+			return true;
+		}
+	},
+
+	//verifies that the password can decrypt this account
+	removeSpendingPassword: function(accountRs) {
+		var __ret = this.findAccountByRs(accountRs);
+		var acc = __ret.acc;
+
+		if (acc != null) {
+
+		}
+	},
+
     //Needed to override so I could store accountName
     storeAccount: function(account){
-        var sto = [];
-        if(localStorage["accounts"])
-        {
-            sto = JSON.parse(localStorage["accounts"]);
-        }
+		var sto = [];
+		if(localStorage["accounts"])
+		{
+			sto = JSON.parse(localStorage["accounts"]);
+		}
 
-        var acc = {};
-        var existing = false;
-        for (var i = 0; i < sto.length; i++){
-            if (sto[i]["accountRS"] === account["accountRS"]){
-                acc = sto[i];
-                existing = true;
-                break;
-            }
-        }
+		var acc = this.findExistingAccount(account.accountRS, sto);
+
+		if (acc == null){
+			acc = {};
+			sto.push(acc);
+		}
 
         acc["accountRS"] = account["accountRS"];
         acc["publicKey"] = account["publicKey"];
@@ -120,11 +171,23 @@ var AndroidExtensions = {
         acc["checksum"] = account["checksum"];
         acc["accountName"] = account["accountName"];
 
-        if (!existing)
-            sto.push(acc);
-
         localStorage["accounts"] = JSON.stringify(sto);
     },
+
+	findExistingAccount: function(accountRs, sto){
+		var acc = undefined;
+		var existing = false;
+		for (var i = 0; i < sto.length; i++){
+			if (sto[i]["accountRS"] === accountRs){
+				acc = sto[i];
+				existing = true;
+				break;
+			}
+		}
+
+		return acc;
+	},
+
     deleteAccount: function (address){
         var data = localStorage["accounts"];
         var accounts = JSON.parse(localStorage["accounts"]);

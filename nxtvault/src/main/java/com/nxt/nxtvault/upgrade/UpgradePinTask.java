@@ -3,10 +3,10 @@ package com.nxt.nxtvault.upgrade;
 import android.content.Context;
 import android.webkit.ValueCallback;
 
+import com.nxt.nxtvault.JayClientApi;
 import com.nxt.nxtvault.MyApp;
 import com.nxt.nxtvault.R;
 import com.nxt.nxtvault.preference.PreferenceManager;
-import com.nxt.nxtvaultclientlib.jay.JayApi;
 
 /**
  * Created by Brandon on 5/30/2015.
@@ -14,10 +14,10 @@ import com.nxt.nxtvaultclientlib.jay.JayApi;
 public class UpgradePinTask implements IUpgradeTask{
     PreferenceManager mPreferences;
     Context mContext;
-    JayApi mJay;
+    JayClientApi mJay;
 
 
-    public UpgradePinTask(Context context, PreferenceManager preferenceManager, JayApi jay){
+    public UpgradePinTask(Context context, PreferenceManager preferenceManager, JayClientApi jay){
         mPreferences = preferenceManager;
         mContext = context;
         mJay = jay;
@@ -27,7 +27,7 @@ public class UpgradePinTask implements IUpgradeTask{
     public void upgrade(final ValueCallback<Void> callback) {
         final String pin = mPreferences.getSharedPref().getString(mContext.getString(R.string.pin), null);
 
-        mJay.storePin(pin, new ValueCallback<Boolean>() {
+        mJay.storePinChecksum(pin, new ValueCallback<Boolean>() {
             @Override
             public void onReceiveValue(Boolean value) {
                 mPreferences.getSharedPref().edit().putString(mContext.getString(R.string.pin), null).commit();

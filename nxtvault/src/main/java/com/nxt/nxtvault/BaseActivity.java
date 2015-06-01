@@ -122,7 +122,7 @@ public abstract class BaseActivity extends ActionBarActivity {
     abstract protected void jayLoaded();
 
     void storePin(final String pin, final ValueCallback<Boolean> callback) {
-        getJay().storePin(pin, new ValueCallback<Boolean>() {
+        getJay().storePinChecksum(pin, new ValueCallback<Boolean>() {
             @Override
             public void onReceiveValue(Boolean value) {
                 //Store the entered pin number for later verification

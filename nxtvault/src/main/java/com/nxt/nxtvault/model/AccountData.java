@@ -13,4 +13,9 @@ public class AccountData implements Serializable{
     public String key;
     public String cipher;
     public String checksum;
+    public boolean spendingPassphrase;
+
+    public boolean getIsSpendingPasswordEnabled(){
+        return spendingPassphrase;
+    }
 }

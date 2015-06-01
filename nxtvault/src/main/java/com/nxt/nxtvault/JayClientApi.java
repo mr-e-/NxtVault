@@ -104,9 +104,9 @@ public class JayClientApi extends JayApi {
     }
 
     ValueCallback<String> decryptSecretPhraseCallback;
-    public void decryptSecretPhrase(AccountData accountData, final ValueCallback<String> callback){
+    public void decryptSecretPhrase(AccountData accountData, String pin, String password, final ValueCallback<String> callback){
         decryptSecretPhraseCallback = callback;
-        mWebView.loadUrl("javascript: MyInterface.decryptSecretPhraseResult(decryptSecretPhrase('" + accountData.cipher + "', '" + accountData.key + "', '" + accountData.checksum + "'));");
+        mWebView.loadUrl("javascript: MyInterface.decryptSecretPhraseResult(decryptSecretPhrase('" + accountData.cipher + "', '" + password + pin + "', '" + accountData.checksum + "'));");
     }
 
     @JavascriptInterface
@@ -137,11 +137,11 @@ public class JayClientApi extends JayApi {
 
 
     ValueCallback<String> signCallback;
-    public void sign(final AccountData accountData, final String txData, final ValueCallback<String> callback) {
+    public void sign(final AccountData accountData, String key, String password, final String txData, final ValueCallback<String> callback) {
         signCallback = callback;
 
         //get the account secret phrase
-        decryptSecretPhrase(accountData, new ValueCallback<String>() {
+        decryptSecretPhrase(accountData, key, password, new ValueCallback<String>() {
             @Override
             public void onReceiveValue(final String secretPhrase) {
                 mWebView.loadUrl("javascript:MyInterface.signResult(JSON.stringify(AndroidExtensions.signTrfBytes('" + accountData.accountRS + "', '" + txData + "', '" + secretPhrase + "')));");
@@ -188,6 +188,77 @@ public class JayClientApi extends JayApi {
                         callback.onReceiveValue(null);
                     }
                 });
+            }
+        });
+    }
+
+
+
+    ////VERIFY PIN
+    ValueCallback<Boolean> verifyPinCallback;
+    public void verifyPin(String pin, final ValueCallback<Boolean> callback) {
+        verifyPinCallback = callback;
+
+        mWebView.loadUrl("javascript:MyInterface.verifyPinResult(AndroidExtensions.verifyPin('" + pin + "'));");
+    }
+
+    @JavascriptInterface
+    public void verifyPinResult(final String result) {
+        ((Activity) mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                verifyPinCallback.onReceiveValue(gson.fromJson(result, Boolean.class));
+            }
+        });
+    }
+
+    ValueCallback<Boolean> storePinChecksumCallback;
+    public void storePinChecksum(String pin, final ValueCallback<Boolean> callback) {
+        storePinChecksumCallback = callback;
+
+        mWebView.loadUrl("javascript:MyInterface.storePinChecksumResult(AndroidExtensions.storePinChecksum('" + pin + "'));");
+    }
+
+    @JavascriptInterface
+    public void storePinChecksumResult(final String result) {
+        ((Activity) mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                storePinChecksumCallback.onReceiveValue(null);
+            }
+        });
+    }
+
+    ValueCallback<AccountData> setSpendingPasswordCallback;
+    public void setSpendingPassword(String accountRs, String pin, String oldPassword, String currentPassword, ValueCallback<AccountData> callback) {
+        setSpendingPasswordCallback = callback;
+
+        mWebView.loadUrl("javascript:MyInterface.setSpendingPasswordResult(AndroidExtensions.setSpendingPassword('" + accountRs + "', '" + pin + "', '" + oldPassword + "', '" + currentPassword + "'));");
+    }
+
+    @JavascriptInterface
+    public void setSpendingPasswordResult(final String result) {
+        ((Activity) mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                setSpendingPasswordCallback.onReceiveValue(gson.fromJson(result, AccountData.class));
+            }
+        });
+    }
+
+    ValueCallback<Boolean> verifySpendingPasswordCallback;
+    public void verifySpendingPassword(AccountData accountData, String pin, String password, ValueCallback<Boolean> callback) {
+        verifySpendingPasswordCallback = callback;
+
+        mWebView.loadUrl("javascript:MyInterface.verifySpendingPassword(AndroidExtensions.verifySpendingPassword('" + accountData.accountRS + "', '" + password + pin + "', '" + password + "'));");
+    }
+
+    @JavascriptInterface
+    public void verifySpendingPassword(final String result) {
+        ((Activity) mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                verifySpendingPasswordCallback.onReceiveValue(gson.fromJson(result, Boolean.class));
             }
         });
     }

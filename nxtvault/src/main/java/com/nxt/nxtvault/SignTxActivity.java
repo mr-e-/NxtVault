@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import com.gc.materialdesign.views.ButtonFloat;
 import com.google.gson.Gson;
+import com.nxt.nxtvault.framework.PasswordManager;
 import com.nxt.nxtvault.model.AccountData;
 import com.nxt.nxtvault.model.AccountSelectionResult;
 import com.nxt.nxtvault.model.BroadcastTxResponse;
@@ -183,45 +184,66 @@ public class SignTxActivity extends MainActivity {
                 setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.access_denied)));
             }
             else {
-                accountData.key = MyApp.SessionPin;
+                final PasswordManager passwordManager = new PasswordManager(getJay());
 
-                getJay().sign(accountData, txData, new ValueCallback<String>() {
-                    @Override
-                    public void onReceiveValue(String signedBytes) {
-                        final String signedBytesString = signedBytes;
-
-                        if (signedBytesString == null) {
-                            setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.unknown_error)));
-                        }
-                        else {
-                            if (broadcast) {
-                                getJay().broadcast(signedBytesString, new ValueCallback<BroadcastTxResponse>() {
-                                    @Override
-                                    public void onReceiveValue(BroadcastTxResponse response) {
-                                        Gson gson = new Gson();
-                                        if (response != null && response.ErrorCode == 0)
-                                            setResultAndFinish(RESULT_OK, new Intent(gson.toJson(response, BroadcastTxResponse.class)));
-                                        else {
-                                            if (response != null)
-                                                setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.error_broadcasting) + response.ErrorCode + " - " + response.ErrorDescription));
-                                            else{
-                                                setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.error_broadcasting) + "Unknown error. Please check your settings if you've overriden the broadcast server and make sure it is correct."));
-                                            }
-                                        }
-                                    }
-                                });
+                if (accountData.getIsSpendingPasswordEnabled()){
+                    //user needs to enter their spending key first
+                    passwordManager.getAccountKey(this, accountData, new ValueCallback<String>() {
+                        @Override
+                        public void onReceiveValue(String password) {
+                            //Wrong password entered
+                            if (password == null) {
+                                setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.password_incorrect)));
                             } else {
-                                setResultAndFinish(RESULT_OK, new Intent(signedBytesString));
+                                signTx(accountData, MyApp.SessionPin, password, txData, broadcast);
                             }
                         }
-                    }
-                });
+                    });
+                }
+                else{
+                    signTx(accountData, MyApp.SessionPin, "", txData, broadcast);
+                }
             }
         }
 
         return false;
     }
 
+    private void signTx(AccountData accountData, String key, String password, String txData, final boolean broadcast) {
+        //sign the tx
+        getJay().sign(accountData, key, password, txData, new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String signedBytes) {
+                final String signedBytesString = signedBytes;
+
+                if (signedBytesString == null) {
+                    setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.unknown_error)));
+                } else if (broadcast) {
+                    getJay().broadcast(signedBytesString, new ValueCallback<BroadcastTxResponse>() {
+                        @Override
+                        public void onReceiveValue(BroadcastTxResponse response) {
+                            Gson gson = new Gson();
+                            if (response != null && response.ErrorCode == 0)
+                                setResultAndFinish(RESULT_OK, new Intent(gson.toJson(response, BroadcastTxResponse.class)));
+                            else {
+                                if (response != null)
+                                    setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.error_broadcasting) + response.ErrorCode + " - " + response.ErrorDescription));
+                                else {
+                                    setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.error_broadcasting) + "Unknown error. Please check your settings if you've overriden the broadcast server and make sure it is correct."));
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    setResultAndFinish(RESULT_OK, new Intent(signedBytesString));
+                }
+            }
+        });
+    }
+
+    private void getAccountKey(ValueCallback<String> callback) {
+
+    }
 
 
     private void setResultAndFinish(int result, Intent intent){

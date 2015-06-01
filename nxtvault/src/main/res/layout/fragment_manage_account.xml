@@ -117,6 +117,27 @@
             </RelativeLayout>
 
             <View style="@style/row_group_divider" />
+
+            <LinearLayout style="@style/row_group" android:layout_height="55dp">
+
+                <TextView
+                    android:id="@+id/lblSpending"
+                    android:layout_weight=".5"
+                    android:layout_width="0dp"
+                    style="@style/row_header_text"
+                    android:text="Spending Password" />
+
+                <CheckBox
+                    android:layout_height="match_parent"
+                    android:textIsSelectable="true"
+                    android:id="@+id/chkSpending"
+                    android:layout_weight=".5"
+                    android:layout_width="0dp"
+                    android:background="@android:color/transparent" />
+
+            </LinearLayout>
+
+            <View style="@style/row_group_divider" />
         </LinearLayout>
 
     </ScrollView>

@@ -31,9 +31,4 @@ public interface IJayApi {
     void sendMoney(String accountRs, double amount, String message, ValueCallback<String> callback);
 
     void transferAsset(String accountRs, Asset asset, float amount, String message, ValueCallback<String> callback);
-
-    void verifyPin(String pin, ValueCallback<Boolean> callback);
-
-    //////Store PIN - no callback
-    void storePin(String pin, final ValueCallback<Boolean> callback);
 }

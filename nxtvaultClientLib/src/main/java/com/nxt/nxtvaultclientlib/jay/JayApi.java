@@ -270,43 +270,4 @@ public class JayApi implements IJayApi {
         }
         return messageJs;
     }
-
-    ////VERIFY PIN
-    ValueCallback<Boolean> verifyPinCallback;
-    @Override
-    public void verifyPin(String pin, final ValueCallback<Boolean> callback) {
-        verifyPinCallback = callback;
-
-        mWebView.loadUrl("javascript:MyInterface.verifyPinResult(AndroidExtensions.verifyPin('" + pin + "'));");
-    }
-
-    @JavascriptInterface
-    public void verifyPinResult(final String result) {
-        ((Activity) mContext).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                verifyPinCallback.onReceiveValue(gson.fromJson(result, Boolean.class));
-            }
-        });
-    }
-
-
-
-    ValueCallback<Boolean> storePinCallback;
-    @Override
-    public void storePin(String pin, final ValueCallback<Boolean> callback) {
-        storePinCallback = callback;
-
-        mWebView.loadUrl("javascript:MyInterface.storePinResult(AndroidExtensions.storePin('" + pin + "'));");
-    }
-
-    @JavascriptInterface
-    public void storePinResult(final String result) {
-        ((Activity) mContext).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                storePinCallback.onReceiveValue(null);
-            }
-        });
-    }
 }
