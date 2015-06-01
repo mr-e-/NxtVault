@@ -31,10 +31,8 @@ public class SendMoneyFragment extends BaseFragment {
     EditText txtAmount;
     ButtonFloat btnSend;
     Double amount;
-    CheckBox chkMessage;
-    View messageView;
-    MultiLineDoneEditText txtMessage;
-    TextView lblAmount;
+    EditText txtMessage;
+    TextView lblAmount, lblMessage;
 
     public static SendMoneyFragment getInstance(String accountRs, String senderPubKey){
         SendMoneyFragment fragment = new SendMoneyFragment();
@@ -54,29 +52,15 @@ public class SendMoneyFragment extends BaseFragment {
     public void onReady(View rootView, Bundle savedInstanceState) {
         super.onReady(rootView, savedInstanceState);
 
-        mActivity.setTitle("SEND MONEY");
+        mActivity.setTitle("SEND NXT");
 
         if (savedInstanceState != null){
             mAccountRs = savedInstanceState.getString("rs");
             mSenderPublicKey = savedInstanceState.getString("sender");
         }
 
-        txtMessage = (MultiLineDoneEditText)rootView.findViewById(R.id.message);
-        chkMessage = (CheckBox)rootView.findViewById(R.id.chkMessage);
-        messageView = rootView.findViewById(R.id.messageView);
-
-        chkMessage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (chkMessage.isChecked()){
-                    messageView.setVisibility(View.VISIBLE);
-                }
-                else{
-                    messageView.setVisibility(View.INVISIBLE);
-                }
-            }
-        });
-
+        lblMessage = (TextView)rootView.findViewById(R.id.lblMessage);
+        txtMessage = (EditText)rootView.findViewById(R.id.txtMessage);
         lblAmount = (TextView)rootView.findViewById(R.id.lblAmount);
         txtAmount = (EditText)rootView.findViewById(R.id.txtAmount);
         btnSend = (ButtonFloat)rootView.findViewById(R.id.btnSend);
@@ -108,17 +92,22 @@ public class SendMoneyFragment extends BaseFragment {
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mJay.sendMoney(mAccountRs, amount, chkMessage.isChecked() ? txtMessage.getText().toString() : null, new ValueCallback<String>() {
-                    @Override
-                    public void onReceiveValue(String value) {
-                        TransactionFactory txFactory = TransactionFactory.getTransactionFactory(getMainActivity().mPreferences);
+                if (amount == 0){
+                    txtAmount.setError("Please set an amount to send");
+                }
+                else {
+                    mJay.sendMoney(mAccountRs, amount, txtMessage.getText().toString(), new ValueCallback<String>() {
+                        @Override
+                        public void onReceiveValue(String value) {
+                            TransactionFactory txFactory = TransactionFactory.getTransactionFactory(getMainActivity().mPreferences);
 
-                        Intent intent = txFactory.createSelfSignedTx("nxtvault.intent.action.SIGNANDBROADCAST", value);
-                        intent.putExtra("PublicKey", mSenderPublicKey);
+                            Intent intent = txFactory.createSelfSignedTx("nxtvault.intent.action.SIGNANDBROADCAST", value);
+                            intent.putExtra("PublicKey", mSenderPublicKey);
 
-                        startActivityForResult(intent, 2);
-                    }
-                });
+                            startActivityForResult(intent, 2);
+                        }
+                    });
+                }
             }
         });
 
@@ -158,8 +147,8 @@ public class SendMoneyFragment extends BaseFragment {
 
     private void setFonts() {
         txtAmount.setTypeface(getMainActivity().segoe);
-        chkMessage.setTypeface(getMainActivity().segoe);
         lblAmount.setTypeface(getMainActivity().segoe);
+        lblMessage.setTypeface(getMainActivity().segoe);
         txtMessage.setTypeface(getMainActivity().segoe);
     }
 
