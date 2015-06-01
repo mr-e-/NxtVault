@@ -198,7 +198,6 @@ public class ManageAccountFragment extends BaseFragment {
         ObjectAnimator.ofFloat(rootView.findViewById(R.id.btnSave), View.ALPHA, 1, 0).setDuration(500).start();
 
         progress.setVisibility(View.VISIBLE);
-        //rootView.findViewById(R.id.scrollview).setVisibility(View.INVISIBLE);
         rootView.findViewById(R.id.btnSave).setVisibility(View.INVISIBLE);
     }
 
@@ -426,7 +425,13 @@ public class ManageAccountFragment extends BaseFragment {
                 mPasswordManager.getAccountKey(getMainActivity(), accountData, new ValueCallback<String>() {
                     @Override
                     public void onReceiveValue(String value) {
-                        decryptSecretPhrase(value);
+                        if (value == null){
+                            Toast.makeText(getMainActivity(), "Incorrect Password", Toast.LENGTH_SHORT).show();
+                            hideLoadingSpinner(getView());
+                        }
+                        else {
+                            decryptSecretPhrase(value);
+                        }
                     }
                 });
             }

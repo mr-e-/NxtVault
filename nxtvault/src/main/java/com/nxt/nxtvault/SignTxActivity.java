@@ -17,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.gc.materialdesign.views.ButtonFloat;
 import com.google.gson.Gson;
@@ -165,7 +166,7 @@ public class SignTxActivity extends MainActivity {
         return publicKey;
     }
 
-    private boolean signTransaction(final boolean broadcast) {
+    private boolean signTransaction(final boolean broadcast, final ValueCallback<Void> onCancelled) {
         Intent intent = getIntent();
 
         final String txData = intent.getExtras().getString("TransactionData");
@@ -193,7 +194,10 @@ public class SignTxActivity extends MainActivity {
                         public void onReceiveValue(String password) {
                             //Wrong password entered
                             if (password == null) {
-                                setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.password_incorrect)));
+                                Toast.makeText(SignTxActivity.this, "Incorrect Password", Toast.LENGTH_SHORT).show();
+
+                                if (onCancelled != null)
+                                    onCancelled.onReceiveValue(null);
                             } else {
                                 signTx(accountData, MyApp.SessionPin, password, txData, broadcast);
                             }
@@ -411,7 +415,16 @@ public class SignTxActivity extends MainActivity {
                     ObjectAnimator.ofFloat(buttons, View.ALPHA, 1, 0).start();
                     ObjectAnimator.ofFloat(progress, View.ALPHA, 0, 1).start();
 
-                    activity.signTransaction(true);
+                    activity.signTransaction(true, new ValueCallback<Void>() {
+                        @Override
+                        public void onReceiveValue(Void value) {
+                            ObjectAnimator.ofFloat(lst_tx_details, View.ALPHA, 0, 1).start();
+                            ObjectAnimator.ofFloat(buttons, View.ALPHA, 0, 1).start();
+                            ObjectAnimator.ofFloat(progress, View.ALPHA, 1, 0).start();
+
+                            progress.setVisibility(View.GONE);
+                        }
+                    });
                 }
             });
 

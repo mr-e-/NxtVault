@@ -105,8 +105,7 @@ public class PasswordManager {
                                             callback.onReceiveValue(true);
                                         }
                                     });
-                                }
-                                else{
+                                } else {
                                     Toast.makeText(mainActivity, "Password incorrect", Toast.LENGTH_LONG).show();
                                     callback.onReceiveValue(false);
                                 }
@@ -153,6 +152,13 @@ public class PasswordManager {
                                     }
                                 }
                             });
+                        }
+
+                        @Override
+                        public void onNegative(MaterialDialog dialog) {
+                            super.onNegative(dialog);
+
+                            callback.onReceiveValue(null);
                         }
                     }).build();
 
