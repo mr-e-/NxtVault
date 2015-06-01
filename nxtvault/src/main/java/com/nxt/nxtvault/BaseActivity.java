@@ -156,6 +156,7 @@ public abstract class BaseActivity extends ActionBarActivity {
     }
 
     public void changePin(){
+
         mCurrentPinMode = PinMode.Change;
 
         showPin();
