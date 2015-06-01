@@ -1,5 +1,6 @@
 package com.nxt.nxtvault.screen;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.webkit.ValueCallback;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.gc.materialdesign.views.ButtonFloat;
 import com.nxt.nxtvault.R;
@@ -141,6 +143,17 @@ public class SendMoneyFragment extends BaseFragment {
                 txtAmount.requestFocus();
             }
         }, 500);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == Activity.RESULT_OK) {
+            Toast.makeText(getMainActivity(), "Transaction Complete!", Toast.LENGTH_LONG).show();
+        }
+
+        mActivity.onBackPressed();
     }
 
     private void setFonts() {

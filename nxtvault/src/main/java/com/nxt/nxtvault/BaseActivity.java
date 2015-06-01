@@ -144,7 +144,7 @@ public abstract class BaseActivity extends ActionBarActivity {
 
         long time = System.currentTimeMillis() - mPreferences.getLastPinEntry();
 
-        if (time > pinTimeout && !mPinShowing){
+        if ((time > pinTimeout || MyApp.SessionPin == null) && !mPinShowing ){
             if (!pinIsSet){
                 mCurrentPinMode = PinMode.Initialize;
             }

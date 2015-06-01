@@ -17,11 +17,12 @@ public class MyApp extends android.app.Application {
     public JayClientApi jay;
     public static String SessionPin;
 
-
     @Override
     public void onCreate() {
         super.onCreate();
 
         ACRA.init(this);
     }
+
+
 }
