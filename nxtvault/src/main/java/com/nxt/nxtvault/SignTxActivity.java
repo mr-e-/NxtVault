@@ -44,7 +44,6 @@ public class SignTxActivity extends MainActivity {
         super.onCreate(savedInstanceState);
 
         mProvider = new AccessTokenProvider(mPreferences.getSharedPref());
-
     }
 
     @Override
@@ -199,13 +198,13 @@ public class SignTxActivity extends MainActivity {
                                 if (onCancelled != null)
                                     onCancelled.onReceiveValue(null);
                             } else {
-                                signTx(accountData, MyApp.SessionPin, password, txData, broadcast);
+                                signTx(accountData, getPinManager().getSessionPin(), password, txData, broadcast);
                             }
                         }
                     });
                 }
                 else{
-                    signTx(accountData, MyApp.SessionPin, "", txData, broadcast);
+                    signTx(accountData, getPinManager().getSessionPin(), "", txData, broadcast);
                 }
             }
         }

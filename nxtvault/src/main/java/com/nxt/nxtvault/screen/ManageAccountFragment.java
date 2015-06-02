@@ -27,7 +27,6 @@ import android.widget.Toast;
 import com.gc.materialdesign.views.ButtonFloat;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-import com.nxt.nxtvault.MyApp;
 import com.nxt.nxtvault.R;
 import com.nxt.nxtvault.framework.PasswordManager;
 import com.nxt.nxtvault.framework.TransactionFactory;
@@ -437,8 +436,7 @@ public class ManageAccountFragment extends BaseFragment {
     }
 
     private void decryptSecretPhrase(String password) {
-        accountData.key = MyApp.SessionPin;
-        getMainActivity().getJay().decryptSecretPhrase(accountData, MyApp.SessionPin, password, new ValueCallback<String>() {
+        getMainActivity().getJay().decryptSecretPhrase(accountData, getMainActivity().getPinManager().getSessionPin(), password, new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
                 txtPassphrase.setText(value);
@@ -465,7 +463,7 @@ public class ManageAccountFragment extends BaseFragment {
     }
 
     private void generateAccount() {
-        getMainActivity().getJay().getNewAccount(txtPassphrase.getText().toString(), MyApp.SessionPin, new ValueCallback<AccountData>() {
+        getMainActivity().getJay().getNewAccount(txtPassphrase.getText().toString(), getMainActivity().getPinManager().getSessionPin(), new ValueCallback<AccountData>() {
             @Override
             public void onReceiveValue(final AccountData value) {
             accountData = value;

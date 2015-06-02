@@ -46,7 +46,7 @@ public abstract class BaseActivity extends ActionBarActivity {
     int count = 0;
 
     public JayClientApi getJay(){
-        return ((MyApp)getApplication()).jay;
+        return ((App)getApplication()).jay;
     }
 
     public boolean getIsJayLoaded() {
@@ -80,8 +80,8 @@ public abstract class BaseActivity extends ActionBarActivity {
 
         mJayLoadedListeners = new ArrayList<>();
 
-        if (((MyApp) getApplication()).jay == null){
-            ((MyApp) getApplication()).jay = new JayClientApi(this, new IJavascriptLoadedListener() {
+        if (((App) getApplication()).jay == null){
+            ((App) getApplication()).jay = new JayClientApi(this, new IJavascriptLoadedListener() {
                 @Override
                 public void onLoaded() {
                     runUpgrades(new ValueCallback<Void>() {
@@ -138,7 +138,7 @@ public abstract class BaseActivity extends ActionBarActivity {
 
         long time = System.currentTimeMillis() - mPreferences.getLastPinEntry();
 
-        if ((time > pinTimeout || MyApp.SessionPin == null) && !mPinShowing ){
+        if ((time > pinTimeout || mPinManager.getSessionPin() == null) && !mPinShowing ){
             if (!pinIsSet){
                 mCurrentPinMode = PinMode.Initialize;
             }
@@ -175,6 +175,7 @@ public abstract class BaseActivity extends ActionBarActivity {
     void pinAccepted(){
         //pin has been accepted so we'll hide the pin screen and log the last entry time
         findViewById(R.id.pin).setVisibility(View.GONE);
+
         Fragment f = getSupportFragmentManager().findFragmentByTag("pin");
         if (f != null) {
             getSupportFragmentManager().beginTransaction().remove(f).commit();
@@ -221,7 +222,6 @@ public abstract class BaseActivity extends ActionBarActivity {
                                         ((BaseActivity)getActivity()).mPreferences.putPinTryAttempts(0);
 
                                         mActivity.pinAccepted();
-                                        MyApp.SessionPin = pin;
                                     }
                                     else{
                                         pinEntryView.clearText();

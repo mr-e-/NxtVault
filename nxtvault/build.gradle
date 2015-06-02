@@ -51,6 +51,9 @@ dependencies {
     compile 'ch.acra:acra:4.5.0'
     compile 'com.afollestad:material-dialogs:0.7.4.2'
 
+    compile 'com.squareup.dagger:dagger:1.2.1'
+    provided 'com.squareup.dagger:dagger-compiler:1.2.1'
+
     // Supports Android 4.0.3 and later (API level 15)
     compile 'com.embarkmobile:zxing-android-minimal:2.0.0@aar'
 

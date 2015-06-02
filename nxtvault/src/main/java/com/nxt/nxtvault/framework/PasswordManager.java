@@ -8,7 +8,6 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.nxt.nxtvault.JayClientApi;
 import com.nxt.nxtvault.MainActivity;
-import com.nxt.nxtvault.MyApp;
 import com.nxt.nxtvault.R;
 import com.nxt.nxtvault.model.AccountData;
 
@@ -158,7 +157,7 @@ public class PasswordManager {
             d.show();
         }
         else{
-            callback.onReceiveValue(MyApp.SessionPin);
+            callback.onReceiveValue(null);
         }
     }
 }

@@ -71,10 +71,6 @@ public class MainActivity extends BaseActivity {
         setServerInfo();
 
         setIsJayLoaded(true);
-
-        if (!mPinShowing){
-            pinAccepted();
-        }
     }
 
     @Override
@@ -121,11 +117,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        if (mSavedInstanceState != null){
-            if (!mPinShowing)
-                pinAccepted();
-        }
     }
 
     @Override
