@@ -48,6 +48,7 @@ public class PinManager {
             String md5 = getMd5Hash(newPin);
 
             mPreferences.putPinDigest(md5);
+            mSessionPin = newPin;
 
             return true;
         }
