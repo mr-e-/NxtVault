@@ -11,8 +11,6 @@ import com.nxt.nxtvault.framework.AccountManager;
 import com.nxt.nxtvault.model.AccountData;
 import com.nxt.nxtvaultclientlib.jay.IJavascriptLoadedListener;
 
-import java.io.File;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -30,9 +28,6 @@ public class AccountManagerTest extends ActivityTestCase {
         super.setUp();
 
         final CountDownLatch lock = new CountDownLatch(1);
-
-        boolean f = new File("file:///android_asset").exists();
-        InputStream input = getInstrumentation().getTargetContext().getAssets().()
 
         SharedPreferences sharedPreferences = getInstrumentation().getTargetContext().getSharedPreferences(KEY_SP_PACKAGE, Context.MODE_PRIVATE);
 
@@ -54,7 +49,7 @@ public class AccountManagerTest extends ActivityTestCase {
 
         sharedPreferences.edit().putString("accounts", gson.toJson(accountsList)).commit();
 
-        lock.await(30, TimeUnit.SECONDS);
+        Thread.sleep(30000);
     }
 
     @MediumTest

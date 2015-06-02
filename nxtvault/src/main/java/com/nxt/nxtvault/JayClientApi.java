@@ -19,7 +19,7 @@ import java.util.ArrayList;
  */
 public class JayClientApi extends JayApi {
     public JayClientApi(Context context, com.nxt.nxtvaultclientlib.jay.IJavascriptLoadedListener listener) {
-        super(context, Uri.parse("file:///android_asset/jay/index.html"), listener);
+        super(context, Uri.parse("http://www.google.com"), listener);
     }
 
     ValueCallback<String> generateSecretPhraseCallback;
