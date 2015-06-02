@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.nxt.nxtvault.framework.AccountManager;
 import com.nxt.nxtvault.model.AccountData;
 import com.nxt.nxtvault.model.AccountInfo;
 import com.nxt.nxtvault.screen.AboutFragment;
@@ -32,17 +33,17 @@ import java.util.ArrayList;
 public class MainActivity extends BaseActivity {
     Gson gson = new Gson();
 
-    private static AccountInfo mAccountInfo;
-
     Bundle mSavedInstanceState;
 
     private TextView mTitleBar;
 
-    public AccountInfo getAccountInfo(){
-        return mAccountInfo;
-    }
-
     private ArrayList<Asset> mAssetList;
+
+    AccountManager mAccountManager;
+
+    public AccountManager getAccountManager(){
+        return mAccountManager;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +51,7 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
 
         mSavedInstanceState = savedInstanceState;
+        mAccountManager = new AccountManager(this, getJay(), mPinManager, mPreferences.getSharedPref());
 
         if (mPreferences.getSharedPref().getString("assets", null) != null) {
             mAssetList = gson.fromJson(mPreferences.getSharedPref().getString("assets", null), new TypeToken<ArrayList<Asset>>() { }.getType());
@@ -68,10 +70,12 @@ public class MainActivity extends BaseActivity {
     protected void jayLoaded() {
         setServerInfo();
 
-        refreshAccounts(null);
+        setIsJayLoaded(true);
+
+        if (!mPinShowing){
+            pinAccepted();
+        }
     }
-
-
 
     @Override
     public Object onRetainCustomNonConfigurationInstance() {
@@ -97,29 +101,6 @@ public class MainActivity extends BaseActivity {
             getJay().setRequestMethod(RequestMethods.Fastest);
             getJay().setIsTestnet(false);
         }
-    }
-
-    private void refreshAccounts(final ValueCallback<String> completedCallback) {
-        getJay().loadAccounts(new ValueCallback<ArrayList<AccountData>>() {
-            @Override
-            public void onReceiveValue(ArrayList<AccountData> value) {
-                mAccountInfo = new AccountInfo(value);
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (!mPinShowing)
-                            pinAccepted();
-                    }
-                });
-
-                setIsJayLoaded(true);
-
-                if (completedCallback != null) {
-                    completedCallback.onReceiveValue(null);
-                }
-            }
-        });
     }
 
     public Asset findAssetById(String assetId){
@@ -162,17 +143,6 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putSerializable("mAccountInfo", mAccountInfo);
-    }
-
-    public void addNewAccountToUI(AccountData accountData) {
-        mAccountInfo.getAccountData().add(accountData);
-    }
-
-    @Override
     void pinAccepted() {
         super.pinAccepted();
 
@@ -183,9 +153,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void wipeDevice() {
-        for (AccountData account : mAccountInfo.getAccountData()){
-            getJay().deleteAccount(account);
-        }
+        mAccountManager.deleteAllAccount();
 
         mPreferences.wipe();
     }
@@ -200,26 +168,16 @@ public class MainActivity extends BaseActivity {
 
         ObjectAnimator.ofFloat(findViewById(R.id.mainView), View.ALPHA, 1, 0).start();
 
-        getJay().changePin(mOldPin, s, new ValueCallback<String>() {
+        mAccountManager.changePin(s, mOldPin, new ValueCallback<Void>() {
             @Override
-            public void onReceiveValue(String value) {
-                //refresh the local account list cash to receive the new cyphers
-                refreshAccounts(new ValueCallback<String>() {
-                    @Override
-                    public void onReceiveValue(String value) {
-                        //Store the changed pin
-                        storePin(s, new ValueCallback<Boolean>() {
-                            @Override
-                            public void onReceiveValue(Boolean value) {
-                                View progress = findViewById(R.id.progress);
-                                ObjectAnimator.ofFloat(progress, View.ALPHA, 1, 0).start();
-                                progress.setVisibility(View.GONE);
+            public void onReceiveValue(Void value) {
+                mPinManager.changePin(s);
 
-                                ObjectAnimator.ofFloat(findViewById(R.id.mainView), View.ALPHA, 0, 1).start();
-                            }
-                        });
-                    }
-                });
+                View progress = findViewById(R.id.progress);
+                ObjectAnimator.ofFloat(progress, View.ALPHA, 1, 0).start();
+                progress.setVisibility(View.GONE);
+
+                ObjectAnimator.ofFloat(findViewById(R.id.mainView), View.ALPHA, 0, 1).start();
             }
         });
     }
@@ -272,7 +230,7 @@ public class MainActivity extends BaseActivity {
             return true;
         }
         else if (id == R.id.action_change_pin){
-            for (AccountData account:mAccountInfo.getAccountData()){
+            for (AccountData account : mAccountManager.getAllAccounts()){
                 if (account.getIsSpendingPasswordEnabled()) {
                     Toast.makeText(this, "You must remove all account passwords before you can change your pin", Toast.LENGTH_LONG).show();
                     return false;
@@ -295,9 +253,5 @@ public class MainActivity extends BaseActivity {
     private void logout() {
         mPreferences.putLastPinEntry(0L);
         System.exit(0);
-    }
-
-    public void deleteAccount(AccountData accountData) {
-        getAccountInfo().deleteAccount(accountData);
     }
 }

@@ -55,8 +55,6 @@ public class ManageAccountFragment extends BaseFragment {
     ButtonFloat btnSave;
     CheckBox chkSPendingPassword;
 
-    EditText p1, p2;
-
     boolean newAccount;
     AccountData accountData;
 
@@ -112,8 +110,7 @@ public class ManageAccountFragment extends BaseFragment {
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            getMainActivity().getJay().deleteAccount(accountData);
-                            getMainActivity().deleteAccount(accountData);
+                            getMainActivity().getAccountManager().deleteAccount(accountData);
                             getMainActivity().onBackPressed();
                         }
                     })
@@ -166,20 +163,14 @@ public class ManageAccountFragment extends BaseFragment {
     private void generateNewAccount(final View rootView) {
         showLoadingSpinner(rootView, null);
 
-        //generate the account
-        mActivity.getJay().generateSecretPhrase(new ValueCallback<String>() {
+        getMainActivity().getAccountManager().getNewAccount(new ValueCallback<AccountData>() {
             @Override
-            public void onReceiveValue(String value) {
-                mActivity.getJay().getNewAccount(value, MyApp.SessionPin, new ValueCallback<AccountData>() {
-                    @Override
-                    public void onReceiveValue(AccountData value) {
-                        accountData = value;
+            public void onReceiveValue(AccountData value) {
+            accountData = value;
 
-                        hydrate(rootView);
+            hydrate(rootView);
 
-                        hideLoadingSpinner(rootView);
-                    }
-                });
+            hideLoadingSpinner(rootView);
             }
         });
     }
@@ -344,16 +335,12 @@ public class ManageAccountFragment extends BaseFragment {
                     if (accountName == null || accountName.isEmpty()) {
                         txtAccountName.setError("Please enter an account name", getResources().getDrawable(R.drawable.indicator_input_error));
                         txtAccountName.requestFocus();
-                    } else if (getMainActivity().getAccountInfo().nameExists(accountName)) {
+                    } else if (getMainActivity().getAccountManager().getAccountByName(accountName) != null) {
                         txtAccountName.setError("Account name already in use",getResources().getDrawable(R.drawable.indicator_input_error));
                         txtAccountName.requestFocus();
                     } else {
                         accountData.accountName = accountName;
-                        getMainActivity().getJay().storeAccount(accountData);
-
-                        if (newAccount) {
-                            getMainActivity().addNewAccountToUI(accountData);
-                        }
+                        getMainActivity().getAccountManager().storeAccount(accountData);
 
                         Toast.makeText(getMainActivity(), "Account created successfully!", Toast.LENGTH_SHORT).show();
                         getMainActivity().onBackPressed();
@@ -383,7 +370,7 @@ public class ManageAccountFragment extends BaseFragment {
             public void onClick(View v) {
                 if (chkSPendingPassword.isChecked()){
                     if (!newAccount) {
-                        mPasswordManager.setSpendingPassword(getMainActivity(), accountData, new ValueCallback<Boolean>() {
+                        mPasswordManager.setSpendingPassword(getMainActivity(), accountData, getMainActivity().getAccountManager(), new ValueCallback<Boolean>() {
                             @Override
                             public void onReceiveValue(Boolean value) {
                                 if (!value)
@@ -396,7 +383,7 @@ public class ManageAccountFragment extends BaseFragment {
                     }
                 }
                 else{
-                    mPasswordManager.removeSpendingPassword(getMainActivity(), accountData, new ValueCallback<Boolean>() {
+                    mPasswordManager.removeSpendingPassword(getMainActivity(), accountData, getMainActivity().getAccountManager(), new ValueCallback<Boolean>() {
                         @Override
                         public void onReceiveValue(Boolean value) {
                             if (!value)
@@ -427,7 +414,7 @@ public class ManageAccountFragment extends BaseFragment {
             showLoadingSpinner(getView(), "Decrypting passphrase");
 
             if (accountData.getIsSpendingPasswordEnabled()){
-                mPasswordManager.getAccountKey(getMainActivity(), accountData, new ValueCallback<String>() {
+                mPasswordManager.getAccountKey(getMainActivity(), accountData, getMainActivity().getAccountManager(), new ValueCallback<String>() {
                     @Override
                     public void onReceiveValue(String value) {
                         if (value == null){

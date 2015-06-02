@@ -18,39 +18,138 @@ public class AccountManager {
     Context mContext;
     JayClientApi mJayApi;
     SharedPreferences mSharedPreferences;
+    PinManager mPinManager;
 
     private static final String preferenceKey = "accounts";
 
     Gson gson = new Gson();
 
-    public AccountManager(Context context, JayClientApi jayClientApi, SharedPreferences sharedPreferences){
+    private ArrayList<AccountData> mAccountData;
+
+    public AccountManager(Context context, JayClientApi jayClientApi, PinManager pinManager, SharedPreferences sharedPreferences){
         mContext = context;
         mJayApi = jayClientApi;
         mSharedPreferences = sharedPreferences;
+        mPinManager = pinManager;
     }
 
     public ArrayList<AccountData> getAllAccounts(){
-        ArrayList<AccountData> accountsList = null;
+        if (mAccountData == null) {
+            String accounts = mSharedPreferences.getString(preferenceKey, null);
 
-        String accounts = mSharedPreferences.getString(preferenceKey, null);
-
-        if (accounts != null){
-            accountsList = gson.fromJson(accounts, new TypeToken<ArrayList<AccountData>>() {}.getType());
+            if (accounts != null) {
+                mAccountData = gson.fromJson(accounts, new TypeToken<ArrayList<AccountData>>() {
+                }.getType());
+            }
+            else{
+                mAccountData = new ArrayList<>();
+            }
         }
 
-        return accountsList;
+        return mAccountData;
     }
 
-    public void getNewAccount(final String pin, final ValueCallback<AccountData> callback){
+    public AccountData getAccountByName(String name){
+        for(AccountData account: mAccountData){
+            if (account.accountName.toLowerCase().equals(name.toLowerCase())){
+                return account;
+            }
+        }
+
+        return null;
+    }
+
+    public void getNewAccount(final ValueCallback<AccountData> callback){
         mJayApi.generateSecretPhrase(new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
-                mJayApi.getNewAccount(value, pin, callback);
+                mJayApi.getNewAccount(value, mPinManager.getSessionPin(), callback);
             }
         });
     }
-//    public void storeAccount(AccountData account);
-//    public void changePin(String newPin, String oldPin);
-//    public void deleteAccount();
-//    public void setSpendingPassword(AccountData accountData, String oldPassword, String newPassword);
+
+    public void getNewAccount(String passphrase, String pin, final ValueCallback<AccountData> callback){
+        mJayApi.getNewAccount(passphrase, pin, callback);
+    }
+
+    public void storeAccount(AccountData account){
+        account.secretPhrase = null;
+
+        mAccountData.add(account);
+
+        saveAccounts();
+    }
+
+    public void changePin(final String newPin, final String oldPin, final ValueCallback<Void> callback){
+        final int [] count = new int[1];
+
+        count[0] = mAccountData.size();
+
+        for (final AccountData accountData : mAccountData){
+            mJayApi.decryptSecretPhrase(accountData, oldPin, "", new ValueCallback<String>() {
+                @Override
+                public void onReceiveValue(String value) {
+                    mJayApi.encryptSecretPhrase(value, newPin, "", new ValueCallback<JayClientApi.EncryptSecretPhraseResult>() {
+                        @Override
+                        public void onReceiveValue(JayClientApi.EncryptSecretPhraseResult value) {
+                            accountData.checksum = value.checksum;
+                            accountData.cipher = value.cipher;
+
+                            if (--count[0] == 0){
+                                saveAccounts();
+
+                                mPinManager.changePin(newPin);
+
+                                callback.onReceiveValue(null);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    public void deleteAccount(AccountData accountData){
+        mAccountData.remove(accountData);
+
+        saveAccounts();
+    }
+
+    public void setSpendingPassword(final AccountData accountData, String oldPassword, final String newPassword, final ValueCallback<Void> callback){
+        mJayApi.decryptSecretPhrase(accountData, mPinManager.getSessionPin(), oldPassword, new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+                mJayApi.encryptSecretPhrase(value, mPinManager.getSessionPin(), newPassword, new ValueCallback<JayClientApi.EncryptSecretPhraseResult>() {
+                    @Override
+                    public void onReceiveValue(JayClientApi.EncryptSecretPhraseResult value) {
+                        accountData.checksum = value.checksum;
+                        accountData.cipher = value.cipher;
+                        accountData.spendingPassphrase = newPassword != null && newPassword != "";
+
+                        saveAccounts();
+
+                        callback.onReceiveValue(null);
+                    }
+                });
+            }
+        });
+    }
+
+    public void verifySpendingPassword(AccountData accountData, String password, final ValueCallback<Boolean> callback){
+        mJayApi.decryptSecretPhrase(accountData, mPinManager.getSessionPin(), password, new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+                callback.onReceiveValue(!value.equals("false"));
+            }
+        });
+    }
+
+    private void saveAccounts(){
+        mSharedPreferences.edit().putString(preferenceKey, gson.toJson(mAccountData)).apply();
+    }
+
+    public void deleteAllAccount() {
+        mAccountData.clear();
+        saveAccounts();
+    }
 }

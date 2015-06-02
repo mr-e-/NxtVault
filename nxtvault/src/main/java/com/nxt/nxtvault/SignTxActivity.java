@@ -115,7 +115,7 @@ public class SignTxActivity extends MainActivity {
         if (publicKey == null) {
             setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.access_denied)));
         } else {
-            final AccountData accountData = getAccount(publicKey, getAccountInfo().getAccountData());
+            final AccountData accountData = getAccount(publicKey, mAccountManager.getAllAccounts());
 
             getJay().extractTxDetails(accountData, txData, new ValueCallback<String>() {
                 @Override
@@ -179,7 +179,7 @@ public class SignTxActivity extends MainActivity {
         }
         else{
             // access granted
-            final AccountData accountData = getAccount(publicKey, getAccountInfo().getAccountData());
+            final AccountData accountData = getAccount(publicKey, mAccountManager.getAllAccounts());
 
             if (accountData == null) {
                 setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.access_denied)));
@@ -189,7 +189,7 @@ public class SignTxActivity extends MainActivity {
 
                 if (accountData.getIsSpendingPasswordEnabled()){
                     //user needs to enter their spending key first
-                    passwordManager.getAccountKey(this, accountData, new ValueCallback<String>() {
+                    passwordManager.getAccountKey(this, accountData, getAccountManager(), new ValueCallback<String>() {
                         @Override
                         public void onReceiveValue(String password) {
                             //Wrong password entered
@@ -311,7 +311,7 @@ public class SignTxActivity extends MainActivity {
                 }
             });
 
-            for (AccountData accountData : getMainActivity().getAccountInfo().getAccountData()) {
+            for (AccountData accountData : getMainActivity().mAccountManager.getAllAccounts()) {
                 adapter.add(accountData);
             }
 

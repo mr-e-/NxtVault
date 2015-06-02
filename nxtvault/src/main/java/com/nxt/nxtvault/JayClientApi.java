@@ -12,6 +12,9 @@ import com.nxt.nxtvault.model.AccountData;
 import com.nxt.nxtvault.model.BroadcastTxResponse;
 import com.nxt.nxtvaultclientlib.jay.JayApi;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 /**
@@ -19,7 +22,7 @@ import java.util.ArrayList;
  */
 public class JayClientApi extends JayApi {
     public JayClientApi(Context context, com.nxt.nxtvaultclientlib.jay.IJavascriptLoadedListener listener) {
-        super(context, Uri.parse("http://www.google.com"), listener);
+        super(context, Uri.parse("file:///android_asset/jay/index.html"), listener);
     }
 
     ValueCallback<String> generateSecretPhraseCallback;
@@ -166,10 +169,6 @@ public class JayClientApi extends JayApi {
         });
     }
 
-    public void deleteAccount(AccountData accountData) {
-        mWebView.loadUrl("javascript:AndroidExtensions.deleteAccount('" + accountData.accountRS + "')", null);
-    }
-
     public void broadcast(String txBytes, final ValueCallback<BroadcastTxResponse> callback){
         request("broadcastTransaction", "{'transactionBytes': '" + txBytes + "'}", new ValueCallback<String>() {
             @Override
@@ -197,68 +196,6 @@ public class JayClientApi extends JayApi {
         });
     }
 
-
-
-    ////VERIFY PIN
-    ValueCallback<Boolean> verifyPinCallback;
-    public void verifyPin(String pin, final ValueCallback<Boolean> callback) {
-        verifyPinCallback = callback;
-
-        pin = pin.replace("\\", "\\\\").replace("'", "\\'");
-
-        mWebView.loadUrl("javascript:MyInterface.verifyPinResult(AndroidExtensions.verifyPin('" + pin + "'));");
-    }
-
-    @JavascriptInterface
-    public void verifyPinResult(final String result) {
-        ((Activity) mContext).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                verifyPinCallback.onReceiveValue(gson.fromJson(result, Boolean.class));
-            }
-        });
-    }
-
-    ValueCallback<Boolean> storePinChecksumCallback;
-    public void storePinChecksum(String pin, final ValueCallback<Boolean> callback) {
-        storePinChecksumCallback = callback;
-
-        pin = pin.replace("\\", "\\\\").replace("'", "\\'");
-
-        mWebView.loadUrl("javascript:MyInterface.storePinChecksumResult(AndroidExtensions.storePinChecksum('" + pin + "'));");
-    }
-
-    @JavascriptInterface
-    public void storePinChecksumResult(final String result) {
-        ((Activity) mContext).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                storePinChecksumCallback.onReceiveValue(null);
-            }
-        });
-    }
-
-    ValueCallback<AccountData> setSpendingPasswordCallback;
-    public void setSpendingPassword(String accountRs, String pin, String oldPassword, String currentPassword, ValueCallback<AccountData> callback) {
-        setSpendingPasswordCallback = callback;
-
-        oldPassword = oldPassword.replace("\\", "\\\\").replace("'", "\\'");
-        currentPassword = currentPassword.replace("\\", "\\\\").replace("'", "\\'");
-        pin = pin.replace("\\", "\\\\").replace("'", "\\'");
-
-        mWebView.loadUrl("javascript:MyInterface.setSpendingPasswordResult(AndroidExtensions.setSpendingPassword('" + accountRs + "', '" + pin + "', '" + oldPassword + "', '" + currentPassword + "'));");
-    }
-
-    @JavascriptInterface
-    public void setSpendingPasswordResult(final String result) {
-        ((Activity) mContext).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                setSpendingPasswordCallback.onReceiveValue(gson.fromJson(result, AccountData.class));
-            }
-        });
-    }
-
     ValueCallback<Boolean> verifySpendingPasswordCallback;
     public void verifySpendingPassword(AccountData accountData, String pin, String password, ValueCallback<Boolean> callback) {
         verifySpendingPasswordCallback = callback;
@@ -278,5 +215,38 @@ public class JayClientApi extends JayApi {
                 verifySpendingPasswordCallback.onReceiveValue(gson.fromJson(result, Boolean.class));
             }
         });
+    }
+
+    ValueCallback<EncryptSecretPhraseResult> encryptSecretPhraseCallback;
+    public void encryptSecretPhrase(String secretPhrase, String pin, String password, ValueCallback<EncryptSecretPhraseResult> callback) {
+        encryptSecretPhraseCallback = callback;
+
+        mWebView.loadUrl("javascript:MyInterface.encryptSecretPhraseResult(AndroidExtensions.encryptSecretPhrase('" + secretPhrase + "', '" + password + pin + "'));");
+    }
+
+    @JavascriptInterface
+    public void encryptSecretPhraseResult(final String result) {
+        ((Activity) mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                EncryptSecretPhraseResult result1 = null;
+
+                try {
+                    JSONObject obj = new JSONObject(result);
+                    result1 = new EncryptSecretPhraseResult();
+                    result1.cipher = obj.getString("cipher");
+                    result1.checksum = obj.getString("checksum");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                encryptSecretPhraseCallback.onReceiveValue(result1);
+            }
+        });
+    }
+
+    public class EncryptSecretPhraseResult{
+        public String cipher;
+        public String checksum;
     }
 }

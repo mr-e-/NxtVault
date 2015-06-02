@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.webkit.ValueCallback;
 import android.widget.TextView;
 
+import com.nxt.nxtvault.framework.PinManager;
 import com.nxt.nxtvault.preference.PreferenceManager;
 import com.nxt.nxtvault.security.pin.IPinEnteredListener;
 import com.nxt.nxtvault.security.pin.PinEntryView;
@@ -39,6 +40,8 @@ public abstract class BaseActivity extends ActionBarActivity {
     ArrayList<IJayLoadedListener> mJayLoadedListeners;
 
     private boolean mJayLoaded;
+
+    PinManager mPinManager;
 
     int count = 0;
 
@@ -73,6 +76,7 @@ public abstract class BaseActivity extends ActionBarActivity {
         segoel = Typeface.createFromAsset(getAssets(), "fonts/segoeui.ttf");
 
         mPreferences = new PreferenceManager(this);
+        mPinManager = new PinManager(mPreferences);
 
         mJayLoadedListeners = new ArrayList<>();
 
@@ -98,7 +102,7 @@ public abstract class BaseActivity extends ActionBarActivity {
         final ArrayList<IUpgradeTask> upgradeTasks = new ArrayList<>();
 
         //upgrade pin so it is no longer stored in internal storage
-        upgradeTasks.add(new UpgradePinTask(this, mPreferences, getJay()));
+        upgradeTasks.add(new UpgradePinTask(this, mPreferences, getJay(), getPinManager()));
 
         for(IUpgradeTask task : upgradeTasks){
             if (task.requiresUpgrade()){
@@ -121,18 +125,8 @@ public abstract class BaseActivity extends ActionBarActivity {
 
     abstract protected void jayLoaded();
 
-    void storePin(final String pin, final ValueCallback<Boolean> callback) {
-        getJay().storePinChecksum(pin, new ValueCallback<Boolean>() {
-            @Override
-            public void onReceiveValue(Boolean value) {
-                //Store the entered pin number for later verification
-                mPreferences.putPinIsSet(true);
-
-                MyApp.SessionPin = pin;
-
-                callback.onReceiveValue(true);
-            }
-        });
+    boolean storePin(final String pin) {
+        return mPinManager.changePin(pin);
     }
 
     @Override
@@ -188,6 +182,10 @@ public abstract class BaseActivity extends ActionBarActivity {
         getSupportActionBar().show();
 
         mPinShowing = false;
+    }
+
+    public PinManager getPinManager() {
+        return mPinManager;
     }
 
     public static class PinFragment extends Fragment{
@@ -282,19 +280,13 @@ public abstract class BaseActivity extends ActionBarActivity {
                 initializeNewPin(s, callback);
             } else if (mActivity.mCurrentPinMode == PinMode.Enter) {
                 if (canEnterPin()) {
-                    //verify pin and allow access to application
-                    mActivity.getJay().verifyPin(s, new ValueCallback<Boolean>() {
-                        @Override
-                        public void onReceiveValue(Boolean accepted) {
-                            if (!accepted){
-                                headerText.setText("Please try again");
-                                handleIncorrectPin();
-                            }
+                    boolean signIn = mActivity.mPinManager.signIn(s);
+                    if (!signIn){
+                        headerText.setText("Please try again");
+                        handleIncorrectPin();
+                    }
 
-                            doCallback(callback, accepted);
-                        }
-                    });
-
+                    doCallback(callback, signIn);
                 } else {
                     setPinLockoutMessage();
                     pinEntryView.setEnabled(false);
@@ -304,21 +296,17 @@ public abstract class BaseActivity extends ActionBarActivity {
             } else if (mActivity.mCurrentPinMode == PinMode.Change) {
                 //Enter in the old pin number first
                 if (mOldPin == null) {
-                    mActivity.getJay().verifyPin(s, new ValueCallback<Boolean>() {
-                        @Override
-                        public void onReceiveValue(Boolean accepted) {
-                            if (accepted) {
-                                mOldPin = s;
+                    boolean signIn = mActivity.mPinManager.signIn(s);
+                    if (signIn){
+                        mOldPin = s;
 
-                                headerText.setText("Enter your new PIN number");
-                            }
-                            else{
-                                headerText.setText("Incorrect, enter your current PIN");
-                            }
+                        headerText.setText("Enter your new PIN number");
+                    }
+                    else{
+                        headerText.setText("Incorrect, enter your current PIN");
+                    }
 
-                            doCallback(callback, false);
-                        }
-                    });
+                    doCallback(callback, false);
                 }
                 else if (mFirstPinEntry == null) {
                     mFirstPinEntry = s;
@@ -349,12 +337,7 @@ public abstract class BaseActivity extends ActionBarActivity {
                 headerText.setText("Confirm your PIN Number");
                 doCallback(callback, false);
             } else {
-                storePin(s, new ValueCallback<Boolean>() {
-                    @Override
-                    public void onReceiveValue(Boolean value) {
-                        doCallback(callback, value);
-                    }
-                });
+                doCallback(callback, storePin(s));
             }
         }
 
@@ -433,17 +416,19 @@ public abstract class BaseActivity extends ActionBarActivity {
             return null;
         }
 
-        private void storePin(String s, ValueCallback<Boolean> callback) {
+        private boolean storePin(String pin) {
             //Store the pin for good
-            if (mFirstPinEntry.equals(s)){
-                mActivity.storePin(s, callback);
+            if (mFirstPinEntry.equals(pin)){
+                mActivity.mPinManager.changePin(pin);
+
+                return true;
             }
             else{
                 pinEntryView.clearText();
                 mFirstPinEntry = null;
                 headerText.setText("PIN mismatch. Try again.");
 
-                callback.onReceiveValue(false);
+                return false;
             }
         }
     }

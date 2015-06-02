@@ -126,6 +126,15 @@ var AndroidExtensions = {
 		return JSON.stringify(acc);
 	},
 
+	encryptSecretPhrase: function(secretPhrase, key){
+		var result = {};
+
+		result["cipher"] = encryptSecretPhrase(secretPhrase, key).toString();
+		result["checksum"] = converters.byteArrayToHexString(simpleHash(converters.stringToByteArray(secretPhrase)));
+
+		return JSON.stringify(result);
+	},
+
 	//verifies that the password can decrypt this account
 	verifySpendingPassword: function(accountRs, pin, password){
 		var __ret = this.findAccountByRs(accountRs);

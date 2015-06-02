@@ -1,7 +1,5 @@
 package com.nxt.nxtvault;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.test.ActivityTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.webkit.ValueCallback;
@@ -29,27 +27,34 @@ public class AccountManagerTest extends ActivityTestCase {
 
         final CountDownLatch lock = new CountDownLatch(1);
 
-        SharedPreferences sharedPreferences = getInstrumentation().getTargetContext().getSharedPreferences(KEY_SP_PACKAGE, Context.MODE_PRIVATE);
-
-        mAccountManager = new AccountManager(getInstrumentation().getTargetContext(), new JayClientApi(getInstrumentation().getTargetContext(), new IJavascriptLoadedListener() {
+        new JayClientApi(getInstrumentation().getContext(), new IJavascriptLoadedListener() {
             @Override
             public void onLoaded() {
-                lock.countDown();
+                String dick = "fuck";
             }
-        }), sharedPreferences);
+        });
 
-        ArrayList<AccountData> accountsList = new ArrayList<>();
-        AccountData accountData = new AccountData();
-        accountData.accountName = "Brandon";
-        accountsList.add(accountData);
+//        SharedPreferences sharedPreferences = getInstrumentation().getTargetContext().getSharedPreferences(KEY_SP_PACKAGE, Context.MODE_PRIVATE);
+//
+//        mAccountManager = new AccountManager(getInstrumentation().getTargetContext(), new JayClientApi(getInstrumentation().getTargetContext(), new IJavascriptLoadedListener() {
+//            @Override
+//            public void onLoaded() {
+//                lock.countDown();
+//            }
+//        }), sharedPreferences);
+//
+//        ArrayList<AccountData> accountsList = new ArrayList<>();
+//        AccountData accountData = new AccountData();
+//        accountData.accountName = "Brandon";
+//        accountsList.add(accountData);
+//
+//        AccountData accountData2 = new AccountData();
+//        accountData2.accountName = "rawr";
+//        accountsList.add(accountData2);
+//
+//        sharedPreferences.edit().putString("accounts", gson.toJson(accountsList)).commit();
 
-        AccountData accountData2 = new AccountData();
-        accountData2.accountName = "rawr";
-        accountsList.add(accountData2);
-
-        sharedPreferences.edit().putString("accounts", gson.toJson(accountsList)).commit();
-
-        Thread.sleep(30000);
+        lock.await();
     }
 
     @MediumTest
