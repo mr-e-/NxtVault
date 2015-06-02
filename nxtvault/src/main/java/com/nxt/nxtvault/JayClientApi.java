@@ -43,9 +43,7 @@ public class JayClientApi extends JayApi {
     public void getNewAccount(String secretPhrase, String pin, final ValueCallback<AccountData> callback){
         getNewAccountCallback = callback;
 
-        if (secretPhrase.contains("'")) {
-            secretPhrase = secretPhrase.replace("'", "\\'");
-        }
+        secretPhrase = secretPhrase.replace("\\", "\\\\").replace("'", "\\'");
 
         mWebView.loadUrl("javascript: MyInterface.getNewAccountResult(JSON.stringify(newAccount('" + secretPhrase + "', '" + pin + "')));");
     }
@@ -111,9 +109,7 @@ public class JayClientApi extends JayApi {
     public void decryptSecretPhrase(AccountData accountData, String pin, String password, final ValueCallback<String> callback){
         decryptSecretPhraseCallback = callback;
 
-        if (password.contains("'")) {
-            password = password.replace("'", "\\'");
-        }
+        password = password.replace("\\", "\\\\").replace("'", "\\'");
 
         mWebView.loadUrl("javascript: MyInterface.decryptSecretPhraseResult(decryptSecretPhrase('" + accountData.cipher + "', '" + password + pin + "', '" + accountData.checksum + "'));");
     }
@@ -208,9 +204,7 @@ public class JayClientApi extends JayApi {
     public void verifyPin(String pin, final ValueCallback<Boolean> callback) {
         verifyPinCallback = callback;
 
-        if (pin.contains("'")) {
-            pin = pin.replace("'", "\\'");
-        }
+        pin = pin.replace("\\", "\\\\").replace("'", "\\'");
 
         mWebView.loadUrl("javascript:MyInterface.verifyPinResult(AndroidExtensions.verifyPin('" + pin + "'));");
     }
@@ -229,9 +223,7 @@ public class JayClientApi extends JayApi {
     public void storePinChecksum(String pin, final ValueCallback<Boolean> callback) {
         storePinChecksumCallback = callback;
 
-        if (pin.contains("'")) {
-            pin = pin.replace("'", "\\'");
-        }
+        pin = pin.replace("\\", "\\\\").replace("'", "\\'");
 
         mWebView.loadUrl("javascript:MyInterface.storePinChecksumResult(AndroidExtensions.storePinChecksum('" + pin + "'));");
     }
@@ -250,17 +242,9 @@ public class JayClientApi extends JayApi {
     public void setSpendingPassword(String accountRs, String pin, String oldPassword, String currentPassword, ValueCallback<AccountData> callback) {
         setSpendingPasswordCallback = callback;
 
-        if (pin.contains("'")) {
-            pin = pin.replace("'", "\\'");
-        }
-
-        if (oldPassword.contains("'")) {
-            oldPassword = oldPassword.replace("'", "\\'");
-        }
-
-        if (currentPassword.contains("'")) {
-            currentPassword = currentPassword.replace("'", "\\'");
-        }
+        oldPassword = oldPassword.replace("\\", "\\\\").replace("'", "\\'");
+        currentPassword = currentPassword.replace("\\", "\\\\").replace("'", "\\'");
+        pin = pin.replace("\\", "\\\\").replace("'", "\\'");
 
         mWebView.loadUrl("javascript:MyInterface.setSpendingPasswordResult(AndroidExtensions.setSpendingPassword('" + accountRs + "', '" + pin + "', '" + oldPassword + "', '" + currentPassword + "'));");
     }
@@ -279,13 +263,9 @@ public class JayClientApi extends JayApi {
     public void verifySpendingPassword(AccountData accountData, String pin, String password, ValueCallback<Boolean> callback) {
         verifySpendingPasswordCallback = callback;
 
-        if (pin.contains("'")) {
-            pin = pin.replace("'", "\\'");
-        }
+        password = password.replace("\\", "\\\\").replace("'", "\\'");
+        pin = pin.replace("\\", "\\\\").replace("'", "\\'");
 
-        if (password.contains("'")) {
-            password = password.replace("'", "\\'");
-        }
 
         mWebView.loadUrl("javascript:MyInterface.verifySpendingPassword(AndroidExtensions.verifySpendingPassword('" + accountData.accountRS + "', '" + password + pin + "', '" + password + "'));");
     }
