@@ -29,7 +29,7 @@ public class PreferenceManager {
     }
 
     public void putPinDigest(String digest){
-        sharedPref.edit().putString(mContext.getString(R.string.pinDigest), digest).apply();
+        sharedPref.edit().putString(mContext.getString(R.string.pinDigest), digest).commit();
     }
 
     public void putLastPinEntry(Long millis){
@@ -41,13 +41,13 @@ public class PreferenceManager {
     public void putPinTryAttempts(long attempts){
         sharedPref.edit()
                 .putLong(mContext.getString(R.string.pin_lockout_time), attempts)
-                .apply();
+                .commit();
     }
 
     public void putPinTryLockoutTime(long lockoutTime){
         sharedPref.edit()
                 .putLong(mContext.getString(R.string.pin_attempts), lockoutTime)
-                .apply();
+                .commit();
     }
 
     public boolean getIsTestNet(){
@@ -83,7 +83,7 @@ public class PreferenceManager {
     }
 
     public void wipe() {
-        sharedPref.edit().clear().apply();
+        sharedPref.edit().clear().commit();
     }
 
     public void logout() {
