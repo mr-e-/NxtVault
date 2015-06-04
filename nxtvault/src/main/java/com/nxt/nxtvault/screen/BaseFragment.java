@@ -8,22 +8,36 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.nxt.nxtvault.IJayLoadedListener;
+import com.nxt.nxtvault.App;
+import com.nxt.nxtvault.JayClientApi;
 import com.nxt.nxtvault.MainActivity;
-import com.nxt.nxtvaultclientlib.jay.JayApi;
+import com.nxt.nxtvault.framework.TransactionFactory;
+
+import javax.inject.Inject;
 
 /**
  * Created by Brandon on 4/6/2015.
  */
 public abstract class BaseFragment extends Fragment {
     protected MainActivity mActivity;
-    protected JayApi mJay;
+
+    @Inject
+    protected JayClientApi mJay;
+
+    @Inject
+    TransactionFactory mTransactionFactory;
 
     public MainActivity getMainActivity(){
         return mActivity;
     }
+
     protected void showBackButton(boolean show){
         getMainActivity().getSupportActionBar().setDisplayHomeAsUpEnabled(show);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
     }
 
     @Override
@@ -31,23 +45,15 @@ public abstract class BaseFragment extends Fragment {
         super.onAttach(activity);
 
         mActivity = (MainActivity)activity;
+
+        ((App)mActivity.getApplication()).inject(this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable final Bundle savedInstanceState) {
         final View view = inflateView(inflater, container);
 
-        if (!mActivity.getIsJayLoaded()){
-            mActivity.subscribeJayLoaded(new IJayLoadedListener() {
-                @Override
-                public void onLoaded() {
-                    onReady(view, savedInstanceState);
-                }
-            });
-        }
-        else{
-            onReady(view, savedInstanceState);
-        }
+        onReady(view, savedInstanceState);
 
         return view;
     }
@@ -55,6 +61,6 @@ public abstract class BaseFragment extends Fragment {
     protected abstract View inflateView(LayoutInflater inflater, @Nullable ViewGroup container);
 
     public void onReady(View rootView, Bundle savedInstanceState){
-        mJay = mActivity.getJay();
+
     }
 }

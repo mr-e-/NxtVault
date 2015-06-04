@@ -27,9 +27,9 @@ import android.widget.Toast;
 import com.gc.materialdesign.views.ButtonFloat;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-import com.nxt.nxtvault.MyApp;
 import com.nxt.nxtvault.R;
 import com.nxt.nxtvault.framework.PasswordManager;
+import com.nxt.nxtvault.framework.PinManager;
 import com.nxt.nxtvault.framework.TransactionFactory;
 import com.nxt.nxtvault.model.AccountData;
 import com.nxt.nxtvault.util.TextValidator;
@@ -37,11 +37,22 @@ import com.nxt.nxtvault.util.TextValidator;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.inject.Inject;
+
 /**
  * Created by Brandon on 4/18/2015.
  */
 public class ManageAccountFragment extends BaseFragment {
     public static final String ENCRYPTED_PASSPHRASE = "****************************************";
+
+    @Inject
+    PasswordManager mPasswordManager;
+
+    @Inject
+    PinManager mPinManager;
+
+    @Inject
+    TransactionFactory mTransactionFactory;
 
     TextView txtAccountName;
     TextView txtAccountRs;
@@ -55,12 +66,8 @@ public class ManageAccountFragment extends BaseFragment {
     ButtonFloat btnSave;
     CheckBox chkSPendingPassword;
 
-    EditText p1, p2;
-
     boolean newAccount;
     AccountData accountData;
-
-    PasswordManager mPasswordManager;
 
     private boolean mIsEdited;
 
@@ -112,8 +119,7 @@ public class ManageAccountFragment extends BaseFragment {
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            getMainActivity().getJay().deleteAccount(accountData);
-                            getMainActivity().deleteAccount(accountData);
+                            getMainActivity().getAccountManager().deleteAccount(accountData);
                             getMainActivity().onBackPressed();
                         }
                     })
@@ -140,8 +146,6 @@ public class ManageAccountFragment extends BaseFragment {
     public void onReady(View rootView, Bundle savedInstanceState) {
         super.onReady(rootView, savedInstanceState);
 
-        mPasswordManager = new PasswordManager(getMainActivity().getJay());
-
         ButtonFloat btnSave = (ButtonFloat)rootView.findViewById(R.id.btnSave);
         btnSave.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
         btnSave.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_accept));
@@ -166,20 +170,14 @@ public class ManageAccountFragment extends BaseFragment {
     private void generateNewAccount(final View rootView) {
         showLoadingSpinner(rootView, null);
 
-        //generate the account
-        mActivity.getJay().generateSecretPhrase(new ValueCallback<String>() {
+        getMainActivity().getAccountManager().getNewAccount(new ValueCallback<AccountData>() {
             @Override
-            public void onReceiveValue(String value) {
-                mActivity.getJay().getNewAccount(value, MyApp.SessionPin, new ValueCallback<AccountData>() {
-                    @Override
-                    public void onReceiveValue(AccountData value) {
-                        accountData = value;
+            public void onReceiveValue(AccountData value) {
+                accountData = value;
 
-                        hydrate(rootView);
+                hydrate(rootView);
 
-                        hideLoadingSpinner(rootView);
-                    }
-                });
+                hideLoadingSpinner(rootView);
             }
         });
     }
@@ -344,16 +342,12 @@ public class ManageAccountFragment extends BaseFragment {
                     if (accountName == null || accountName.isEmpty()) {
                         txtAccountName.setError("Please enter an account name", getResources().getDrawable(R.drawable.indicator_input_error));
                         txtAccountName.requestFocus();
-                    } else if (getMainActivity().getAccountInfo().nameExists(accountName)) {
+                    } else if (getMainActivity().getAccountManager().getAccountByName(accountName) != null) {
                         txtAccountName.setError("Account name already in use",getResources().getDrawable(R.drawable.indicator_input_error));
                         txtAccountName.requestFocus();
                     } else {
                         accountData.accountName = accountName;
-                        getMainActivity().getJay().storeAccount(accountData);
-
-                        if (newAccount) {
-                            getMainActivity().addNewAccountToUI(accountData);
-                        }
+                        getMainActivity().getAccountManager().storeAccount(accountData);
 
                         Toast.makeText(getMainActivity(), "Account created successfully!", Toast.LENGTH_SHORT).show();
                         getMainActivity().onBackPressed();
@@ -383,7 +377,7 @@ public class ManageAccountFragment extends BaseFragment {
             public void onClick(View v) {
                 if (chkSPendingPassword.isChecked()){
                     if (!newAccount) {
-                        mPasswordManager.setSpendingPassword(getMainActivity(), accountData, new ValueCallback<Boolean>() {
+                        mPasswordManager.setSpendingPassword(getMainActivity(), accountData, getMainActivity().getAccountManager(), new ValueCallback<Boolean>() {
                             @Override
                             public void onReceiveValue(Boolean value) {
                                 if (!value)
@@ -396,7 +390,7 @@ public class ManageAccountFragment extends BaseFragment {
                     }
                 }
                 else{
-                    mPasswordManager.removeSpendingPassword(getMainActivity(), accountData, new ValueCallback<Boolean>() {
+                    mPasswordManager.removeSpendingPassword(getMainActivity(), accountData, getMainActivity().getAccountManager(), new ValueCallback<Boolean>() {
                         @Override
                         public void onReceiveValue(Boolean value) {
                             if (!value)
@@ -427,7 +421,7 @@ public class ManageAccountFragment extends BaseFragment {
             showLoadingSpinner(getView(), "Decrypting passphrase");
 
             if (accountData.getIsSpendingPasswordEnabled()){
-                mPasswordManager.getAccountKey(getMainActivity(), accountData, new ValueCallback<String>() {
+                mPasswordManager.getAccountKey(getMainActivity(), accountData, getMainActivity().getAccountManager(), new ValueCallback<String>() {
                     @Override
                     public void onReceiveValue(String value) {
                         if (value == null){
@@ -450,8 +444,7 @@ public class ManageAccountFragment extends BaseFragment {
     }
 
     private void decryptSecretPhrase(String password) {
-        accountData.key = MyApp.SessionPin;
-        getMainActivity().getJay().decryptSecretPhrase(accountData, MyApp.SessionPin, password, new ValueCallback<String>() {
+        mJay.decryptSecretPhrase(accountData, mPinManager.getSessionPin(), password, new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
                 txtPassphrase.setText(value);
@@ -478,14 +471,13 @@ public class ManageAccountFragment extends BaseFragment {
     }
 
     private void generateAccount() {
-        getMainActivity().getJay().getNewAccount(txtPassphrase.getText().toString(), MyApp.SessionPin, new ValueCallback<AccountData>() {
+        mJay.getNewAccount(txtPassphrase.getText().toString(), mPinManager.getSessionPin(), new ValueCallback<AccountData>() {
             @Override
             public void onReceiveValue(final AccountData value) {
-            accountData = value;
+                accountData = value;
                 if (accountData == null) {
                     txtPassphrase.setError("Invalid passphrase");
-                }
-                else {
+                } else {
                     txtAccountRs.setText(value.accountRS);
                     txtPublicKey.setText(value.publicKey);
 
@@ -536,8 +528,7 @@ public class ManageAccountFragment extends BaseFragment {
                             getMainActivity().navigate(SendMoneyFragment.getInstance(re, accountData.publicKey), true);
                         }
                         else {
-                            TransactionFactory txFactory = TransactionFactory.getTransactionFactory(getMainActivity().mPreferences);
-                            Intent intent = txFactory.createSelfSignedTx("nxtvault.intent.action.SIGNANDBROADCAST", re);
+                            Intent intent = mTransactionFactory.createSelfSignedTx("nxtvault.intent.action.SIGNANDBROADCAST", re);
                             intent.putExtra("PublicKey", accountData.publicKey);
 
                             startActivityForResult(intent, 2);

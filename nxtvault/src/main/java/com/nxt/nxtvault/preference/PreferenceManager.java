@@ -5,13 +5,18 @@ import android.content.SharedPreferences;
 
 import com.nxt.nxtvault.R;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 /**
  * Created by bcollins on 2015-04-30.
  */
+@Singleton
 public class PreferenceManager {
     protected SharedPreferences sharedPref;
     Context mContext;
 
+    @Inject
     public PreferenceManager(Context context){
         mContext = context;
 
@@ -23,10 +28,8 @@ public class PreferenceManager {
         return sharedPref;
     }
 
-    public void putPinIsSet(boolean isSet){
-        sharedPref.edit()
-                .putBoolean(mContext.getString(R.string.pinIsSet), isSet)
-                .apply();
+    public void putPinDigest(String digest){
+        sharedPref.edit().putString(mContext.getString(R.string.pinDigest), digest).apply();
     }
 
     public void putLastPinEntry(Long millis){
@@ -55,8 +58,12 @@ public class PreferenceManager {
         return sharedPref.getString(mContext.getString(R.string.server_preference), null);
     }
 
+    public String getPinDigest(){
+        return sharedPref.getString(mContext.getString(R.string.pinDigest), null);
+    }
+
     public boolean getPinIsSet(){
-        return sharedPref.getBoolean(mContext.getString(R.string.pinIsSet), false);
+        return getPinDigest() != null;
     }
 
     public String getPinTimeout(){

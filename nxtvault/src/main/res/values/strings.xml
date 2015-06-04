@@ -59,4 +59,5 @@
     <string name="crash_dialog_ok_toast">Thank you !</string>
     <string name="poowhip">poo whip</string>
     <string name="title_activity_api">ApiActivity</string>
+    <string name="pinDigest">pinDigest</string>
 </resources>

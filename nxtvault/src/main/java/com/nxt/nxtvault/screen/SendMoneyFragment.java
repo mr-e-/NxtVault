@@ -11,15 +11,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.ValueCallback;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gc.materialdesign.views.ButtonFloat;
 import com.nxt.nxtvault.R;
-import com.nxt.nxtvault.controls.MultiLineDoneEditText;
-import com.nxt.nxtvault.framework.TransactionFactory;
 import com.nxt.nxtvault.util.TextValidator;
 
 /**
@@ -92,22 +89,20 @@ public class SendMoneyFragment extends BaseFragment {
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (amount == 0){
-                    txtAmount.setError("Please set an amount to send");
-                }
-                else {
-                    mJay.sendMoney(mAccountRs, amount, txtMessage.getText().toString(), new ValueCallback<String>() {
-                        @Override
-                        public void onReceiveValue(String value) {
-                            TransactionFactory txFactory = TransactionFactory.getTransactionFactory(getMainActivity().mPreferences);
+            if (amount == 0){
+                txtAmount.setError("Please set an amount to send");
+            }
+            else {
+                mJay.sendMoney(mAccountRs, amount, txtMessage.getText().toString(), new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String value) {
+                    Intent intent = mTransactionFactory.createSelfSignedTx("nxtvault.intent.action.SIGNANDBROADCAST", value);
+                    intent.putExtra("PublicKey", mSenderPublicKey);
 
-                            Intent intent = txFactory.createSelfSignedTx("nxtvault.intent.action.SIGNANDBROADCAST", value);
-                            intent.putExtra("PublicKey", mSenderPublicKey);
-
-                            startActivityForResult(intent, 2);
-                        }
-                    });
-                }
+                    startActivityForResult(intent, 2);
+                    }
+                });
+            }
             }
         });
 

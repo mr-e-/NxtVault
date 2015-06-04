@@ -13,10 +13,10 @@ android {
     buildToolsVersion "21.1.2"
     defaultConfig {
         applicationId "jay.nxtvault"
-        minSdkVersion 14
+        minSdkVersion 8
         targetSdkVersion 21
         versionCode 11
-        versionName "0.87"
+        versionName "0.9"
     }
     buildTypes {
         release {

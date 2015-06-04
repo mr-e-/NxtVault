@@ -4,8 +4,8 @@ import android.content.Context;
 import android.webkit.ValueCallback;
 
 import com.nxt.nxtvault.JayClientApi;
-import com.nxt.nxtvault.MyApp;
 import com.nxt.nxtvault.R;
+import com.nxt.nxtvault.framework.PinManager;
 import com.nxt.nxtvault.preference.PreferenceManager;
 
 /**
@@ -15,28 +15,21 @@ public class UpgradePinTask implements IUpgradeTask{
     PreferenceManager mPreferences;
     Context mContext;
     JayClientApi mJay;
+    private PinManager mPinManager;
 
 
-    public UpgradePinTask(Context context, PreferenceManager preferenceManager, JayClientApi jay){
+    public UpgradePinTask(Context context, PreferenceManager preferenceManager, JayClientApi jay, PinManager pinManager){
         mPreferences = preferenceManager;
         mContext = context;
         mJay = jay;
+        mPinManager = pinManager;
     }
 
     @Override
     public void upgrade(final ValueCallback<Void> callback) {
         final String pin = mPreferences.getSharedPref().getString(mContext.getString(R.string.pin), null);
 
-        mJay.storePinChecksum(pin, new ValueCallback<Boolean>() {
-            @Override
-            public void onReceiveValue(Boolean value) {
-                mPreferences.getSharedPref().edit().putString(mContext.getString(R.string.pin), null).commit();
-                mPreferences.getSharedPref().edit().putBoolean(mContext.getString(R.string.pinIsSet), true).commit();
-                MyApp.SessionPin = pin;
-
-                callback.onReceiveValue(null);
-            }
-        });
+        mPinManager.changePin(pin);
     }
 
     @Override

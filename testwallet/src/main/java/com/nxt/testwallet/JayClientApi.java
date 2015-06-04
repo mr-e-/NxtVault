@@ -8,7 +8,6 @@ import android.webkit.ValueCallback;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import com.nxt.nxtvaultclientlib.jay.IJavascriptLoadedListener;
 import com.nxt.nxtvaultclientlib.jay.JayApi;
 import com.nxt.nxtvaultclientlib.nxtvault.model.Asset;
 import com.nxt.testwallet.file.FileReader;
@@ -19,8 +18,8 @@ import java.util.ArrayList;
  * Created by Brandon on 4/6/2015.
  */
 public class JayClientApi extends JayApi {
-    public JayClientApi(Context context, Uri uri, IJavascriptLoadedListener listener) {
-        super(context, uri, listener);
+    public JayClientApi(Context context, Uri uri) {
+        super(context, uri);
     }
 
     @Override

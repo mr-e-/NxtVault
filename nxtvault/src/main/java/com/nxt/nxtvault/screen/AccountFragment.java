@@ -12,12 +12,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.gc.materialdesign.views.ButtonFloat;
-import com.nxt.nxtvault.IJayLoadedListener;
-import com.nxt.nxtvault.JayClientApi;
 import com.nxt.nxtvault.R;
 import com.nxt.nxtvault.model.AccountData;
-
-import java.util.ArrayList;
 
 /**
  * Created by Brandon on 4/6/2015.
@@ -25,22 +21,14 @@ import java.util.ArrayList;
 public class AccountFragment extends BaseFragment {
     ButtonFloat btnNewAccount;
 
-    JayClientApi jay;
-
-    ArrayList<AccountData> mAccountData;
-
     @Override
     public void onReady(View rootView, Bundle savedInstanceState) {
         super.onReady(rootView, savedInstanceState);
 
         ListView listView = (ListView)rootView.findViewById(R.id.accountList);
 
-        jay = getMainActivity().getJay();
-
-        mAccountData = getMainActivity().getAccountInfo().getAccountData();
-
         final AccountAdapter accountAdapter = new AccountAdapter(getMainActivity(), R.layout.account_item);
-        for(AccountData accountData : mAccountData){
+        for(AccountData accountData : mActivity.getAccountManager().getAllAccounts()){
             accountAdapter.add(accountData);
         }
 
@@ -65,7 +53,7 @@ public class AccountFragment extends BaseFragment {
         btnNewAccount.setBackgroundColor(getResources().getColor(R.color.primary__extra_light));
         btnNewAccount.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_new));
 
-        if (mAccountData.size() == 0){
+        if (mActivity.getAccountManager().getAllAccounts().size() == 0){
             createNewAccount();
         }
     }

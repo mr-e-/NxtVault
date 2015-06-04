@@ -6,9 +6,13 @@ import com.nxt.nxtvault.preference.PreferenceManager;
 
 import java.util.UUID;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 /**
  * Created by Brandon on 5/30/2015.
  */
+@Singleton
 public class TransactionFactory {
     private static TransactionFactory txFactory;
 
@@ -16,16 +20,9 @@ public class TransactionFactory {
 
     private PreferenceManager mPreference;
 
+    @Inject
     protected TransactionFactory(PreferenceManager preferenceManager){
         mPreference = preferenceManager;
-    }
-
-    public static TransactionFactory getTransactionFactory(PreferenceManager preferenceManager){
-        if (txFactory == null){
-            txFactory = new TransactionFactory(preferenceManager);
-        }
-
-        return txFactory;
     }
 
     public Intent createSelfSignedTx(String intentName, String txData){
