@@ -79,7 +79,8 @@ public class MainActivity extends BaseVaultActivity {
 
     @Override
     protected void initializeJay(Uri url) {
-        jay = new JayClientApi(this, url, new IJavascriptLoadedListener() {
+        jay = new JayClientApi(this, url);
+        jay.addReadyListener(new IJavascriptLoadedListener() {
             @Override
             public void onLoaded() {
                 //Fired when the webview finished loading. You cannot make any Jay requests

@@ -12,7 +12,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.gc.materialdesign.views.ButtonFloat;
-import com.nxt.nxtvault.JayClientApi;
 import com.nxt.nxtvault.R;
 import com.nxt.nxtvault.model.AccountData;
 
@@ -22,15 +21,11 @@ import com.nxt.nxtvault.model.AccountData;
 public class AccountFragment extends BaseFragment {
     ButtonFloat btnNewAccount;
 
-    JayClientApi jay;
-
     @Override
     public void onReady(View rootView, Bundle savedInstanceState) {
         super.onReady(rootView, savedInstanceState);
 
         ListView listView = (ListView)rootView.findViewById(R.id.accountList);
-
-        jay = getMainActivity().getJay();
 
         final AccountAdapter accountAdapter = new AccountAdapter(getMainActivity(), R.layout.account_item);
         for(AccountData accountData : mActivity.getAccountManager().getAllAccounts()){

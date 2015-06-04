@@ -4,7 +4,6 @@ import android.animation.ObjectAnimator;
 import android.app.ActionBar;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,33 +12,18 @@ import android.webkit.ValueCallback;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.nxt.nxtvault.framework.AccountManager;
 import com.nxt.nxtvault.model.AccountData;
-import com.nxt.nxtvault.model.AccountInfo;
 import com.nxt.nxtvault.screen.AboutFragment;
 import com.nxt.nxtvault.screen.AccountFragment;
 import com.nxt.nxtvault.screen.PreferenceFragment;
-import com.nxt.nxtvault.upgrade.IUpgradeTask;
-import com.nxt.nxtvault.upgrade.UpgradePinTask;
-import com.nxt.nxtvaultclientlib.jay.IJavascriptLoadedListener;
 import com.nxt.nxtvaultclientlib.jay.RequestMethods;
-import com.nxt.nxtvaultclientlib.nxtvault.model.Asset;
-
-import java.util.ArrayList;
 
 
 public class MainActivity extends BaseActivity {
-    Gson gson = new Gson();
-
     Bundle mSavedInstanceState;
 
     private TextView mTitleBar;
-
-    private ArrayList<Asset> mAssetList;
-
-    AccountManager mAccountManager;
 
     public AccountManager getAccountManager(){
         return mAccountManager;
@@ -51,11 +35,6 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
 
         mSavedInstanceState = savedInstanceState;
-        mAccountManager = new AccountManager(this, getJay(), mPinManager, mPreferences.getSharedPref());
-
-        if (mPreferences.getSharedPref().getString("assets", null) != null) {
-            mAssetList = gson.fromJson(mPreferences.getSharedPref().getString("assets", null), new TypeToken<ArrayList<Asset>>() { }.getType());
-        }
 
         //set up action bar
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_HOME);
@@ -69,8 +48,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void jayLoaded() {
         setServerInfo();
-
-        setIsJayLoaded(true);
     }
 
     @Override
@@ -89,29 +66,14 @@ public class MainActivity extends BaseActivity {
 
     public void setServerInfo() {
         if (mPreferences.getCustomServer() != null && !mPreferences.getCustomServer().isEmpty()){
-            getJay().setNode(mPreferences.getCustomServer());
-            getJay().setRequestMethod(RequestMethods.Single);
-            getJay().setIsTestnet(mPreferences.getIsTestNet());
+            mJay.setNode(mPreferences.getCustomServer());
+            mJay.setRequestMethod(RequestMethods.Single);
+            mJay.setIsTestnet(mPreferences.getIsTestNet());
         }
         else{
-            getJay().setRequestMethod(RequestMethods.Fastest);
-            getJay().setIsTestnet(false);
+            mJay.setRequestMethod(RequestMethods.Fastest);
+            mJay.setIsTestnet(false);
         }
-    }
-
-    public Asset findAssetById(String assetId){
-        Asset result = null;
-
-        if (mAssetList != null) {
-            for (Asset asset : mAssetList) {
-                if (asset.AssetId.equals(assetId)) {
-                    result = asset;
-                    break;
-                }
-            }
-        }
-
-        return result;
     }
 
     @Override
@@ -243,6 +205,7 @@ public class MainActivity extends BaseActivity {
 
     private void logout() {
         mPreferences.putLastPinEntry(0L);
+
         System.exit(0);
     }
 }

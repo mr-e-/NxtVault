@@ -1,23 +1,27 @@
 package com.nxt.nxtvault.framework;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.webkit.ValueCallback;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.nxt.nxtvault.JayClientApi;
 import com.nxt.nxtvault.model.AccountData;
+import com.nxt.nxtvault.preference.PreferenceManager;
 
 import java.util.ArrayList;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * Created by bcollins on 2015-06-01.
  */
+@Singleton
 public class AccountManager {
     Context mContext;
     JayClientApi mJayApi;
-    SharedPreferences mSharedPreferences;
+    PreferenceManager mPreferenceManager;
     PinManager mPinManager;
 
     private static final String preferenceKey = "accounts";
@@ -26,16 +30,17 @@ public class AccountManager {
 
     private ArrayList<AccountData> mAccountData;
 
-    public AccountManager(Context context, JayClientApi jayClientApi, PinManager pinManager, SharedPreferences sharedPreferences){
+    @Inject
+    public AccountManager(Context context, JayClientApi jayClientApi, PinManager pinManager, PreferenceManager preferenceManager){
         mContext = context;
         mJayApi = jayClientApi;
-        mSharedPreferences = sharedPreferences;
+        mPreferenceManager = preferenceManager;
         mPinManager = pinManager;
     }
 
     public ArrayList<AccountData> getAllAccounts(){
         if (mAccountData == null) {
-            String accounts = mSharedPreferences.getString(preferenceKey, null);
+            String accounts = mPreferenceManager.getSharedPref().getString(preferenceKey, null);
 
             if (accounts != null) {
                 mAccountData = gson.fromJson(accounts, new TypeToken<ArrayList<AccountData>>() {
@@ -145,7 +150,7 @@ public class AccountManager {
     }
 
     private void saveAccounts(){
-        mSharedPreferences.edit().putString(preferenceKey, gson.toJson(mAccountData)).apply();
+        mPreferenceManager.getSharedPref().edit().putString(preferenceKey, gson.toJson(mAccountData)).apply();
     }
 
     public void deleteAllAccount() {

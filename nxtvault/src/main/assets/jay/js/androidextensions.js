@@ -52,9 +52,9 @@ var AndroidExtensions = {
         }
     },
 
-    startTRF: function(sender, trfBytes){
+    startTRF: function(senderPubKey, trfBytes){
         var bytes = base62Decode(trfBytes.substring(3));
-        console.log(JSON.stringify(bytes));
+
         if(bytes[0] == '1')
         {
             bytes = bytes.slice(1);
@@ -64,8 +64,7 @@ var AndroidExtensions = {
             collect = [bytes[0],bytes[1]]; // type ver & subtype
             collect = collect.concat(nxtTimeBytes()); // timestamp
             collect = collect.concat(wordBytes(1440)); // deadline
-            var senderPubKey = converters.hexStringToByteArray(findAccount(sender).publicKey);
-            collect = collect.concat(senderPubKey);
+            collect = collect.concat(converters.hexStringToByteArray(senderPubKey));
             collect = collect.concat(bytes.slice(2, 2+8)); // recipient/genesis
             collect = collect.concat(bytes.slice(10, 10+8)); // amount
             collect = collect.concat(bytes.slice(18, 18+8)); // fee
@@ -80,11 +79,11 @@ var AndroidExtensions = {
         }
     },
 
-    signTrfBytes: function(sender, trfBytes, secretPhrase){
+    signTrfBytes: function(senderPubKey, trfBytes, secretPhrase){
         var bytes;
 
         if (trfBytes.indexOf("TX_") > -1){
-            bytes = this.startTRF(sender, trfBytes);
+            bytes = this.startTRF(senderPubKey, trfBytes);
         }
         else{
             bytes = trfBytes;
@@ -228,13 +227,13 @@ var AndroidExtensions = {
     setReview: function(number, key, value){
         this.reviewData.push({id: number, key: key, value:value});
     },
-    extractBytesData: function(sender, trfBytes)
+    extractBytesData: function(sender, senderPubKey, trfBytes)
     {
             this.reviewData = [];
             var bytes;
 
             if (trfBytes.indexOf("TX_") > -1){
-                bytes = this.startTRF(sender, trfBytes);
+                bytes = this.startTRF(senderPubKey, trfBytes);
             }
             else{
                 bytes = trfBytes;

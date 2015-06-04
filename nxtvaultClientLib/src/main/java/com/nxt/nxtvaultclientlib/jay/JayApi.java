@@ -31,15 +31,18 @@ public class JayApi implements IJayApi {
     protected WebView mWebView;
     protected Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 
-    private IJavascriptLoadedListener mLoadedListener;
+    private List<IJavascriptLoadedListener> mReadyListeners;
 
     protected Context mContext;
 
-    public JayApi(Context context, Uri path, IJavascriptLoadedListener listener){
+    private boolean mIsLoaded;
+
+    public JayApi(Context context, Uri path){
         mContext = context;
 
-        mLoadedListener = listener;
         gson = new Gson();
+
+        mReadyListeners = new ArrayList<>();
 
         //Load the the webview context for processing jay javascript
         mWebView = new WebView(context);
@@ -54,8 +57,11 @@ public class JayApi implements IJayApi {
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
 
-                if (mLoadedListener != null) {
-                    mLoadedListener.onLoaded();
+                mIsLoaded = true;
+
+                if (mReadyListeners != null) {
+                    for (IJavascriptLoadedListener loadedListener : mReadyListeners)
+                        loadedListener.onLoaded();
                 }
             }
         });
@@ -68,6 +74,14 @@ public class JayApi implements IJayApi {
         mWebView.addJavascriptInterface(this, "MyInterface");
 
         mWebView.loadUrl(path.toString());
+    }
+
+    public void addReadyListener(IJavascriptLoadedListener javascriptLoadedListener){
+        mReadyListeners.add(javascriptLoadedListener);
+    }
+
+    public boolean getIsReady(){
+        return mIsLoaded;
     }
 
     @Override
@@ -126,7 +140,7 @@ public class JayApi implements IJayApi {
     public void getBestNodesResult(String result){
         final ArrayList<String> nodes = gson.fromJson(result, new TypeToken<ArrayList<String>>() { }.getType());
 
-        ((Activity) mContext).runOnUiThread(new Runnable() {
+        mHandler.post(new Runnable() {
             @Override
             public void run() {
                 getBestNodesCallback.onReceiveValue(nodes);
@@ -141,7 +155,7 @@ public class JayApi implements IJayApi {
             public void onReceiveValue(String value) {
                 final Account account = gson.fromJson(value, Account.class);
 
-                ((Activity) mContext).runOnUiThread(new Runnable() {
+                mHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         callback.onReceiveValue(account);
@@ -151,7 +165,7 @@ public class JayApi implements IJayApi {
         }, new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
-                ((Activity) mContext).runOnUiThread(new Runnable() {
+                mHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         callback.onReceiveValue(null);
@@ -230,7 +244,7 @@ public class JayApi implements IJayApi {
 
     @JavascriptInterface
     public void sendMoneyResult(final String result) {
-        ((Activity) mContext).runOnUiThread(new Runnable() {
+        mHandler.post(new Runnable() {
             @Override
             public void run() {
                 sendMoneyCallback.onReceiveValue(gson.fromJson(result, String.class));
@@ -252,7 +266,7 @@ public class JayApi implements IJayApi {
 
     @JavascriptInterface
     public void transferAssetResult(final String result) {
-        ((Activity) mContext).runOnUiThread(new Runnable() {
+        mHandler.post(new Runnable() {
             @Override
             public void run() {
                 transferAssetCallback.onReceiveValue(gson.fromJson(result, String.class));
@@ -263,7 +277,7 @@ public class JayApi implements IJayApi {
     private String getMessage(String message) {
         String messageJs = "";
 
-        if (message != null && !message.isEmpty()){
+        if (message != null && message != ""){
             mWebView.loadUrl("javascript:AndroidExtensions.messageAppendage = Jay.addAppendage(Jay.appendages.message, '" + message + "');");
             messageJs = ", AndroidExtensions.messageAppendage";
         }

@@ -12,6 +12,10 @@ import java.util.List;
  * Created by Brandon on 5/2/2015.
  */
 public interface IJayApi {
+    void addReadyListener(IJavascriptLoadedListener javascriptLoadedListener);
+
+    boolean getIsReady();
+
     void setNode(String nodeAddress);
 
     void setIsTestnet(boolean isTestnet);

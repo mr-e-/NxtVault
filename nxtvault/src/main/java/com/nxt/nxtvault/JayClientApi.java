@@ -1,6 +1,5 @@
 package com.nxt.nxtvault;
 
-import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
@@ -21,8 +20,8 @@ import java.util.ArrayList;
  * Created by Brandon on 4/6/2015.
  */
 public class JayClientApi extends JayApi {
-    public JayClientApi(Context context, com.nxt.nxtvaultclientlib.jay.IJavascriptLoadedListener listener) {
-        super(context, Uri.parse("file:///android_asset/jay/index.html"), listener);
+    public JayClientApi(Context context) {
+        super(context, Uri.parse("file:///android_asset/jay/index.html"));
     }
 
     ValueCallback<String> generateSecretPhraseCallback;
@@ -34,7 +33,7 @@ public class JayClientApi extends JayApi {
 
     @JavascriptInterface
     public void generateSecretPhraseResult(final String result){
-        ((Activity)mContext).runOnUiThread(new Runnable() {
+        mHandler.post(new Runnable() {
             @Override
             public void run() {
                 generateSecretPhraseCallback.onReceiveValue(result);
@@ -54,7 +53,7 @@ public class JayClientApi extends JayApi {
     @JavascriptInterface
     public void getNewAccountResult(final String result){
         final AccountData accountData = gson.fromJson(result, AccountData.class);
-        ((Activity)mContext).runOnUiThread(new Runnable() {
+        mHandler.post(new Runnable() {
             @Override
             public void run() {
                 getNewAccountCallback.onReceiveValue(accountData);
@@ -80,7 +79,7 @@ public class JayClientApi extends JayApi {
 
     @JavascriptInterface
     public void changePinResult(final String result){
-        ((Activity)mContext).runOnUiThread(new Runnable() {
+        mHandler.post(new Runnable() {
             @Override
             public void run() {
                 changePinCallback.onReceiveValue(result);
@@ -100,7 +99,7 @@ public class JayClientApi extends JayApi {
         final ArrayList<AccountData> accounts = gson.fromJson(result, new TypeToken<ArrayList<AccountData>>() {
         }.getType());
 
-        ((Activity)mContext).runOnUiThread(new Runnable() {
+        mHandler.post(new Runnable() {
             @Override
             public void run() {
                 loadAccountsCallback.onReceiveValue(accounts);
@@ -119,7 +118,7 @@ public class JayClientApi extends JayApi {
 
     @JavascriptInterface
     public void decryptSecretPhraseResult(final String result) {
-        ((Activity) mContext).runOnUiThread(new Runnable() {
+        mHandler.post(new Runnable() {
             @Override
             public void run() {
                 decryptSecretPhraseCallback.onReceiveValue(result);
@@ -130,12 +129,12 @@ public class JayClientApi extends JayApi {
     ValueCallback<String> extractTxDetailsCallback;
     public void extractTxDetails(AccountData accountData, final String txData, final ValueCallback<String> callback){
         extractTxDetailsCallback = callback;
-        mWebView.loadUrl("javascript: MyInterface.extractTxDetailsResult(JSON.stringify(AndroidExtensions.extractBytesData('" + accountData.accountRS + "', '" + txData + "')));");
+        mWebView.loadUrl("javascript: MyInterface.extractTxDetailsResult(JSON.stringify(AndroidExtensions.extractBytesData('" + accountData.accountRS + "', '" + accountData.publicKey + "', '" + txData + "')));");
     }
 
     @JavascriptInterface
     public void extractTxDetailsResult(final String result) {
-        ((Activity) mContext).runOnUiThread(new Runnable() {
+        mHandler.post(new Runnable() {
             @Override
             public void run() {
                 extractTxDetailsCallback.onReceiveValue(result);
@@ -151,8 +150,10 @@ public class JayClientApi extends JayApi {
         //get the account secret phrase
         decryptSecretPhrase(accountData, key, password, new ValueCallback<String>() {
             @Override
-            public void onReceiveValue(final String secretPhrase) {
-                mWebView.loadUrl("javascript:MyInterface.signResult(JSON.stringify(AndroidExtensions.signTrfBytes('" + accountData.accountRS + "', '" + txData + "', '" + secretPhrase + "')));");
+            public void onReceiveValue(final String secretPhrase) {                
+                String parsePhrase = secretPhrase.replace("\\", "\\\\").replace("'", "\\'");
+
+                mWebView.loadUrl("javascript:MyInterface.signResult(JSON.stringify(AndroidExtensions.signTrfBytes('" + accountData.accountRS + "', '" + txData + "', '" + parsePhrase + "')));");
             }
         });
     }
@@ -161,7 +162,7 @@ public class JayClientApi extends JayApi {
     public void signResult(String signedBytes){
         final String signedBytesString = gson.fromJson(signedBytes, String.class);
 
-        ((Activity)mContext).runOnUiThread(new Runnable() {
+        mHandler.post(new Runnable() {
             @Override
             public void run() {
                 signCallback.onReceiveValue(signedBytesString);
@@ -175,7 +176,7 @@ public class JayClientApi extends JayApi {
             public void onReceiveValue(String value) {
                 final BroadcastTxResponse account = gson.fromJson(value, BroadcastTxResponse.class);
 
-                ((Activity) mContext).runOnUiThread(new Runnable() {
+                mHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         callback.onReceiveValue(account);
@@ -186,7 +187,7 @@ public class JayClientApi extends JayApi {
             @Override
             public void onReceiveValue(String value) {
                 Log.e("broadcastTransaction", value);
-                ((Activity) mContext).runOnUiThread(new Runnable() {
+                mHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         callback.onReceiveValue(null);
@@ -203,13 +204,12 @@ public class JayClientApi extends JayApi {
         password = password.replace("\\", "\\\\").replace("'", "\\'");
         pin = pin.replace("\\", "\\\\").replace("'", "\\'");
 
-
         mWebView.loadUrl("javascript:MyInterface.verifySpendingPassword(AndroidExtensions.verifySpendingPassword('" + accountData.accountRS + "', '" + password + pin + "', '" + password + "'));");
     }
 
     @JavascriptInterface
     public void verifySpendingPassword(final String result) {
-        ((Activity) mContext).runOnUiThread(new Runnable() {
+        mHandler.post(new Runnable() {
             @Override
             public void run() {
                 verifySpendingPasswordCallback.onReceiveValue(gson.fromJson(result, Boolean.class));
@@ -226,7 +226,7 @@ public class JayClientApi extends JayApi {
 
     @JavascriptInterface
     public void encryptSecretPhraseResult(final String result) {
-        ((Activity) mContext).runOnUiThread(new Runnable() {
+        mHandler.post(new Runnable() {
             @Override
             public void run() {
                 EncryptSecretPhraseResult result1 = null;

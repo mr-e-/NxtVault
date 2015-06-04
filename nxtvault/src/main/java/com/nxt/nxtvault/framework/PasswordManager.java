@@ -6,21 +6,23 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.nxt.nxtvault.JayClientApi;
 import com.nxt.nxtvault.MainActivity;
 import com.nxt.nxtvault.R;
 import com.nxt.nxtvault.model.AccountData;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 /**
  * Created by Brandon on 5/31/2015.
  */
+@Singleton
 public class PasswordManager {
-    private JayClientApi mJay;
     EditText p1, p2;
 
+    @Inject
+    public PasswordManager(){
 
-    public PasswordManager(JayClientApi jay){
-        mJay = jay;
     }
 
     public void setSpendingPassword(final MainActivity mainActivity, final AccountData accountData, final AccountManager accountManager, final ValueCallback<Boolean> callback){
@@ -84,7 +86,7 @@ public class PasswordManager {
                         accountManager.verifySpendingPassword(accountData, p1.getText().toString(), new ValueCallback<Boolean>() {
                             @Override
                             public void onReceiveValue(Boolean value) {
-                                if (value){
+                                if (value) {
                                     accountManager.setSpendingPassword(accountData, p1.getText().toString(), "", new ValueCallback<Void>() {
                                         @Override
                                         public void onReceiveValue(Void value) {
@@ -92,8 +94,7 @@ public class PasswordManager {
                                             callback.onReceiveValue(true);
                                         }
                                     });
-                                }
-                                else{
+                                } else {
                                     Toast.makeText(mainActivity, "Password incorrect", Toast.LENGTH_LONG).show();
                                     callback.onReceiveValue(false);
                                 }

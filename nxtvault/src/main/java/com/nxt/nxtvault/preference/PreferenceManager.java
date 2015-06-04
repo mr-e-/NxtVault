@@ -5,13 +5,18 @@ import android.content.SharedPreferences;
 
 import com.nxt.nxtvault.R;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 /**
  * Created by bcollins on 2015-04-30.
  */
+@Singleton
 public class PreferenceManager {
     protected SharedPreferences sharedPref;
     Context mContext;
 
+    @Inject
     public PreferenceManager(Context context){
         mContext = context;
 
@@ -26,8 +31,6 @@ public class PreferenceManager {
     public void putPinDigest(String digest){
         sharedPref.edit().putString(mContext.getString(R.string.pinDigest), digest).apply();
     }
-
-
 
     public void putLastPinEntry(Long millis){
         sharedPref.edit()

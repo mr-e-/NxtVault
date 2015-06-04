@@ -9,15 +9,21 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 /**
  * Created by bcollins on 2015-06-02.
  */
+
+@Singleton
 public class PinManager {
     PreferenceManager mPreferences;
     MessageDigest md;
 
     private String mSessionPin = null;
 
+    @Inject
     public PinManager(PreferenceManager preferenceManager){
         mPreferences = preferenceManager;
 

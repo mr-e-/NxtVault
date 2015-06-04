@@ -21,13 +21,11 @@ import android.widget.Toast;
 
 import com.gc.materialdesign.views.ButtonFloat;
 import com.google.gson.Gson;
-import com.nxt.nxtvault.framework.PasswordManager;
 import com.nxt.nxtvault.model.AccountData;
 import com.nxt.nxtvault.model.AccountSelectionResult;
 import com.nxt.nxtvault.model.BroadcastTxResponse;
 import com.nxt.nxtvault.screen.BaseFragment;
 import com.nxt.nxtvault.security.AccessTokenProvider;
-import com.nxt.nxtvaultclientlib.nxtvault.model.Asset;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -116,13 +114,13 @@ public class SignTxActivity extends MainActivity {
         } else {
             final AccountData accountData = getAccount(publicKey, mAccountManager.getAllAccounts());
 
-            getJay().extractTxDetails(accountData, txData, new ValueCallback<String>() {
+            mJay.extractTxDetails(accountData, txData, new ValueCallback<String>() {
                 @Override
                 public void onReceiveValue(String value) {
                     try {
                         JSONArray array = new JSONArray(value);
 
-                        for(int i = 0; i < array.length(); i++){
+                        for (int i = 0; i < array.length(); i++) {
                             TransactionLineItem lineItem = new TransactionLineItem();
 
                             lineItem.LineItemTitle = array.getJSONObject(i).getString("key");
@@ -144,11 +142,11 @@ public class SignTxActivity extends MainActivity {
         String result = value;
 
         if (lineItemTitle.equals("Asset Id")){
-            Asset asset = findAssetById(value);
-
-            if (asset != null){
-                result = value + " - " + asset.Name;
-            }
+//            Asset asset = findAssetById(value);
+//
+//            if (asset != null){
+//                result = value + " - " + asset.Name;
+//            }
         }
 
         return result;
@@ -184,11 +182,9 @@ public class SignTxActivity extends MainActivity {
                 setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.access_denied)));
             }
             else {
-                final PasswordManager passwordManager = new PasswordManager(getJay());
-
                 if (accountData.getIsSpendingPasswordEnabled()){
                     //user needs to enter their spending key first
-                    passwordManager.getAccountKey(this, accountData, getAccountManager(), new ValueCallback<String>() {
+                    mPasswordManager.getAccountKey(this, accountData, getAccountManager(), new ValueCallback<String>() {
                         @Override
                         public void onReceiveValue(String password) {
                             //Wrong password entered
@@ -198,13 +194,13 @@ public class SignTxActivity extends MainActivity {
                                 if (onCancelled != null)
                                     onCancelled.onReceiveValue(null);
                             } else {
-                                signTx(accountData, getPinManager().getSessionPin(), password, txData, broadcast);
+                                signTx(accountData, mPinManager.getSessionPin(), password, txData, broadcast);
                             }
                         }
                     });
                 }
                 else{
-                    signTx(accountData, getPinManager().getSessionPin(), "", txData, broadcast);
+                    signTx(accountData, mPinManager.getSessionPin(), "", txData, broadcast);
                 }
             }
         }
@@ -214,7 +210,7 @@ public class SignTxActivity extends MainActivity {
 
     private void signTx(AccountData accountData, String key, String password, String txData, final boolean broadcast) {
         //sign the tx
-        getJay().sign(accountData, key, password, txData, new ValueCallback<String>() {
+        mJay.sign(accountData, key, password, txData, new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String signedBytes) {
                 final String signedBytesString = signedBytes;
@@ -222,7 +218,7 @@ public class SignTxActivity extends MainActivity {
                 if (signedBytesString == null) {
                     setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.unknown_error)));
                 } else if (broadcast) {
-                    getJay().broadcast(signedBytesString, new ValueCallback<BroadcastTxResponse>() {
+                    mJay.broadcast(signedBytesString, new ValueCallback<BroadcastTxResponse>() {
                         @Override
                         public void onReceiveValue(BroadcastTxResponse response) {
                             Gson gson = new Gson();

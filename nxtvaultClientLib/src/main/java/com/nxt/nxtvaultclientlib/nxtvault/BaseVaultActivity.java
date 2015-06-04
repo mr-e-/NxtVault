@@ -31,7 +31,8 @@ public abstract class BaseVaultActivity extends ActionBarActivity {
     }
 
     protected void initializeJay(Uri url){
-        jay = new JayApi(this, url, new IJavascriptLoadedListener() {
+        jay = new JayApi(this, url);
+        jay.addReadyListener(new IJavascriptLoadedListener() {
             @Override
             public void onLoaded() {
                 //Fired when the webview finished loading. You cannot make any Jay requests

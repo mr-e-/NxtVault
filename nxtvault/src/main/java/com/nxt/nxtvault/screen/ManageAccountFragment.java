@@ -29,6 +29,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.nxt.nxtvault.R;
 import com.nxt.nxtvault.framework.PasswordManager;
+import com.nxt.nxtvault.framework.PinManager;
 import com.nxt.nxtvault.framework.TransactionFactory;
 import com.nxt.nxtvault.model.AccountData;
 import com.nxt.nxtvault.util.TextValidator;
@@ -36,11 +37,22 @@ import com.nxt.nxtvault.util.TextValidator;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.inject.Inject;
+
 /**
  * Created by Brandon on 4/18/2015.
  */
 public class ManageAccountFragment extends BaseFragment {
     public static final String ENCRYPTED_PASSPHRASE = "****************************************";
+
+    @Inject
+    PasswordManager mPasswordManager;
+
+    @Inject
+    PinManager mPinManager;
+
+    @Inject
+    TransactionFactory mTransactionFactory;
 
     TextView txtAccountName;
     TextView txtAccountRs;
@@ -56,8 +68,6 @@ public class ManageAccountFragment extends BaseFragment {
 
     boolean newAccount;
     AccountData accountData;
-
-    PasswordManager mPasswordManager;
 
     private boolean mIsEdited;
 
@@ -136,8 +146,6 @@ public class ManageAccountFragment extends BaseFragment {
     public void onReady(View rootView, Bundle savedInstanceState) {
         super.onReady(rootView, savedInstanceState);
 
-        mPasswordManager = new PasswordManager(getMainActivity().getJay());
-
         ButtonFloat btnSave = (ButtonFloat)rootView.findViewById(R.id.btnSave);
         btnSave.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
         btnSave.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_accept));
@@ -165,11 +173,11 @@ public class ManageAccountFragment extends BaseFragment {
         getMainActivity().getAccountManager().getNewAccount(new ValueCallback<AccountData>() {
             @Override
             public void onReceiveValue(AccountData value) {
-            accountData = value;
+                accountData = value;
 
-            hydrate(rootView);
+                hydrate(rootView);
 
-            hideLoadingSpinner(rootView);
+                hideLoadingSpinner(rootView);
             }
         });
     }
@@ -436,7 +444,7 @@ public class ManageAccountFragment extends BaseFragment {
     }
 
     private void decryptSecretPhrase(String password) {
-        getMainActivity().getJay().decryptSecretPhrase(accountData, getMainActivity().getPinManager().getSessionPin(), password, new ValueCallback<String>() {
+        mJay.decryptSecretPhrase(accountData, mPinManager.getSessionPin(), password, new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
                 txtPassphrase.setText(value);
@@ -463,14 +471,13 @@ public class ManageAccountFragment extends BaseFragment {
     }
 
     private void generateAccount() {
-        getMainActivity().getJay().getNewAccount(txtPassphrase.getText().toString(), getMainActivity().getPinManager().getSessionPin(), new ValueCallback<AccountData>() {
+        mJay.getNewAccount(txtPassphrase.getText().toString(), mPinManager.getSessionPin(), new ValueCallback<AccountData>() {
             @Override
             public void onReceiveValue(final AccountData value) {
-            accountData = value;
+                accountData = value;
                 if (accountData == null) {
                     txtPassphrase.setError("Invalid passphrase");
-                }
-                else {
+                } else {
                     txtAccountRs.setText(value.accountRS);
                     txtPublicKey.setText(value.publicKey);
 
@@ -521,8 +528,7 @@ public class ManageAccountFragment extends BaseFragment {
                             getMainActivity().navigate(SendMoneyFragment.getInstance(re, accountData.publicKey), true);
                         }
                         else {
-                            TransactionFactory txFactory = TransactionFactory.getTransactionFactory(getMainActivity().mPreferences);
-                            Intent intent = txFactory.createSelfSignedTx("nxtvault.intent.action.SIGNANDBROADCAST", re);
+                            Intent intent = mTransactionFactory.createSelfSignedTx("nxtvault.intent.action.SIGNANDBROADCAST", re);
                             intent.putExtra("PublicKey", accountData.publicKey);
 
                             startActivityForResult(intent, 2);

@@ -13,6 +13,8 @@ import android.view.ViewGroup;
 import android.webkit.ValueCallback;
 import android.widget.TextView;
 
+import com.nxt.nxtvault.framework.AccountManager;
+import com.nxt.nxtvault.framework.PasswordManager;
 import com.nxt.nxtvault.framework.PinManager;
 import com.nxt.nxtvault.preference.PreferenceManager;
 import com.nxt.nxtvault.security.pin.IPinEnteredListener;
@@ -23,11 +25,28 @@ import com.nxt.nxtvaultclientlib.jay.IJavascriptLoadedListener;
 
 import java.util.ArrayList;
 
+import javax.inject.Inject;
+
 /**
  * Created by bcollins on 2015-04-17.
  */
 public abstract class BaseActivity extends ActionBarActivity {
-    public PreferenceManager mPreferences;
+    protected App mApplication;
+
+    @Inject
+    PreferenceManager mPreferences;
+
+    @Inject
+    JayClientApi mJay;
+
+    @Inject
+    PinManager mPinManager;
+
+    @Inject
+    AccountManager mAccountManager;
+
+    @Inject
+    PasswordManager mPasswordManager;
 
     private PinMode mCurrentPinMode;
     PinFragment pinFragment;
@@ -37,51 +56,22 @@ public abstract class BaseActivity extends ActionBarActivity {
     public Typeface segoeb;
     public Typeface segoel;
 
-    ArrayList<IJayLoadedListener> mJayLoadedListeners;
-
-    private boolean mJayLoaded;
-
-    PinManager mPinManager;
-
     int count = 0;
-
-    public JayClientApi getJay(){
-        return ((App)getApplication()).jay;
-    }
-
-    public boolean getIsJayLoaded() {
-        return mJayLoaded;
-    }
-
-    public void setIsJayLoaded(boolean loaded) {
-        mJayLoaded = loaded;
-
-        if (mJayLoaded){
-            for(IJayLoadedListener listener : mJayLoadedListeners){
-                listener.onLoaded();
-            }
-        }
-    }
-
-    public void subscribeJayLoaded(IJayLoadedListener listener){
-        mJayLoadedListeners.add(listener);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mApplication = (App)getApplication();
+
+        mApplication.inject(this);
+
         segoe = Typeface.createFromAsset(getAssets(), "fonts/segoeui.ttf");
         segoeb = Typeface.createFromAsset(getAssets(), "fonts/segoeuib.ttf");
         segoel = Typeface.createFromAsset(getAssets(), "fonts/segoeui.ttf");
 
-        mPreferences = new PreferenceManager(this);
-        mPinManager = new PinManager(mPreferences);
-
-        mJayLoadedListeners = new ArrayList<>();
-
-        if (((App) getApplication()).jay == null){
-            ((App) getApplication()).jay = new JayClientApi(this, new IJavascriptLoadedListener() {
+        if (!mJay.getIsReady()){
+            mJay.addReadyListener(new IJavascriptLoadedListener() {
                 @Override
                 public void onLoaded() {
                     runUpgrades(new ValueCallback<Void>() {
@@ -102,7 +92,7 @@ public abstract class BaseActivity extends ActionBarActivity {
         final ArrayList<IUpgradeTask> upgradeTasks = new ArrayList<>();
 
         //upgrade pin so it is no longer stored in internal storage
-        upgradeTasks.add(new UpgradePinTask(this, mPreferences, getJay(), getPinManager()));
+        upgradeTasks.add(new UpgradePinTask(this, mPreferences, mJay, mPinManager));
 
         for(IUpgradeTask task : upgradeTasks){
             if (task.requiresUpgrade()){
@@ -125,10 +115,6 @@ public abstract class BaseActivity extends ActionBarActivity {
 
     abstract protected void jayLoaded();
 
-    boolean storePin(final String pin) {
-        return mPinManager.changePin(pin);
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -146,6 +132,9 @@ public abstract class BaseActivity extends ActionBarActivity {
                 mCurrentPinMode = PinMode.Enter;
 
             showPin();
+        }
+        else{
+            pinAccepted();
         }
     }
 
@@ -183,10 +172,6 @@ public abstract class BaseActivity extends ActionBarActivity {
         getSupportActionBar().show();
 
         mPinShowing = false;
-    }
-
-    public PinManager getPinManager() {
-        return mPinManager;
     }
 
     public static class PinFragment extends Fragment{
