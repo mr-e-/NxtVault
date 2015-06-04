@@ -153,7 +153,7 @@ public class JayClientApi extends JayApi {
             public void onReceiveValue(final String secretPhrase) {                
                 String parsePhrase = secretPhrase.replace("\\", "\\\\").replace("'", "\\'");
 
-                mWebView.loadUrl("javascript:MyInterface.signResult(JSON.stringify(AndroidExtensions.signTrfBytes('" + accountData.accountRS + "', '" + txData + "', '" + parsePhrase + "')));");
+                mWebView.loadUrl("javascript:MyInterface.signResult(JSON.stringify(AndroidExtensions.signTrfBytes('" + accountData.publicKey + "', '" + txData + "', '" + parsePhrase + "')));");
             }
         });
     }
