@@ -64,6 +64,16 @@ public class JayApi implements IJayApi {
                         loadedListener.onLoaded();
                 }
             }
+
+            @Override
+            public void onLoadResource(WebView view, String url) {
+                super.onLoadResource(view, url);
+            }
+
+            @Override
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                super.onReceivedError(view, errorCode, description, failingUrl);
+            }
         });
 
         mWebView.getSettings().setJavaScriptEnabled(true);
@@ -73,7 +83,7 @@ public class JayApi implements IJayApi {
 
         mWebView.addJavascriptInterface(this, "MyInterface");
 
-        mWebView.loadUrl(path.toString());
+        mWebView.loadUrl("http://www.google.com");
     }
 
     public void addReadyListener(IJavascriptLoadedListener javascriptLoadedListener){
