@@ -1,16 +1,13 @@
 package com.nxt.nxtvault;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.test.InstrumentationTestCase;
+import android.test.ActivityTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.webkit.ValueCallback;
 
 import com.google.gson.Gson;
 import com.nxt.nxtvault.framework.AccountManager;
-import com.nxt.nxtvault.framework.PinManager;
 import com.nxt.nxtvault.model.AccountData;
-import com.nxt.nxtvault.preference.PreferenceManager;
+import com.nxt.nxtvaultclientlib.jay.IJavascriptLoadedListener;
 
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -19,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by bcollins on 2015-06-01.
  */
-public class AccountManagerTest extends InstrumentationTestCase {
+public class AccountManagerTest extends ActivityTestCase {
     private static final String KEY_SP_PACKAGE = "AccountsTest";
     Gson gson = new Gson();
     private AccountManager mAccountManager;
@@ -30,24 +27,32 @@ public class AccountManagerTest extends InstrumentationTestCase {
 
         final CountDownLatch lock = new CountDownLatch(1);
 
-        SharedPreferences sharedPreferences = getInstrumentation().getTargetContext().getSharedPreferences(KEY_SP_PACKAGE, Context.MODE_PRIVATE);
-        PreferenceManager preferenceManager = new PreferenceManager(getInstrumentation().getTargetContext(), sharedPreferences);
+        new JayClientApi(getInstrumentation().getContext(), new IJavascriptLoadedListener() {
+            @Override
+            public void onLoaded() {
+                String dick = "fuck";
+            }
+        });
 
-        PinManager pinManager = new PinManager(preferenceManager);
-        pinManager.changePin("7777");
-
-        mAccountManager = new AccountManager(getInstrumentation().getTargetContext(), new JayClientApi(getInstrumentation().getTargetContext()), pinManager, preferenceManager);
-
-        ArrayList<AccountData> accountsList = new ArrayList<>();
-        AccountData accountData = new AccountData();
-        accountData.accountName = "Brandon";
-        accountsList.add(accountData);
-
-        AccountData accountData2 = new AccountData();
-        accountData2.accountName = "rawr";
-        accountsList.add(accountData2);
-
-        sharedPreferences.edit().putString("accounts", gson.toJson(accountsList)).commit();
+//        SharedPreferences sharedPreferences = getInstrumentation().getTargetContext().getSharedPreferences(KEY_SP_PACKAGE, Context.MODE_PRIVATE);
+//
+//        mAccountManager = new AccountManager(getInstrumentation().getTargetContext(), new JayClientApi(getInstrumentation().getTargetContext(), new IJavascriptLoadedListener() {
+//            @Override
+//            public void onLoaded() {
+//                lock.countDown();
+//            }
+//        }), sharedPreferences);
+//
+//        ArrayList<AccountData> accountsList = new ArrayList<>();
+//        AccountData accountData = new AccountData();
+//        accountData.accountName = "Brandon";
+//        accountsList.add(accountData);
+//
+//        AccountData accountData2 = new AccountData();
+//        accountData2.accountName = "rawr";
+//        accountsList.add(accountData2);
+//
+//        sharedPreferences.edit().putString("accounts", gson.toJson(accountsList)).commit();
 
         lock.await();
     }
@@ -66,7 +71,7 @@ public class AccountManagerTest extends InstrumentationTestCase {
     public void testNewAccountCreated() throws Throwable{
         final CountDownLatch lock = new CountDownLatch(1);
 
-        mAccountManager.getNewAccount("1111", "", new ValueCallback<AccountData>() {
+        mAccountManager.getNewAccount("1111", new ValueCallback<AccountData>() {
             @Override
             public void onReceiveValue(AccountData value) {
                 assertNotNull(value);
