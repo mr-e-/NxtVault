@@ -1,10 +1,12 @@
 package com.nxt.nxtvault.modules;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 
 import com.nxt.nxtvault.App;
 import com.nxt.nxtvault.JayClientApi;
 import com.nxt.nxtvault.MainActivity;
+import com.nxt.nxtvault.R;
 import com.nxt.nxtvault.SignTxActivity;
 import com.nxt.nxtvault.screen.AboutFragment;
 import com.nxt.nxtvault.screen.AccountFragment;
@@ -38,5 +40,11 @@ public class AppModule {
     @Provides
     public Context getAppContext(){
         return mApplication;
+    }
+
+    @Provides
+    SharedPreferences getSharedPreferences(){
+        return mApplication.getSharedPreferences(
+                mApplication.getString(R.string.app_file_key), Context.MODE_PRIVATE);
     }
 }

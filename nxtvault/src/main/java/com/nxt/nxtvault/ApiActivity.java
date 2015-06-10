@@ -10,17 +10,18 @@ import com.google.gson.Gson;
 import com.nxt.nxtvault.preference.PreferenceManager;
 import com.nxt.nxtvaultclientlib.nxtvault.model.PreferredServerResult;
 
-public class ApiActivity extends ActionBarActivity {
+import javax.inject.Inject;
 
-    PreferenceManager mPref;
+public class ApiActivity extends ActionBarActivity {
     Gson gson = new Gson();
+
+    @Inject
+    PreferenceManager mPreferenceManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_api);
-
-        mPref = new PreferenceManager(this);
 
         final Intent intent = getIntent();
 
@@ -35,8 +36,8 @@ public class ApiActivity extends ActionBarActivity {
 
     private void returnPreferredServer() {
         PreferredServerResult preferredServerResult = new PreferredServerResult();
-        preferredServerResult.IsTestNet = mPref.getIsTestNet();
-        preferredServerResult.PreferredServer = mPref.getCustomServer();
+        preferredServerResult.IsTestNet = mPreferenceManager.getIsTestNet();
+        preferredServerResult.PreferredServer = mPreferenceManager.getCustomServer();
 
         setResult(RESULT_OK, new Intent(gson.toJson(preferredServerResult)));
         finish();

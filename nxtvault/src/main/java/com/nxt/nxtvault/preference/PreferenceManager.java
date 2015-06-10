@@ -17,11 +17,10 @@ public class PreferenceManager {
     Context mContext;
 
     @Inject
-    public PreferenceManager(Context context){
+    public PreferenceManager(Context context, SharedPreferences sharedPreferences){
         mContext = context;
 
-        sharedPref = mContext.getSharedPreferences(
-                mContext.getString(R.string.app_file_key), Context.MODE_PRIVATE);
+        sharedPref = sharedPreferences;
     }
 
     public SharedPreferences getSharedPref(){
