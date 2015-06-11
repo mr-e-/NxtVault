@@ -54,12 +54,23 @@ public class SignTxActivity extends MainActivity {
         handleIntent();
     }
 
+    public enum Operation{
+        SIGNANDBROADCAST,
+        SIGN,
+        REQUESTACCOUNT,
+        BROADCAST
+    }
+
+    public Operation mCurrentOperation;
+
     private void handleIntent() {
         //Handle the intent
         final Intent intent = getIntent();
 
         try {
             if (intent.getAction().equals("nxtvault.intent.action.SIGNANDBROADCAST")) {
+                mCurrentOperation = Operation.SIGNANDBROADCAST;
+
                 final BaseFragment fragment = new TxConfirmationFragment();
 
                 final String txData = intent.getExtras().getString("TransactionData");
@@ -72,15 +83,17 @@ public class SignTxActivity extends MainActivity {
                 if (publicKey == null) {
                     setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.access_denied)));
                 } else {
-                    getTxData(txData, accountData, new ValueCallback<ArrayList<TransactionLineItem>>() {
+                    mJay.extractUnsignedTxBytes(accountData, txData, new ValueCallback<String>() {
                         @Override
-                        public void onReceiveValue(ArrayList<TransactionLineItem> value) {
+                        public void onReceiveValue(String value) {
+                            ArrayList<TransactionLineItem> lineItems = getLineItems(value);
+
                             Bundle args = new Bundle();
 
-                            if (value == null || value.size() == 0) {
+                            if (lineItems == null || lineItems.size() == 0) {
                                 setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.invalid_transaction)));
                             } else {
-                                args.putSerializable(TxConfirmationFragment.ARGS, value);
+                                args.putSerializable(TxConfirmationFragment.ARGS, lineItems);
                                 fragment.setArguments(args);
 
                                 setTitle(getString(R.string.nxtvault_signtx));
@@ -91,50 +104,38 @@ public class SignTxActivity extends MainActivity {
                     });
                 }
             } else if (intent.getAction().equals("nxtvault.intent.action.SIGN")) {
+                mCurrentOperation = Operation.SIGN;
+
                 setTitle(getString(R.string.nxtvault_signtx));
 
             } else if (intent.getAction().equals("nxtvault.intent.action.REQUESTACCOUNT")) {
+                mCurrentOperation = Operation.REQUESTACCOUNT;
+
                 setTitle(getString(R.string.select_account));
 
                 navigate(new AccountAccessFragment(), false);
             }
             else if (intent.getAction().equals("nxtvault.intent.action.BROADCAST")){
+                mCurrentOperation = Operation.BROADCAST;
+
                 setTitle(getString(R.string.broadcastTx));
-
-                final String txData = intent.getExtras().getString("TransactionData");
-
-                getTxData(txData, new ValueCallback<ArrayList<TransactionLineItem>>() {
-                    @Override
-                    public void onReceiveValue(ArrayList<TransactionLineItem> value) {
-                        Bundle args = new Bundle();
-
-                        if (value == null || value.size() == 0) {
-                            setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.invalid_transaction)));
-                        } else {
-                            args.putSerializable(TxConfirmationFragment.ARGS, value);
-                            fragment.setArguments(args);
-
-                            setTitle(getString(R.string.nxtvault_signtx));
-
-                            navigate(fragment, false);
-                        }
-                    }
-                });
 
                 final BaseFragment fragment = new TxConfirmationFragment();
 
-                getTxData(new ValueCallback<ArrayList<TransactionLineItem>>() {
+                final String txData = intent.getExtras().getString("TransactionData");
+
+                mJay.extractSignedTxBytes(txData, new ValueCallback<String>() {
                     @Override
-                    public void onReceiveValue(ArrayList<TransactionLineItem> value) {
+                    public void onReceiveValue(String value) {
+                        ArrayList<TransactionLineItem> lineItems = getLineItems(value);
+
                         Bundle args = new Bundle();
 
-                        if (value == null || value.size() == 0) {
+                        if (lineItems == null || lineItems.size() == 0) {
                             setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.invalid_transaction)));
                         } else {
-                            args.putSerializable(TxConfirmationFragment.ARGS, value);
+                            args.putSerializable(TxConfirmationFragment.ARGS, lineItems);
                             fragment.setArguments(args);
-
-                            setTitle(getString(R.string.nxtvault_signtx));
 
                             navigate(fragment, false);
                         }
@@ -151,30 +152,25 @@ public class SignTxActivity extends MainActivity {
         finish();
     }
 
-    private void getTxData(String txData, AccountData accountData, final ValueCallback<ArrayList<TransactionLineItem>> txLinesCallback) {
+    private ArrayList<TransactionLineItem> getLineItems(String value) {
         final ArrayList<TransactionLineItem> txLineItems = new ArrayList<>();
 
-        mJay.extractTxDetails(accountData, txData, new ValueCallback<String>() {
-            @Override
-            public void onReceiveValue(String value) {
-                try {
-                    JSONArray array = new JSONArray(value);
+        try {
+            JSONArray array = new JSONArray(value);
 
-                    for (int i = 0; i < array.length(); i++) {
-                        TransactionLineItem lineItem = new TransactionLineItem();
+            for (int i = 0; i < array.length(); i++) {
+                TransactionLineItem lineItem = new TransactionLineItem();
 
-                        lineItem.LineItemTitle = array.getJSONObject(i).getString("key");
-                        lineItem.LineItem = processValue(lineItem.LineItemTitle, array.getJSONObject(i).getString("value"));
+                lineItem.LineItemTitle = array.getJSONObject(i).getString("key");
+                lineItem.LineItem = processValue(lineItem.LineItemTitle, array.getJSONObject(i).getString("value"));
 
-                        txLineItems.add(lineItem);
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                txLinesCallback.onReceiveValue(txLineItems);
+                txLineItems.add(lineItem);
             }
-        });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return txLineItems;
     }
 
     private String processValue(String lineItemTitle, String value) {
@@ -202,7 +198,7 @@ public class SignTxActivity extends MainActivity {
         return publicKey;
     }
 
-    private boolean signTransaction(final boolean broadcast, final ValueCallback<Void> onCancelled) {
+    private boolean signTransaction(final ValueCallback<String> onSigned, final ValueCallback<String> onCancelled) {
         Intent intent = getIntent();
 
         final String txData = intent.getExtras().getString("TransactionData");
@@ -211,14 +207,14 @@ public class SignTxActivity extends MainActivity {
         String publicKey = getPublicKeyFromToken(intent, accessToken);
 
         if (publicKey == null){
-            setResult(RESULT_CANCELED, new Intent(getString(R.string.access_denied)));
+            onCancelled.onReceiveValue(getString(R.string.access_denied));
         }
         else{
             // access granted
             final AccountData accountData = getAccount(publicKey, mAccountManager.getAllAccounts());
 
             if (accountData == null) {
-                setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.access_denied)));
+                onCancelled.onReceiveValue(getString(R.string.access_denied));
             }
             else {
                 if (accountData.getIsSpendingPasswordEnabled()){
@@ -230,59 +226,33 @@ public class SignTxActivity extends MainActivity {
                             if (password == null) {
                                 Toast.makeText(SignTxActivity.this, "Incorrect Password", Toast.LENGTH_SHORT).show();
 
-                                if (onCancelled != null)
-                                    onCancelled.onReceiveValue(null);
+                                onCancelled.onReceiveValue(getString(R.string.password_incorrect));
                             } else {
-                                signTx(accountData, mPinManager.getSessionPin(), password, txData, broadcast);
+                                //sign the tx with the password
+                                mJay.sign(accountData, mPinManager.getSessionPin(), password, txData, new ValueCallback<String>() {
+                                    @Override
+                                    public void onReceiveValue(String signedBytes) {
+                                        onSigned.onReceiveValue(signedBytes);
+                                    }
+                                });
                             }
                         }
                     });
                 }
                 else{
-                    signTx(accountData, mPinManager.getSessionPin(), "", txData, broadcast);
+                    //sign the tx with no password
+                    mJay.sign(accountData, mPinManager.getSessionPin(), "", txData, new ValueCallback<String>() {
+                        @Override
+                        public void onReceiveValue(String signedBytes) {
+                            onSigned.onReceiveValue(signedBytes);
+                        }
+                    });
                 }
             }
         }
 
         return false;
     }
-
-    private void signTx(AccountData accountData, String key, String password, String txData, final boolean broadcast) {
-        //sign the tx
-        mJay.sign(accountData, key, password, txData, new ValueCallback<String>() {
-            @Override
-            public void onReceiveValue(String signedBytes) {
-                final String signedBytesString = signedBytes;
-
-                if (signedBytesString == null) {
-                    setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.unknown_error)));
-                } else if (broadcast) {
-                    mJay.broadcast(signedBytesString, new ValueCallback<BroadcastTxResponse>() {
-                        @Override
-                        public void onReceiveValue(BroadcastTxResponse response) {
-                            Gson gson = new Gson();
-                            if (response != null && response.ErrorCode == 0)
-                                setResultAndFinish(RESULT_OK, new Intent(gson.toJson(response, BroadcastTxResponse.class)));
-                            else {
-                                if (response != null)
-                                    setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.error_broadcasting) + response.ErrorCode + " - " + response.ErrorDescription));
-                                else {
-                                    setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.error_broadcasting) + "Unknown error. Please check your settings if you've overriden the broadcast server and make sure it is correct."));
-                                }
-                            }
-                        }
-                    });
-                } else {
-                    setResultAndFinish(RESULT_OK, new Intent(signedBytesString));
-                }
-            }
-        });
-    }
-
-    private void getAccountKey(ValueCallback<String> callback) {
-
-    }
-
 
     private void setResultAndFinish(int result, Intent intent){
         setResult(result, intent);
@@ -311,8 +281,6 @@ public class SignTxActivity extends MainActivity {
 
         finish();
     }
-
-
 
     /**
      * A placeholder fragment containing a simple view.
@@ -440,6 +408,7 @@ public class SignTxActivity extends MainActivity {
 
             final SignTxActivity activity = (SignTxActivity)getActivity();
 
+            //TODO: Lower android version
             btnConfirm.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -449,14 +418,47 @@ public class SignTxActivity extends MainActivity {
                     ObjectAnimator.ofFloat(buttons, View.ALPHA, 1, 0).start();
                     ObjectAnimator.ofFloat(progress, View.ALPHA, 0, 1).start();
 
-                    activity.signTransaction(true, new ValueCallback<Void>() {
+                    activity.signTransaction(new ValueCallback<String>() {
                         @Override
-                        public void onReceiveValue(Void value) {
+                        public void onReceiveValue(String signedBytesString) {
+                            if (((SignTxActivity)mActivity).mCurrentOperation == Operation.SIGNANDBROADCAST
+                                || ((SignTxActivity)mActivity).mCurrentOperation == Operation.BROADCAST){
+
+                                //broadcast the transaction
+                                mJay.broadcast(signedBytesString, new ValueCallback<BroadcastTxResponse>() {
+                                    @Override
+                                    public void onReceiveValue(BroadcastTxResponse response) {
+                                        Gson gson = new Gson();
+                                        if (response != null && response.ErrorCode == 0)
+                                            ((SignTxActivity)mActivity).setResultAndFinish(RESULT_OK, new Intent(gson.toJson(response, BroadcastTxResponse.class)));
+                                        else {
+                                            if (response != null)
+                                                ((SignTxActivity)mActivity).setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.error_broadcasting) + response.ErrorCode + " - " + response.ErrorDescription));
+                                            else {
+                                                ((SignTxActivity)mActivity).setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.error_broadcasting) + "Unknown error. Please check your settings if you've overriden the broadcast server and make sure it is correct."));
+                                            }
+                                        }
+
+                                        hideLoader();
+                                    }
+                                });
+                            }
+                            else{
+                                hideLoader();
+                            }
+                        }
+
+                        private void hideLoader() {
                             ObjectAnimator.ofFloat(lst_tx_details, View.ALPHA, 0, 1).start();
                             ObjectAnimator.ofFloat(buttons, View.ALPHA, 0, 1).start();
                             ObjectAnimator.ofFloat(progress, View.ALPHA, 1, 0).start();
 
                             progress.setVisibility(View.GONE);
+                        }
+                    }, new ValueCallback<String>() {
+                        @Override
+                        public void onReceiveValue(String value) {
+                            ((SignTxActivity)mActivity).setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.access_denied)));
                         }
                     });
                 }

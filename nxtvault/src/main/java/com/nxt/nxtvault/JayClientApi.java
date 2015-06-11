@@ -126,22 +126,37 @@ public class JayClientApi extends JayApi {
         });
     }
 
-    ValueCallback<String> extractTxDetailsCallback;
-    public void extractTxDetails(AccountData accountData, final String txData, final ValueCallback<String> callback){
-        extractTxDetailsCallback = callback;
-        mWebView.loadUrl("javascript: MyInterface.extractTxDetailsResult(JSON.stringify(AndroidExtensions.extractBytesData('" + txData + "', '" + accountData.publicKey + "')));");
+    ValueCallback<String> extractUnsignedTxDetailsCallback;
+    public void extractUnsignedTxBytes(AccountData accountData, final String txData, final ValueCallback<String> callback){
+        extractUnsignedTxDetailsCallback = callback;
+        mWebView.loadUrl("javascript: MyInterface.extractUnsignedTxDetailsResult(JSON.stringify(AndroidExtensions.extractBytesData('" + txData + "', '" + accountData.publicKey + "')));");
     }
 
     @JavascriptInterface
-    public void extractTxDetailsResult(final String result) {
+    public void extractUnsignedTxDetailsResult(final String result) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                extractTxDetailsCallback.onReceiveValue(result);
+                extractUnsignedTxDetailsCallback.onReceiveValue(result);
             }
         });
     }
 
+    ValueCallback<String> extractSignedTxDetailsCallback;
+    public void extractSignedTxBytes(final String txData, final ValueCallback<String> callback){
+        extractSignedTxDetailsCallback = callback;
+        mWebView.loadUrl("javascript: MyInterface.extractSignedTxDetailsResult(JSON.stringify(AndroidExtensions.extractBytesData('" + txData + "')));");
+    }
+
+    @JavascriptInterface
+    public void extractSignedTxDetailsResult(final String result) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                extractSignedTxDetailsCallback.onReceiveValue(result);
+            }
+        });
+    }
 
     ValueCallback<String> signCallback;
     public void sign(final AccountData accountData, String key, String password, final String txData, final ValueCallback<String> callback) {

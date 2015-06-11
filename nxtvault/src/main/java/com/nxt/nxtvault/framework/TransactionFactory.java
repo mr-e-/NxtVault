@@ -14,8 +14,6 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class TransactionFactory {
-    private static TransactionFactory txFactory;
-
     public static String TEMP_TOKEN = "tempToken";
 
     private PreferenceManager mPreference;
@@ -36,4 +34,6 @@ public class TransactionFactory {
 
         return intent;
     }
+
+
 }
