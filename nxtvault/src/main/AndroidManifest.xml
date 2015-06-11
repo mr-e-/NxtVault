@@ -44,6 +44,11 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="nxtvault.intent.action.BROADCAST" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
         <activity
             android:name="org.acra.CrashReportDialog"

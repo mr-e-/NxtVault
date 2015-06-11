@@ -2,6 +2,8 @@ package com.nxt.nxtvault;
 
 import android.animation.ObjectAnimator;
 import android.app.ActionBar;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -12,8 +14,11 @@ import android.webkit.ValueCallback;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 import com.nxt.nxtvault.framework.AccountManager;
 import com.nxt.nxtvault.model.AccountData;
+import com.nxt.nxtvault.model.BroadcastTxResponse;
 import com.nxt.nxtvault.screen.AboutFragment;
 import com.nxt.nxtvault.screen.AccountFragment;
 import com.nxt.nxtvault.screen.PreferenceFragment;
@@ -52,20 +57,20 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public Object onRetainCustomNonConfigurationInstance() {
-        mPreferences.getSharedPref().edit().putBoolean("fromOrient", true).apply();
+        mPreferences.getSharedPref().edit().putBoolean("fromOrient", true).commit();
 
         return super.onRetainCustomNonConfigurationInstance();
     }
 
     @Override
     protected void onDestroy() {
-        mPreferences.getSharedPref().edit().putBoolean("fromOrient", false).apply();
+        mPreferences.getSharedPref().edit().putBoolean("fromOrient", false).commit();
 
         super.onDestroy();
     }
 
     public void setServerInfo() {
-        if (mPreferences.getCustomServer() != null && !mPreferences.getCustomServer().isEmpty()){
+        if (mPreferences.getCustomServer() != null && mPreferences.getCustomServer() != ""){
             mJay.setNode(mPreferences.getCustomServer());
             mJay.setRequestMethod(RequestMethods.Single);
             mJay.setIsTestnet(mPreferences.getIsTestNet());
@@ -116,10 +121,13 @@ public class MainActivity extends BaseActivity {
         super.pinChanged(mOldPin, s);
 
         View progress = findViewById(R.id.progress);
-        ObjectAnimator.ofFloat(progress, View.ALPHA, 0, 1).start();
+
         progress.setVisibility(View.VISIBLE);
 
-        ObjectAnimator.ofFloat(findViewById(R.id.mainView), View.ALPHA, 1, 0).start();
+        if (Build.VERSION.SDK_INT >= 14) {
+            ObjectAnimator.ofFloat(progress, View.ALPHA, 0, 1).start();
+            ObjectAnimator.ofFloat(findViewById(R.id.mainView), View.ALPHA, 1, 0).start();
+        }
 
         mAccountManager.changePin(s, mOldPin, new ValueCallback<Void>() {
             @Override
@@ -127,10 +135,12 @@ public class MainActivity extends BaseActivity {
                 mPinManager.changePin(s);
 
                 View progress = findViewById(R.id.progress);
-                ObjectAnimator.ofFloat(progress, View.ALPHA, 1, 0).start();
                 progress.setVisibility(View.GONE);
 
-                ObjectAnimator.ofFloat(findViewById(R.id.mainView), View.ALPHA, 0, 1).start();
+                if (Build.VERSION.SDK_INT >= 14) {
+                    ObjectAnimator.ofFloat(progress, View.ALPHA, 1, 0).start();
+                    ObjectAnimator.ofFloat(findViewById(R.id.mainView), View.ALPHA, 0, 1).start();
+                }
             }
         });
     }
@@ -164,6 +174,10 @@ public class MainActivity extends BaseActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+        if (mPinShowing){
+            return true;
+        }
+
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
@@ -199,13 +213,36 @@ public class MainActivity extends BaseActivity {
 
             return true;
         }
+        else if (id == R.id.action_scan_cold){
+            scanCold();
+        }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void scanCold() {
+        IntentIntegrator integrator = new IntentIntegrator(this);
+        integrator.initiateScan();
     }
 
     private void logout() {
         mPreferences.putLastPinEntry(0L);
 
         System.exit(0);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (scanResult != null) {
+            String re = scanResult.getContents();
+
+            Intent intent = mTransactionFactory.createSelfSignedTx("nxtvault.intent.action.BROADCAST", re);
+            intent.putExtra("SignedBytes", re);
+
+            startActivityForResult(intent, 2);
+        }
     }
 }

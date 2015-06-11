@@ -227,7 +227,7 @@ var AndroidExtensions = {
     setReview: function(number, key, value){
         this.reviewData.push({id: number, key: key, value:value});
     },
-    extractBytesData: function(sender, senderPubKey, trfBytes)
+    extractBytesData: function(trfBytes, senderPubKey)
     {
             this.reviewData = [];
             var bytes;

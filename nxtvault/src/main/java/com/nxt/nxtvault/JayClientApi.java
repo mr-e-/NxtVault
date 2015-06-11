@@ -129,7 +129,7 @@ public class JayClientApi extends JayApi {
     ValueCallback<String> extractTxDetailsCallback;
     public void extractTxDetails(AccountData accountData, final String txData, final ValueCallback<String> callback){
         extractTxDetailsCallback = callback;
-        mWebView.loadUrl("javascript: MyInterface.extractTxDetailsResult(JSON.stringify(AndroidExtensions.extractBytesData('" + accountData.accountRS + "', '" + accountData.publicKey + "', '" + txData + "')));");
+        mWebView.loadUrl("javascript: MyInterface.extractTxDetailsResult(JSON.stringify(AndroidExtensions.extractBytesData('" + txData + "', '" + accountData.publicKey + "')));");
     }
 
     @JavascriptInterface

@@ -83,7 +83,7 @@ public class JayApi implements IJayApi {
 
         mWebView.addJavascriptInterface(this, "MyInterface");
 
-        mWebView.loadUrl("http://www.google.com");
+        mWebView.loadUrl(path.toString());
     }
 
     public void addReadyListener(IJavascriptLoadedListener javascriptLoadedListener){

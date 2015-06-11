@@ -1,8 +1,11 @@
 package com.nxt.nxtvault;
 
+import android.os.Handler;
 import android.test.ActivityTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.webkit.ValueCallback;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import com.google.gson.Gson;
 import com.nxt.nxtvault.framework.AccountManager;
@@ -10,6 +13,8 @@ import com.nxt.nxtvault.model.AccountData;
 import com.nxt.nxtvaultclientlib.jay.IJavascriptLoadedListener;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -27,12 +32,33 @@ public class AccountManagerTest extends ActivityTestCase {
 
         final CountDownLatch lock = new CountDownLatch(1);
 
-        new JayClientApi(getInstrumentation().getContext(), new IJavascriptLoadedListener() {
+        JayClientApi jayClient = new JayClientApi(getInstrumentation().getTargetContext());
+
+        jayClient.addReadyListener(new IJavascriptLoadedListener() {
             @Override
             public void onLoaded() {
-                String dick = "fuck";
+                lock.countDown();
             }
         });
+
+        WebView webView = new WebView(getInstrumentation().getTargetContext());
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+            }
+
+            @Override
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                super.onReceivedError(view, errorCode, description, failingUrl);
+            }
+        });
+
+        webView.loadUrl("http://www.google.com");
+
+        Thread.sleep(10000);
+
+        getInstrumentation().waitForIdleSync();
 
 //        SharedPreferences sharedPreferences = getInstrumentation().getTargetContext().getSharedPreferences(KEY_SP_PACKAGE, Context.MODE_PRIVATE);
 //
@@ -53,8 +79,7 @@ public class AccountManagerTest extends ActivityTestCase {
 //        accountsList.add(accountData2);
 //
 //        sharedPreferences.edit().putString("accounts", gson.toJson(accountsList)).commit();
-
-        lock.await();
+        //lock.await();
     }
 
     @MediumTest
@@ -71,7 +96,7 @@ public class AccountManagerTest extends ActivityTestCase {
     public void testNewAccountCreated() throws Throwable{
         final CountDownLatch lock = new CountDownLatch(1);
 
-        mAccountManager.getNewAccount("1111", new ValueCallback<AccountData>() {
+        mAccountManager.getNewAccount(new ValueCallback<AccountData>() {
             @Override
             public void onReceiveValue(AccountData value) {
                 assertNotNull(value);

@@ -62,15 +62,55 @@ public class SignTxActivity extends MainActivity {
             if (intent.getAction().equals("nxtvault.intent.action.SIGNANDBROADCAST")) {
                 final BaseFragment fragment = new TxConfirmationFragment();
 
-                getTxData(new ValueCallback<ArrayList<TransactionLineItem>>() {
+                final String txData = intent.getExtras().getString("TransactionData");
+                String accessToken = intent.getExtras().getString("AccessToken");
+
+                String publicKey;
+                publicKey = getPublicKeyFromToken(intent, accessToken);
+                final AccountData accountData = getAccount(publicKey, mAccountManager.getAllAccounts());
+
+                if (publicKey == null) {
+                    setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.access_denied)));
+                } else {
+                    getTxData(txData, accountData, new ValueCallback<ArrayList<TransactionLineItem>>() {
+                        @Override
+                        public void onReceiveValue(ArrayList<TransactionLineItem> value) {
+                            Bundle args = new Bundle();
+
+                            if (value == null || value.size() == 0) {
+                                setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.invalid_transaction)));
+                            } else {
+                                args.putSerializable(TxConfirmationFragment.ARGS, value);
+                                fragment.setArguments(args);
+
+                                setTitle(getString(R.string.nxtvault_signtx));
+
+                                navigate(fragment, false);
+                            }
+                        }
+                    });
+                }
+            } else if (intent.getAction().equals("nxtvault.intent.action.SIGN")) {
+                setTitle(getString(R.string.nxtvault_signtx));
+
+            } else if (intent.getAction().equals("nxtvault.intent.action.REQUESTACCOUNT")) {
+                setTitle(getString(R.string.select_account));
+
+                navigate(new AccountAccessFragment(), false);
+            }
+            else if (intent.getAction().equals("nxtvault.intent.action.BROADCAST")){
+                setTitle(getString(R.string.broadcastTx));
+
+                final String txData = intent.getExtras().getString("TransactionData");
+
+                getTxData(txData, new ValueCallback<ArrayList<TransactionLineItem>>() {
                     @Override
                     public void onReceiveValue(ArrayList<TransactionLineItem> value) {
                         Bundle args = new Bundle();
 
-                        if (value == null || value.size() == 0){
+                        if (value == null || value.size() == 0) {
                             setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.invalid_transaction)));
-                        }
-                        else {
+                        } else {
                             args.putSerializable(TxConfirmationFragment.ARGS, value);
                             fragment.setArguments(args);
 
@@ -80,12 +120,26 @@ public class SignTxActivity extends MainActivity {
                         }
                     }
                 });
-            } else if (intent.getAction().equals("nxtvault.intent.action.SIGN")) {
-                setTitle(getString(R.string.nxtvault_signtx));
-            } else if (intent.getAction().equals("nxtvault.intent.action.REQUESTACCOUNT")) {
-                setTitle(getString(R.string.select_account));
 
-                navigate(new AccountAccessFragment(), false);
+                final BaseFragment fragment = new TxConfirmationFragment();
+
+                getTxData(new ValueCallback<ArrayList<TransactionLineItem>>() {
+                    @Override
+                    public void onReceiveValue(ArrayList<TransactionLineItem> value) {
+                        Bundle args = new Bundle();
+
+                        if (value == null || value.size() == 0) {
+                            setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.invalid_transaction)));
+                        } else {
+                            args.putSerializable(TxConfirmationFragment.ARGS, value);
+                            fragment.setArguments(args);
+
+                            setTitle(getString(R.string.nxtvault_signtx));
+
+                            navigate(fragment, false);
+                        }
+                    }
+                });
             }
         } catch (Exception ex) {
             Log.e(getClass().getName(), ex.getMessage());
@@ -97,45 +151,30 @@ public class SignTxActivity extends MainActivity {
         finish();
     }
 
-    private void getTxData(final ValueCallback<ArrayList<TransactionLineItem>> txLinesCallback) {
+    private void getTxData(String txData, AccountData accountData, final ValueCallback<ArrayList<TransactionLineItem>> txLinesCallback) {
         final ArrayList<TransactionLineItem> txLineItems = new ArrayList<>();
 
-        Intent intent = getIntent();
+        mJay.extractTxDetails(accountData, txData, new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+                try {
+                    JSONArray array = new JSONArray(value);
 
-        final String txData = intent.getExtras().getString("TransactionData");
-        String accessToken = intent.getExtras().getString("AccessToken");
+                    for (int i = 0; i < array.length(); i++) {
+                        TransactionLineItem lineItem = new TransactionLineItem();
 
-        String publicKey;
-        publicKey = getPublicKeyFromToken(intent, accessToken);
+                        lineItem.LineItemTitle = array.getJSONObject(i).getString("key");
+                        lineItem.LineItem = processValue(lineItem.LineItemTitle, array.getJSONObject(i).getString("value"));
 
-
-        if (publicKey == null) {
-            setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.access_denied)));
-        } else {
-            final AccountData accountData = getAccount(publicKey, mAccountManager.getAllAccounts());
-
-            mJay.extractTxDetails(accountData, txData, new ValueCallback<String>() {
-                @Override
-                public void onReceiveValue(String value) {
-                    try {
-                        JSONArray array = new JSONArray(value);
-
-                        for (int i = 0; i < array.length(); i++) {
-                            TransactionLineItem lineItem = new TransactionLineItem();
-
-                            lineItem.LineItemTitle = array.getJSONObject(i).getString("key");
-                            lineItem.LineItem = processValue(lineItem.LineItemTitle, array.getJSONObject(i).getString("value"));
-
-                            txLineItems.add(lineItem);
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                        txLineItems.add(lineItem);
                     }
-
-                    txLinesCallback.onReceiveValue(txLineItems);
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-            });
-        }
+
+                txLinesCallback.onReceiveValue(txLineItems);
+            }
+        });
     }
 
     private String processValue(String lineItemTitle, String value) {

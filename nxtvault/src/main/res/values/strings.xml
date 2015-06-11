@@ -6,6 +6,7 @@
     <string name="action_about">About</string>
     <string name="action_logout">Logout</string>
     <string name="action_change_pin">Change PIN</string>
+    <string name="action_scan_cold">Scan Cold Storage</string>
     <string name="action_scantx">Scan Tx</string>
     <string name="action_export">Export</string>
     <string name="account">Account</string>
@@ -60,4 +61,5 @@
     <string name="poowhip">poo whip</string>
     <string name="title_activity_api">ApiActivity</string>
     <string name="pinDigest">pinDigest</string>
+    <string name="broadcastTx">NXTVAULT - BROADCAST TX</string>
 </resources>
