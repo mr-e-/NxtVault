@@ -37,9 +37,9 @@
  }
 
 
--keep public class com.nxt.nxtvault.JayClientApi
- -keep public class * extends com.nxt.nxtvault.JayClientApi
- -keepclassmembers class com.nxt.nxtvault.JayClientApi {
+-keep public class com.nxt.nxtvault.legacy.JayClientApi
+ -keep public class * extends com.nxt.nxtvault.legacy.JayClientApi
+ -keepclassmembers class com.nxt.nxtvault.legacy.JayClientApi {
      <methods>;
  }
 

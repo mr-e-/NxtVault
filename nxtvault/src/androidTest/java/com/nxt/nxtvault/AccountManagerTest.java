@@ -1,6 +1,5 @@
 package com.nxt.nxtvault;
 
-import android.os.Handler;
 import android.test.ActivityTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.webkit.ValueCallback;
@@ -9,12 +8,11 @@ import android.webkit.WebViewClient;
 
 import com.google.gson.Gson;
 import com.nxt.nxtvault.framework.AccountManager;
+import com.nxt.nxtvault.legacy.JayClientApi;
 import com.nxt.nxtvault.model.AccountData;
 import com.nxt.nxtvaultclientlib.jay.IJavascriptLoadedListener;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 

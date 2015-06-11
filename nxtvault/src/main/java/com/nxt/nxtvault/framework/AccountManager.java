@@ -5,7 +5,7 @@ import android.webkit.ValueCallback;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.nxt.nxtvault.JayClientApi;
+import com.nxt.nxtvault.legacy.JayClientApi;
 import com.nxt.nxtvault.model.AccountData;
 import com.nxt.nxtvault.preference.PreferenceManager;
 

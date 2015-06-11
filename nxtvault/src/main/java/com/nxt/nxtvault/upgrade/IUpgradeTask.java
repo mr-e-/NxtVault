@@ -7,5 +7,5 @@ import android.webkit.ValueCallback;
  */
 public interface IUpgradeTask {
     void upgrade(final ValueCallback<Void> callback);
-    boolean requiresUpgrade();
+    boolean requiresUpgrade(int fromVersion);
 }

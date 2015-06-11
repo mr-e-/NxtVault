@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.nxt.nxtvault.App;
-import com.nxt.nxtvault.JayClientApi;
+import com.nxt.nxtvault.legacy.JayClientApi;
 import com.nxt.nxtvault.MainActivity;
 import com.nxt.nxtvault.R;
 import com.nxt.nxtvault.SignTxActivity;

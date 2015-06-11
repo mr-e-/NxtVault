@@ -17,6 +17,7 @@ import com.nxt.nxtvault.framework.AccountManager;
 import com.nxt.nxtvault.framework.PasswordManager;
 import com.nxt.nxtvault.framework.PinManager;
 import com.nxt.nxtvault.framework.TransactionFactory;
+import com.nxt.nxtvault.legacy.JayClientApi;
 import com.nxt.nxtvault.preference.PreferenceManager;
 import com.nxt.nxtvault.security.pin.IPinEnteredListener;
 import com.nxt.nxtvault.security.pin.PinEntryView;
@@ -97,6 +98,7 @@ public abstract class BaseActivity extends ActionBarActivity {
 
         //upgrade pin so it is no longer stored in internal storage
         upgradeTasks.add(new UpgradePinTask(this, mPreferences, mJay, mPinManager));
+        mPreferences.getPinIsSet()
 
         for(IUpgradeTask task : upgradeTasks){
             if (task.requiresUpgrade()){

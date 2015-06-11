@@ -65,6 +65,10 @@ public class PreferenceManager {
         return getPinDigest() != null;
     }
 
+    public int getCurrentVersion(){
+        return getPinDigest() != null;
+    }
+
     public String getPinTimeout(){
         return sharedPref.getString(mContext.getString(R.string.pin_timeout), "5");
     }
