@@ -49,6 +49,11 @@ public class PreferenceManager {
                 .commit();
     }
 
+    public void putCurrentVersion(int version){
+        sharedPref.edit()
+                .putInt(mContext.getString(R.string.version), version).commit();
+    }
+
     public boolean getIsTestNet(){
         return sharedPref.getBoolean(mContext.getString(R.string.testnet_preference), false);
     }
@@ -66,7 +71,7 @@ public class PreferenceManager {
     }
 
     public int getCurrentVersion(){
-        return getPinDigest() != null;
+        return sharedPref.getInt(mContext.getString(R.string.version), 0);
     }
 
     public String getPinTimeout(){

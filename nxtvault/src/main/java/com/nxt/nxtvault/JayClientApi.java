@@ -13,6 +13,9 @@ import com.nxt.nxtvaultclientlib.jay.JayApi;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 /**
  * Created by bcollins on 2015-06-11.
  */
@@ -57,6 +60,28 @@ public class JayClientApi extends JayApi {
             @Override
             public void run() {
                 decryptSecretPhraseCallback.onReceiveValue(result);
+            }
+        });
+    }
+
+    //GetNewAccount----------------------------------------------------------------------------------------------
+
+    ValueCallback<AccountData> getNewAccountCallback;
+    public void getNewAccount(String secretPhrase, String pin, final ValueCallback<AccountData> callback){
+        getNewAccountCallback = callback;
+
+        secretPhrase = secretPhrase.replace("\\", "\\\\").replace("'", "\\'");
+
+        mWebView.loadUrl("javascript: MyInterface.getNewAccountResult(JSON.stringify(newAccount('" + secretPhrase + "', '" + pin + "')));");
+    }
+
+    @JavascriptInterface
+    public void getNewAccountResult(final String result){
+        final AccountData accountData = gson.fromJson(result, AccountData.class);
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                getNewAccountCallback.onReceiveValue(accountData);
             }
         });
     }

@@ -1,5 +1,7 @@
 package com.nxt.nxtvault;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,7 +19,7 @@ import com.nxt.nxtvault.framework.AccountManager;
 import com.nxt.nxtvault.framework.PasswordManager;
 import com.nxt.nxtvault.framework.PinManager;
 import com.nxt.nxtvault.framework.TransactionFactory;
-import com.nxt.nxtvault.legacy.JayClientApi;
+import com.nxt.nxtvault.JayClientApi;
 import com.nxt.nxtvault.preference.PreferenceManager;
 import com.nxt.nxtvault.security.pin.IPinEnteredListener;
 import com.nxt.nxtvault.security.pin.PinEntryView;
@@ -79,9 +81,18 @@ public abstract class BaseActivity extends ActionBarActivity {
             mJay.addReadyListener(new IJavascriptLoadedListener() {
                 @Override
                 public void onLoaded() {
-                    runUpgrades(new ValueCallback<Void>() {
+                    runUpgrades(new ValueCallback<Boolean>() {
                         @Override
-                        public void onReceiveValue(Void value) {
+                        public void onReceiveValue(Boolean value) {
+                            if (true){
+                                try {
+                                    PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+                                    int version = pInfo.versionCode;
+                                    mPreferences.putCurrentVersion(version);
+                                } catch (PackageManager.NameNotFoundException e) {
+                                    e.printStackTrace();
+                                }
+                            }
                             jayLoaded();
                         }
                     });
@@ -93,29 +104,33 @@ public abstract class BaseActivity extends ActionBarActivity {
         }
     }
 
-    private void runUpgrades(final ValueCallback<Void> callback) {
+    private void runUpgrades(final ValueCallback<Boolean> callback) {
         final ArrayList<IUpgradeTask> upgradeTasks = new ArrayList<>();
 
         //upgrade pin so it is no longer stored in internal storage
         upgradeTasks.add(new UpgradePinTask(this, mPreferences, mJay, mPinManager));
-        mPreferences.getPinIsSet()
+        int version = mPreferences.getCurrentVersion();
 
-        for(IUpgradeTask task : upgradeTasks){
-            if (task.requiresUpgrade()){
-                task.upgrade(new ValueCallback<Void>() {
-                    @Override
-                    public void onReceiveValue(Void value) {
-                        if (++count == upgradeTasks.size()){
-                            callback.onReceiveValue(null);
+        try {
+            for (IUpgradeTask task : upgradeTasks) {
+                if (task.requiresUpgrade(version)) {
+                    task.upgrade(new ValueCallback<Void>() {
+                        @Override
+                        public void onReceiveValue(Void value) {
+                            if (++count == upgradeTasks.size()) {
+                                callback.onReceiveValue(true);
+                            }
                         }
+                    });
+                } else {
+                    if (++count == upgradeTasks.size()) {
+                        callback.onReceiveValue(true);
                     }
-                });
-            }
-            else{
-                if (++count == upgradeTasks.size()){
-                    callback.onReceiveValue(null);
                 }
             }
+        }
+        catch (Exception ex){
+            callback.onReceiveValue(false);
         }
     }
 

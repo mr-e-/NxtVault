@@ -8,7 +8,7 @@ import android.webkit.WebViewClient;
 
 import com.google.gson.Gson;
 import com.nxt.nxtvault.framework.AccountManager;
-import com.nxt.nxtvault.legacy.JayClientApi;
+import com.nxt.nxtvault.JayClientApi;
 import com.nxt.nxtvault.model.AccountData;
 import com.nxt.nxtvaultclientlib.jay.IJavascriptLoadedListener;
 

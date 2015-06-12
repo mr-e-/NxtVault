@@ -3,7 +3,7 @@ package com.nxt.nxtvault.upgrade;
 import android.content.Context;
 import android.webkit.ValueCallback;
 
-import com.nxt.nxtvault.legacy.JayClientApi;
+import com.nxt.nxtvault.JayClientApi;
 import com.nxt.nxtvault.R;
 import com.nxt.nxtvault.framework.PinManager;
 import com.nxt.nxtvault.preference.PreferenceManager;

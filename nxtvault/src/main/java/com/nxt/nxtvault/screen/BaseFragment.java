@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.nxt.nxtvault.App;
-import com.nxt.nxtvault.legacy.JayClientApi;
+import com.nxt.nxtvault.JayClientApi;
 import com.nxt.nxtvault.MainActivity;
 import com.nxt.nxtvault.framework.TransactionFactory;
 

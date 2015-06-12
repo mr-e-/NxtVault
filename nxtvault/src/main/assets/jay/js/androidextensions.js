@@ -9,47 +9,10 @@
 var AndroidExtensions = {
     reviewData: [],
 
-	storePinChecksum: function(pin){
-		var pinData = {};
-
-		pinData["cipher"] = encryptSecretPhrase("pin", pin).toString();
-		pinData["checksum"] = converters.byteArrayToHexString(simpleHash(converters.stringToByteArray("pin")));
-
-		localStorage["pin"] = JSON.stringify(pinData);
-
-		return true;
-	},
-
-	verifyPin: function(pin){
-		var result = false;
-
-		if (localStorage["pin"]){
-			var pinData = JSON.parse(localStorage["pin"]);
-
-			var phrase = decryptSecretPhrase(pinData.cipher, pin, pinData.checksum);
-			
-			if (phrase === "pin"){
-				result = true;
-			}
-		}
-
-		return result;
-	},
-
     getBestNodes: function(){
         Jay.nodeScan(function(){
             MyInterface.getBestNodesResult(JSON.stringify(Jay.bestNodes));
         });
-    },
-
-    getAccounts: function(){
-        var accounts = localStorage['accounts'];
-        if (accounts == undefined){
-            return "";
-        }
-        else{
-            return JSON.stringify(JSON.parse(accounts));
-        }
     },
 
     startTRF: function(senderPubKey, trfBytes){
@@ -97,34 +60,6 @@ var AndroidExtensions = {
         return converters.byteArrayToHexString(signed);
     },
 
-	findAccountByRs: function (accountRs) {
-		var sto = [];
-		if (localStorage["accounts"]) {
-			sto = JSON.parse(localStorage["accounts"]);
-		}
-
-		var acc = this.findExistingAccount(accountRs, sto);
-		return {accounts: sto, acc: acc};
-	},
-
-	setSpendingPassword: function(accountRs, pin, oldPassword, newPassword) {
-		var __ret = this.findAccountByRs(accountRs);
-		var sto = __ret.accounts;
-		var acc = __ret.acc;
-
-		if (acc != null) {
-			var secretPhrase = decryptSecretPhrase(acc.cipher, oldPassword + pin, acc.checksum);
-
-			acc["cipher"] = encryptSecretPhrase(secretPhrase, newPassword + pin).toString();
-			acc["checksum"] = converters.byteArrayToHexString(simpleHash(converters.stringToByteArray(secretPhrase)));
-			acc["spendingPassphrase"] = newPassword != undefined && newPassword != "";
-		}
-
-		localStorage["accounts"] = JSON.stringify(sto);
-
-		return JSON.stringify(acc);
-	},
-
 	encryptSecretPhrase: function(secretPhrase, key){
 		var result = {};
 
@@ -150,83 +85,6 @@ var AndroidExtensions = {
 		}
 	},
 
-	//verifies that the password can decrypt this account
-	removeSpendingPassword: function(accountRs) {
-		var __ret = this.findAccountByRs(accountRs);
-		var acc = __ret.acc;
-
-		if (acc != null) {
-
-		}
-	},
-
-    //Needed to override so I could store accountName
-    storeAccount: function(account){
-		var sto = [];
-		if(localStorage["accounts"])
-		{
-			sto = JSON.parse(localStorage["accounts"]);
-		}
-
-		var acc = this.findExistingAccount(account.accountRS, sto);
-
-		if (acc == null){
-			acc = {};
-			sto.push(acc);
-		}
-
-        acc["accountRS"] = account["accountRS"];
-        acc["publicKey"] = account["publicKey"];
-        acc["cipher"] = account["cipher"];
-        acc["checksum"] = account["checksum"];
-        acc["accountName"] = account["accountName"];
-
-        localStorage["accounts"] = JSON.stringify(sto);
-    },
-
-	findExistingAccount: function(accountRs, sto){
-		var acc = undefined;
-		var existing = false;
-		for (var i = 0; i < sto.length; i++){
-			if (sto[i]["accountRS"] === accountRs){
-				acc = sto[i];
-				existing = true;
-				break;
-			}
-		}
-
-		return acc;
-	},
-
-    deleteAccount: function (address){
-        var data = localStorage["accounts"];
-        var accounts = JSON.parse(localStorage["accounts"]);
-
-        for(var a=0;a<accounts.length;a++)
-        {
-            if(accounts[a]["accountRS"] == address)
-            {
-                accounts.splice(a, 1);
-            }
-        }
-        localStorage["accounts"] = JSON.stringify(accounts);
-    },
-    changePin: function(oldpin, pin){
-        var accounts = JSON.parse(localStorage["accounts"]);
-
-        for(var a=0;a<accounts.length;a++)
-        {
-            // now lets handle...
-            var sec = decryptSecretPhrase(accounts[a]["cipher"], oldpin, accounts[a]["checksum"]).toString();
-            var newcipher = encryptSecretPhrase(sec, pin).toString();
-            accounts[a]["cipher"] = newcipher;
-        }
-        localStorage["accounts"] = JSON.stringify(accounts);
-        return true;
-    },
-    setReview: function(number, key, value){
-        this.reviewData.push({id: number, key: key, value:value});
-    },
     extractBytesData: function(trfBytes, senderPubKey)
     {
             this.reviewData = [];
@@ -621,6 +479,9 @@ var AndroidExtensions = {
 
         return this.reviewData;
     },
+	setReview: function(number, key, value){
+		this.reviewData.push({id: number, key: key, value:value});
+	},
     onRequestSuccess: function(data){
         MyInterface.onRequestSuccess(data);
     },
