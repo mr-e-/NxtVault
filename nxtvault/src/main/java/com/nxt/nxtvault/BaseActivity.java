@@ -24,6 +24,8 @@ import com.nxt.nxtvault.preference.PreferenceManager;
 import com.nxt.nxtvault.security.pin.IPinEnteredListener;
 import com.nxt.nxtvault.security.pin.PinEntryView;
 import com.nxt.nxtvault.upgrade.IUpgradeTask;
+import com.nxt.nxtvault.upgrade.UpgradeAccountsToJavaTask;
+import com.nxt.nxtvault.upgrade.UpgradePin2Task;
 import com.nxt.nxtvault.upgrade.UpgradePinTask;
 import com.nxt.nxtvaultclientlib.jay.IJavascriptLoadedListener;
 
@@ -109,12 +111,15 @@ public abstract class BaseActivity extends ActionBarActivity {
 
         //upgrade pin so it is no longer stored in internal storage
         upgradeTasks.add(new UpgradePinTask(this, mPreferences, mJay, mPinManager));
+        upgradeTasks.add(new UpgradeAccountsToJavaTask(this, mPreferences, mJay, mAccountManager));
+        upgradeTasks.add(new UpgradePin2Task(this, mPreferences, mJay));
+
         int version = mPreferences.getCurrentVersion();
 
         try {
             for (IUpgradeTask task : upgradeTasks) {
                 if (task.requiresUpgrade(version)) {
-                    task.upgrade(new ValueCallback<Void>() {
+                    task.upgrade(version, new ValueCallback<Void>() {
                         @Override
                         public void onReceiveValue(Void value) {
                             if (++count == upgradeTasks.size()) {
@@ -286,13 +291,43 @@ public abstract class BaseActivity extends ActionBarActivity {
                 initializeNewPin(s, callback);
             } else if (mActivity.mCurrentPinMode == PinMode.Enter) {
                 if (canEnterPin()) {
-                    boolean signIn = mActivity.mPinManager.signIn(s);
-                    if (!signIn){
-                        headerText.setText("Please try again");
-                        handleIncorrectPin();
-                    }
 
-                    doCallback(callback, signIn);
+                    //upgrade pin from version 10 to 11. had to be done here because we need to wait until right after the pin is entered
+                    boolean upgradeRequired = mActivity.mPreferences.getSharedPref().getBoolean(mActivity.getString(R.string.pin2upgraderequired), false);
+
+                    if (upgradeRequired){
+                        final com.nxt.nxtvault.legacy.JayClientApi legacyClient = new com.nxt.nxtvault.legacy.JayClientApi(getActivity());
+                        legacyClient.addReadyListener(new IJavascriptLoadedListener() {
+                            @Override
+                            public void onLoaded() {
+                                legacyClient.verifyPin(s, new ValueCallback<Boolean>() {
+                                    @Override
+                                    public void onReceiveValue(Boolean value) {
+                                        if (!value){
+                                            headerText.setText("Please try again");
+                                            handleIncorrectPin();
+                                        }
+                                        else{
+                                            mActivity.mPinManager.changePin(s);
+
+                                            mActivity.mPreferences.getSharedPref().edit().putBoolean(mActivity.getString(R.string.pin2upgraderequired), false).commit();
+                                        }
+
+                                        doCallback(callback, value);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                    else {
+                        boolean signIn = mActivity.mPinManager.signIn(s);
+                        if (!signIn) {
+                            headerText.setText("Please try again");
+                            handleIncorrectPin();
+                        }
+
+                        doCallback(callback, signIn);
+                    }
                 } else {
                     setPinLockoutMessage();
                     pinEntryView.setEnabled(false);

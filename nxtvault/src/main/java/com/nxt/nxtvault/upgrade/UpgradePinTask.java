@@ -7,6 +7,7 @@ import com.nxt.nxtvault.JayClientApi;
 import com.nxt.nxtvault.R;
 import com.nxt.nxtvault.framework.PinManager;
 import com.nxt.nxtvault.preference.PreferenceManager;
+import com.nxt.nxtvaultclientlib.jay.IJavascriptLoadedListener;
 
 /**
  * Created by Brandon on 5/30/2015.
@@ -17,7 +18,6 @@ public class UpgradePinTask implements IUpgradeTask{
     JayClientApi mJay;
     private PinManager mPinManager;
 
-
     public UpgradePinTask(Context context, PreferenceManager preferenceManager, JayClientApi jay, PinManager pinManager){
         mPreferences = preferenceManager;
         mContext = context;
@@ -26,15 +26,20 @@ public class UpgradePinTask implements IUpgradeTask{
     }
 
     @Override
-    public void upgrade(final ValueCallback<Void> callback) {
-        final String pin = mPreferences.getSharedPref().getString(mContext.getString(R.string.pin), null);
+    public void upgrade(int fromVersion, final ValueCallback<Void> callback) {
+        String pin;
 
-        mPinManager.changePin(pin);
+        if (fromVersion <= 9){
+            pin = mPreferences.getSharedPref().getString(mContext.getString(R.string.pin), null);
+
+            mPinManager.changePin(pin);
+
+            mPreferences.getSharedPref().edit().putString(mContext.getString(R.string.pin), null).commit();
+        }
     }
 
     @Override
     public boolean requiresUpgrade(int fromVersion) {
-        String pin = mPreferences.getSharedPref().getString(mContext.getString(R.string.pin), null);
-        return pin != null;
+        return (fromVersion <= 9 && mPreferences.getSharedPref().getString(mContext.getString(R.string.pin), null) != null);
     }
 }

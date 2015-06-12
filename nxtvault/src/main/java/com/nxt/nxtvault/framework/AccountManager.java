@@ -73,12 +73,11 @@ public class AccountManager {
         });
     }
 
-    public void getNewAccount(String passphrase, String pin, final ValueCallback<AccountData> callback){
-        mJayApi.getNewAccount(passphrase, pin, callback);
-    }
-
     public void storeAccount(AccountData account){
         account.secretPhrase = null;
+
+        if (mAccountData == null)
+            mAccountData = new ArrayList<>();
 
         mAccountData.add(account);
 
@@ -150,7 +149,7 @@ public class AccountManager {
     }
 
     private void saveAccounts(){
-        mPreferenceManager.getSharedPref().edit().putString(preferenceKey, gson.toJson(mAccountData)).apply();
+        mPreferenceManager.getSharedPref().edit().putString(preferenceKey, gson.toJson(mAccountData)).commit();
     }
 
     public void deleteAllAccount() {

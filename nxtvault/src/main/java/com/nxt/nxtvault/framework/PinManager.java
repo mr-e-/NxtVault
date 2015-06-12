@@ -32,8 +32,6 @@ public class PinManager {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-
-        String rawr = "";
     }
 
     public String getSessionPin(){

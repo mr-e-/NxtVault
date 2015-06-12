@@ -67,7 +67,7 @@ public class PreferenceManager {
     }
 
     public boolean getPinIsSet(){
-        return getPinDigest() != null;
+        return getPinDigest() != null || getSharedPref().getBoolean(mContext.getString(R.string.pin2upgraderequired), false); //required for upgrade from version 10 to 11
     }
 
     public int getCurrentVersion(){

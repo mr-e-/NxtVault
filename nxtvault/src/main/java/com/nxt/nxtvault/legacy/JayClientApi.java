@@ -1,5 +1,6 @@
 package com.nxt.nxtvault.legacy;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.webkit.JavascriptInterface;
@@ -35,6 +36,30 @@ public class JayClientApi extends JayApi {
             @Override
             public void run() {
                 loadAccountsCallback.onReceiveValue(accounts);
+            }
+        });
+    }
+
+    public void deleteAllAccounts() {
+        mWebView.loadUrl("javascript: localStorage.clear();");
+    }
+
+    ////VERIFY PIN
+    ValueCallback<Boolean> verifyPinCallback;
+    public void verifyPin(String pin, final ValueCallback<Boolean> callback) {
+        verifyPinCallback = callback;
+
+        pin = pin.replace("\\", "\\\\").replace("'", "\\'");
+
+        mWebView.loadUrl("javascript:MyInterface.verifyPinResult(AndroidExtensions.verifyPin('" + pin + "'));");
+    }
+
+    @JavascriptInterface
+    public void verifyPinResult(final String result) {
+        ((Activity) mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                verifyPinCallback.onReceiveValue(gson.fromJson(result, Boolean.class));
             }
         });
     }
