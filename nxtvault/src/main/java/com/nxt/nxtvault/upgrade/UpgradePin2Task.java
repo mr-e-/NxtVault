@@ -25,6 +25,8 @@ public class UpgradePin2Task implements IUpgradeTask{
     @Override
     public void upgrade(int fromVersion, final ValueCallback<Void> callback) {
         mPreferences.getSharedPref().edit().putBoolean(mContext.getString(R.string.pin2upgraderequired), true).commit();
+
+        callback.onReceiveValue(null);
     }
 
     @Override

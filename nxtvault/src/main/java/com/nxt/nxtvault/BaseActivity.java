@@ -27,6 +27,7 @@ import com.nxt.nxtvault.upgrade.IUpgradeTask;
 import com.nxt.nxtvault.upgrade.UpgradeAccountsToJavaTask;
 import com.nxt.nxtvault.upgrade.UpgradePin2Task;
 import com.nxt.nxtvault.upgrade.UpgradePinTask;
+import com.nxt.nxtvault.upgrade.UpgradeRunner;
 import com.nxt.nxtvaultclientlib.jay.IJavascriptLoadedListener;
 
 import java.util.ArrayList;
@@ -57,6 +58,9 @@ public abstract class BaseActivity extends ActionBarActivity {
     @Inject
     TransactionFactory mTransactionFactory;
 
+    @Inject
+    UpgradeRunner mUpgradeRunner;
+
     private PinMode mCurrentPinMode;
     PinFragment pinFragment;
     protected boolean mPinShowing;
@@ -65,7 +69,7 @@ public abstract class BaseActivity extends ActionBarActivity {
     public Typeface segoeb;
     public Typeface segoel;
 
-    int count = 0;
+    boolean mIsUpgrading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,22 +84,19 @@ public abstract class BaseActivity extends ActionBarActivity {
         segoel = Typeface.createFromAsset(getAssets(), "fonts/segoeui.ttf");
 
         if (!mJay.getIsReady()){
+            if (mUpgradeRunner.requiresUpgrade()){
+                mIsUpgrading = true;
+            }
+
             mJay.addReadyListener(new IJavascriptLoadedListener() {
                 @Override
                 public void onLoaded() {
-                    runUpgrades(new ValueCallback<Boolean>() {
+                    mUpgradeRunner.run(new ValueCallback<Boolean>() {
                         @Override
                         public void onReceiveValue(Boolean value) {
-                            if (true){
-                                try {
-                                    PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-                                    int version = pInfo.versionCode;
-                                    mPreferences.putCurrentVersion(version);
-                                } catch (PackageManager.NameNotFoundException e) {
-                                    e.printStackTrace();
-                                }
-                            }
+                            mIsUpgrading = false;
                             jayLoaded();
+                            resume();
                         }
                     });
                 }
@@ -106,66 +107,36 @@ public abstract class BaseActivity extends ActionBarActivity {
         }
     }
 
-    private void runUpgrades(final ValueCallback<Boolean> callback) {
-        final ArrayList<IUpgradeTask> upgradeTasks = new ArrayList<>();
-
-        //upgrade pin so it is no longer stored in internal storage
-        upgradeTasks.add(new UpgradePinTask(this, mPreferences, mJay, mPinManager));
-        upgradeTasks.add(new UpgradeAccountsToJavaTask(this, mPreferences, mJay, mAccountManager));
-        upgradeTasks.add(new UpgradePin2Task(this, mPreferences, mJay));
-
-        int version = mPreferences.getCurrentVersion();
-
-        try {
-            for (IUpgradeTask task : upgradeTasks) {
-                if (task.requiresUpgrade(version)) {
-                    task.upgrade(version, new ValueCallback<Void>() {
-                        @Override
-                        public void onReceiveValue(Void value) {
-                            if (++count == upgradeTasks.size()) {
-                                callback.onReceiveValue(true);
-                            }
-                        }
-                    });
-                } else {
-                    if (++count == upgradeTasks.size()) {
-                        callback.onReceiveValue(true);
-                    }
-                }
-            }
-        }
-        catch (Exception ex){
-            callback.onReceiveValue(false);
-        }
-    }
-
     abstract protected void jayLoaded();
 
     @Override
     protected void onResume() {
         super.onResume();
 
+        if (!mIsUpgrading) {
+            resume();
+        }
+    }
+
+    private void resume() {
         boolean pinIsSet = mPreferences.getPinIsSet();
         int pinTimeout = Integer.parseInt(mPreferences.getPinTimeout()) * 60 * 1000;
 
         long time = System.currentTimeMillis() - mPreferences.getLastPinEntry();
 
-        if ((time > pinTimeout || mPinManager.getSessionPin() == null) && !mPinShowing ){
-            if (!pinIsSet){
+        if ((time > pinTimeout || mPinManager.getSessionPin() == null) && !mPinShowing) {
+            if (!pinIsSet) {
                 mCurrentPinMode = PinMode.Initialize;
-            }
-            else
+            } else
                 mCurrentPinMode = PinMode.Enter;
 
             showPin();
-        }
-        else if (!mPinShowing){
+        } else if (!mPinShowing) {
             pinAccepted();
         }
     }
 
     public void changePin(){
-
         mCurrentPinMode = PinMode.Change;
 
         showPin();
@@ -303,14 +274,16 @@ public abstract class BaseActivity extends ActionBarActivity {
                                 legacyClient.verifyPin(s, new ValueCallback<Boolean>() {
                                     @Override
                                     public void onReceiveValue(Boolean value) {
-                                        if (!value){
+                                        if (!value) {
                                             headerText.setText("Please try again");
                                             handleIncorrectPin();
-                                        }
-                                        else{
+                                        } else {
+                                            //this has to happen first so that the pin manager receives pinNotSet and allows the setting of a new pin. I hate this code with a passion.
+                                            mActivity.mPreferences.getSharedPref().edit().putBoolean(mActivity.getString(R.string.pin2upgraderequired), false).commit();
+
                                             mActivity.mPinManager.changePin(s);
 
-                                            mActivity.mPreferences.getSharedPref().edit().putBoolean(mActivity.getString(R.string.pin2upgraderequired), false).commit();
+                                            legacyClient.deletePin();
                                         }
 
                                         doCallback(callback, value);

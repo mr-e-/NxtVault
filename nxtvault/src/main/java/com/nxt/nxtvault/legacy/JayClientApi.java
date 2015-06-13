@@ -41,7 +41,11 @@ public class JayClientApi extends JayApi {
     }
 
     public void deleteAllAccounts() {
-        mWebView.loadUrl("javascript: localStorage.clear();");
+        mWebView.loadUrl("javascript: localStorage['accounts'] = null;");
+    }
+
+    public void deletePin() {
+        mWebView.loadUrl("javascript: localStorage['pin'] = null;");
     }
 
     ////VERIFY PIN
