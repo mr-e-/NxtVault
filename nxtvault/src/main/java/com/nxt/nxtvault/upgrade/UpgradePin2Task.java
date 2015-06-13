@@ -31,6 +31,6 @@ public class UpgradePin2Task implements IUpgradeTask{
 
     @Override
     public boolean requiresUpgrade(int fromVersion) {
-        return (fromVersion <= 10);
+        return (fromVersion <= 10 && !mPreferences.getPinIsSet() );
     }
 }

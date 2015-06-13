@@ -34,7 +34,11 @@ public class UpgradePinTask implements IUpgradeTask{
 
             mPinManager.changePin(pin);
 
+            mPinManager.clearSession();
+
             mPreferences.getSharedPref().edit().putString(mContext.getString(R.string.pin), null).commit();
+
+            callback.onReceiveValue(null);
         }
     }
 

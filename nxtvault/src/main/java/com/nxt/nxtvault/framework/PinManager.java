@@ -62,6 +62,10 @@ public class PinManager {
         return false;
     }
 
+    public void clearSession(){
+        mSessionPin = null;
+    }
+
     public static String getMd5Hash(String input) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
