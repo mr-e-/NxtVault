@@ -162,7 +162,12 @@ var Jay = {};
 			for(var a=0;a<3;a++)
 			{
 				Jay.queue(Jay.bestNodes[a], parameters, function(resp, status, xhr) {
-					vld.push(resp);
+					try {
+						vld.push(JSON.parse(resp));
+					}
+					catch (err) {
+						onFailure({ "error": "Unable to Validate" }, "error", xhr);
+					}
 					if(vld.length == 3)
 					{
 						// compare
@@ -195,7 +200,6 @@ var Jay = {};
 			// search for all things
 			o1.requestProcessingTime = 0;
 			o2.requestProcessingTime = 0;
-			alert(params);
 			return objectEquals(o1, o2);
 		}
 		else
@@ -256,6 +260,7 @@ var Jay = {};
 	Jay.types.marketplace = 3;
 	Jay.types.accountControl = 4;
 	Jay.types.monetarySystem = 5;
+	Jay.types.supernet = 100;
 
 	Jay.subtypes.ordinaryPayment = 0;
 	Jay.subtypes.arbitraryMessage = 0;
@@ -291,6 +296,7 @@ var Jay = {};
 	Jay.subtypes.exchangeSell = 6;
 	Jay.subtypes.currencyMinting = 7;
 	Jay.subtypes.currencyDeletion = 8;
+	Jay.subtypes.verifyMgwDepositAddrV1 = 0;
 
 	Jay.appendages = {};
 	Jay.appendages.none = 0;
@@ -492,7 +498,7 @@ var Jay = {};
 		return Jay.createTrf(Jay.types.messaging, Jay.subtypes.aliasSell, recipient, 0, 1, attachment, appendages);
 	}
 
-	Jay.buyAlias = function(alias, amount, seller, appendages)
+	Jay.buyAlias = function(alias, amount, recipient, appendages)
 	{
 		var attachment = [];
 		attachment.push(Jay.transactionVersion);
@@ -697,6 +703,14 @@ var Jay = {};
 		attachment = attachment.concat(Jay.numberToBytes(units));
 		attachment = attachment.concat(Jay.numberToBytes(counter));
 		return Jay.createTrf(Jay.types.monetarySystem, Jay.subtypes.currencyMinting, Jay.genesisRS, 0, 1, attachment, appendages);
+	}
+
+	Jay.verifyMgwDepositAddrV1 = function (transactionId, depositAddr, account, appendage) {
+		var attachment = [];
+		attachment.push(Jay.transactionVersion);
+		attachment = attachment.concat(Jay.numberToBytes(transactionId));
+		attachment = attachment.concat(converters.stringToByteArray(depositAddr));
+		return Jay.createTrf(Jay.types.supernet, Jay.subtypes.verifyMgwDepositAddrV1, account, 0, 0, attachment, appendage);
 	}
 
 	Jay.wordBytes = function(word)
