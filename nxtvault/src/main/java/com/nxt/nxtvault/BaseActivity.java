@@ -1,8 +1,10 @@
 package com.nxt.nxtvault;
 
+import android.animation.ObjectAnimator;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -159,13 +161,11 @@ public abstract class BaseActivity extends ActionBarActivity {
     }
 
     void pinAccepted(){
-        //pin has been accepted so we'll hide the pin screen and log the last entry time
-        findViewById(R.id.pin).setVisibility(View.GONE);
-
         Fragment f = getSupportFragmentManager().findFragmentByTag("pin");
         if (f != null) {
             getSupportFragmentManager().beginTransaction().remove(f).commit();
         }
+
         getSupportActionBar().show();
 
         mPinShowing = false;

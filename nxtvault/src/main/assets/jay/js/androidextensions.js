@@ -469,6 +469,7 @@ var AndroidExtensions = {
         	{
         		var len = bytesWord([msg[1],msg[2]]);
         		var str = converters.byteArrayToString(msg.slice(5,5+len));
+				this.setReview(this.reviewData.length, "Message", str);
         		msg = msg.slice(3+len);
         	}
         	if(publicKey && msg.length)
