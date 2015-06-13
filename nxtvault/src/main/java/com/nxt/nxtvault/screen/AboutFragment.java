@@ -26,12 +26,14 @@ public class AboutFragment extends BaseFragment {
     TextView txtBuildDate;
     TextView txtCreatedBy;
     TextView txtSpecialThanks;
+    TextView txtJayWallet;
     TextView txtSupport;
 
     TextView lblVersion;
     TextView lblBuildDate;
     TextView lblCreatedBy;
     TextView lblSpecialThanks;
+    TextView lblJayWallet;
     TextView lblSupport;
 
     @Override
@@ -50,25 +52,28 @@ public class AboutFragment extends BaseFragment {
         lblBuildDate = (TextView) rootView.findViewById(R.id.lblBuildDate);
         lblCreatedBy = (TextView) rootView.findViewById(R.id.lblCreatedBy);
         lblSpecialThanks = (TextView) rootView.findViewById(R.id.lblSpecialThanks);
+        lblJayWallet = (TextView) rootView.findViewById(R.id.lblJayWallet);
         lblSupport = (TextView) rootView.findViewById(R.id.lblSupport);
 
         txtVersion = (TextView) rootView.findViewById(R.id.txtVersion);
         txtBuildDate = (TextView) rootView.findViewById(R.id.txtBuildDate);
         txtCreatedBy = (TextView) rootView.findViewById(R.id.txtCreatedBy);
         txtSpecialThanks = (TextView) rootView.findViewById(R.id.txtSpecialThanks);
+        txtJayWallet = (TextView) rootView.findViewById(R.id.txtJayWallet);
         txtSupport = (TextView) rootView.findViewById(R.id.txtSupport);
 
         lblVersion.setTypeface(getMainActivity().segoe);
         lblBuildDate.setTypeface(getMainActivity().segoe);
         lblCreatedBy.setTypeface(getMainActivity().segoe);
         lblSpecialThanks.setTypeface(getMainActivity().segoe);
+        lblJayWallet.setTypeface(getMainActivity().segoe);
         lblSupport.setTypeface(getMainActivity().segoe);
         txtVersion.setTypeface(getMainActivity().segoe);
         txtBuildDate.setTypeface(getMainActivity().segoe);
         txtCreatedBy.setTypeface(getMainActivity().segoe);
         txtSpecialThanks.setTypeface(getMainActivity().segoe);
+        txtJayWallet.setTypeface(getMainActivity().segoe);
         txtSupport.setTypeface(getMainActivity().segoe);
-
 
         hydrate(rootView);
     }

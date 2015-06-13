@@ -104,6 +104,33 @@
     <LinearLayout style="@style/row_group" >
 
         <TextView
+            android:id="@+id/lblJayWallet"
+            android:layout_weight=".4"
+            android:layout_width="0dp"
+            style="@style/row_header_text"
+            android:text="Jay Wallet" />
+
+        <TextView
+            android:autoLink="web"
+            android:text="http://jnxt.org/nxt"
+            android:imeOptions="actionDone"
+            android:textColorHint="#CCBEBEBE"
+            android:inputType="textCapWords"
+            android:textColor="@color/primary_dark"
+            android:gravity="center_vertical"
+            android:layout_weight=".6"
+            android:id="@+id/txtJayWallet"
+            android:background="@android:color/transparent"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+
+    <View style="@style/row_group_divider" />
+
+    <LinearLayout style="@style/row_group" >
+
+        <TextView
             android:id="@+id/lblSupport"
             android:layout_weight=".4"
             android:layout_width="0dp"

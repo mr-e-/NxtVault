@@ -1,6 +1,7 @@
 package com.nxt.nxtvault;
 
 import android.test.ActivityTestCase;
+import android.test.InstrumentationTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
@@ -19,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by bcollins on 2015-06-01.
  */
-public class AccountManagerTest extends ActivityTestCase {
+public class AccountManagerTest extends InstrumentationTestCase {
     private static final String KEY_SP_PACKAGE = "AccountsTest";
     Gson gson = new Gson();
     private AccountManager mAccountManager;
@@ -38,25 +39,6 @@ public class AccountManagerTest extends ActivityTestCase {
                 lock.countDown();
             }
         });
-
-        WebView webView = new WebView(getInstrumentation().getTargetContext());
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-            }
-
-            @Override
-            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-                super.onReceivedError(view, errorCode, description, failingUrl);
-            }
-        });
-
-        webView.loadUrl("http://www.google.com");
-
-        Thread.sleep(10000);
-
-        getInstrumentation().waitForIdleSync();
 
 //        SharedPreferences sharedPreferences = getInstrumentation().getTargetContext().getSharedPreferences(KEY_SP_PACKAGE, Context.MODE_PRIVATE);
 //
