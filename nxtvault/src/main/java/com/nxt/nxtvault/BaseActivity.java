@@ -264,6 +264,7 @@ public abstract class BaseActivity extends ActionBarActivity {
                 if (canEnterPin()) {
 
                     //upgrade pin from version 10 to 11. had to be done here because we need to wait until right after the pin is entered
+                    //this is set to true in the pin2upgrade runner
                     boolean upgradeRequired = mActivity.mPreferences.getSharedPref().getBoolean(mActivity.getString(R.string.pin2upgraderequired), false);
 
                     if (upgradeRequired){

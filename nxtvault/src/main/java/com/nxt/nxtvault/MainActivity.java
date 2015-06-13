@@ -239,10 +239,12 @@ public class MainActivity extends BaseActivity {
         if (scanResult != null) {
             String re = scanResult.getContents();
 
-            Intent intent = mTransactionFactory.createSelfSignedTx("nxtvault.intent.action.BROADCAST", re);
-            intent.putExtra("SignedBytes", re);
+            if (re != null) {
+                Intent intent = mTransactionFactory.createSelfSignedTx("nxtvault.intent.action.BROADCAST", re);
+                intent.putExtra("SignedBytes", re);
 
-            startActivityForResult(intent, 2);
+                startActivityForResult(intent, 2);
+            }
         }
     }
 }
