@@ -10,7 +10,6 @@ public class AccountData implements Serializable{
     public String publicKey;
     public String accountName;
     public String accountRS;
-    public String key;
     public String cipher;
     public String checksum;
     public boolean spendingPassphrase;

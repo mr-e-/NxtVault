@@ -8,8 +8,10 @@ import com.google.gson.reflect.TypeToken;
 import com.nxt.nxtvault.JayClientApi;
 import com.nxt.nxtvault.model.AccountData;
 import com.nxt.nxtvault.preference.PreferenceManager;
+import com.nxt.nxtvaultclientlib.nxtvault.model.Account;
 
 import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -85,32 +87,36 @@ public class AccountManager {
     }
 
     public void changePin(final String newPin, final String oldPin, final ValueCallback<Void> callback){
-        final int [] count = new int[1];
+        changePinRecursive(newPin, oldPin, mAccountData.size() - 1, callback);
+    }
 
-        count[0] = mAccountData.size();
+    //Had to do this because we cannot change more then one pin at a time - must be syncronous due to the Jay hack for javascript callbacks on older devices. ugly, but works
+    private void changePinRecursive(final String newPin, final String oldPin, final int account, final ValueCallback<Void> onComplete){
+        final AccountData accountData = mAccountData.get(account);
 
-        for (final AccountData accountData : mAccountData){
-            mJayApi.decryptSecretPhrase(accountData, oldPin, "", new ValueCallback<String>() {
-                @Override
-                public void onReceiveValue(String value) {
-                    mJayApi.encryptSecretPhrase(value, newPin, "", new ValueCallback<JayClientApi.EncryptSecretPhraseResult>() {
-                        @Override
-                        public void onReceiveValue(JayClientApi.EncryptSecretPhraseResult value) {
-                            accountData.checksum = value.checksum;
-                            accountData.cipher = value.cipher;
+        mJayApi.decryptSecretPhrase(accountData, oldPin, "", new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+                mJayApi.encryptSecretPhrase(value, newPin, "", new ValueCallback<JayClientApi.EncryptSecretPhraseResult>() {
+                    @Override
+                    public void onReceiveValue(JayClientApi.EncryptSecretPhraseResult value) {
+                        accountData.checksum = value.checksum;
+                        accountData.cipher = value.cipher;
 
-                            if (--count[0] == 0){
-                                saveAccounts();
+                        if (account == 0) {
+                            saveAccounts();
 
-                                mPinManager.changePin(newPin);
+                            mPinManager.changePin(newPin);
 
-                                callback.onReceiveValue(null);
-                            }
+                            onComplete.onReceiveValue(null);
                         }
-                    });
-                }
-            });
-        }
+                        else{
+                            changePinRecursive(newPin, oldPin, account - 1, onComplete);
+                        }
+                    }
+                });
+            }
+        });
     }
 
     public void deleteAccount(AccountData accountData){
