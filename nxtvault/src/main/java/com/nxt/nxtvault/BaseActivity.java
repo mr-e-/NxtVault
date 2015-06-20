@@ -1,10 +1,6 @@
 package com.nxt.nxtvault;
 
-import android.animation.ObjectAnimator;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -21,18 +17,11 @@ import com.nxt.nxtvault.framework.AccountManager;
 import com.nxt.nxtvault.framework.PasswordManager;
 import com.nxt.nxtvault.framework.PinManager;
 import com.nxt.nxtvault.framework.TransactionFactory;
-import com.nxt.nxtvault.JayClientApi;
 import com.nxt.nxtvault.preference.PreferenceManager;
 import com.nxt.nxtvault.security.pin.IPinEnteredListener;
 import com.nxt.nxtvault.security.pin.PinEntryView;
-import com.nxt.nxtvault.upgrade.IUpgradeTask;
-import com.nxt.nxtvault.upgrade.UpgradeAccountsToJavaTask;
-import com.nxt.nxtvault.upgrade.UpgradePin2Task;
-import com.nxt.nxtvault.upgrade.UpgradePinTask;
 import com.nxt.nxtvault.upgrade.UpgradeRunner;
 import com.nxt.nxtvaultclientlib.jay.IJavascriptLoadedListener;
-
-import java.util.ArrayList;
 
 import javax.inject.Inject;
 
@@ -121,7 +110,7 @@ public abstract class BaseActivity extends ActionBarActivity {
     }
 
     private void resume() {
-        boolean pinIsSet = mPreferences.getPinIsSet();
+        boolean pinIsSet = mPreferences.getPinIsSet() || mPreferences.getSharedPref().getBoolean(getString(R.string.pin2upgraderequired), false); //required for upgrade from version 10 to 11
         int pinTimeout = Integer.parseInt(mPreferences.getPinTimeout()) * 60 * 1000;
 
         long time = System.currentTimeMillis() - mPreferences.getLastPinEntry();

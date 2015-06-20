@@ -67,4 +67,21 @@ public class JayClientApi extends JayApi {
             }
         });
     }
+
+    ValueCallback<Boolean> hasPinCallback;
+    public void hasPin(final ValueCallback<Boolean> callback){
+        hasPinCallback = callback;
+
+        mWebView.loadUrl("javascript:MyInterface.hasPinResult(localStorage['pin']);");
+    }
+
+    @JavascriptInterface
+    public void hasPinResult(final String result) {
+        mHandler.post(new Runnable() {
+          @Override
+          public void run() {
+              hasPinCallback.onReceiveValue(gson.fromJson(result, Boolean.class));
+          }
+        });
+    }
 }

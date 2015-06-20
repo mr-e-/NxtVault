@@ -59,7 +59,8 @@
 
 var Jay = {};
 
-	Jay.commonNodes = ["69.163.40.132", "jnxt.org","nxt.noip.me","23.88.59.40","162.243.122.251"];
+	Jay.commonNodes = ["jnxt.org","node2.krusherpt.com","217.17.88.5","162.243.122.251","91.235.72.49", "69.163.40.132"];
+	Jay.commonTestnetNodes = ["localhost"];
 
 	Jay.msTimeout = 1000;
 
@@ -162,12 +163,12 @@ var Jay = {};
 			for(var a=0;a<3;a++)
 			{
 				Jay.queue(Jay.bestNodes[a], parameters, function(resp, status, xhr) {
-					try {
-						vld.push(JSON.parse(resp));
-					}
-					catch (err) {
-						onFailure({ "error": "Unable to Validate" }, "error", xhr);
-					}
+				    try {
+				        vld.push(JSON.parse(resp));
+				    }
+				    catch (err) {
+				        onFailure({ "error": "Unable to Validate" }, "error", xhr);
+				    }
 					if(vld.length == 3)
 					{
 						// compare
@@ -260,7 +261,6 @@ var Jay = {};
 	Jay.types.marketplace = 3;
 	Jay.types.accountControl = 4;
 	Jay.types.monetarySystem = 5;
-	Jay.types.supernet = 100;
 
 	Jay.subtypes.ordinaryPayment = 0;
 	Jay.subtypes.arbitraryMessage = 0;
@@ -296,7 +296,6 @@ var Jay = {};
 	Jay.subtypes.exchangeSell = 6;
 	Jay.subtypes.currencyMinting = 7;
 	Jay.subtypes.currencyDeletion = 8;
-	Jay.subtypes.verifyMgwDepositAddrV1 = 0;
 
 	Jay.appendages = {};
 	Jay.appendages.none = 0;
@@ -611,7 +610,7 @@ var Jay = {};
 
 	Jay.dgsDelisting = function(itemId, appendages)
 	{
-		var attachmetn = [];
+		var attachment = [];
 		attachment.push(Jay.transactionVersion);
 		attachment = attachment.concat(Jay.numberToBytes(itemId));
 		return Jay.createTrf(Jay.types.marketplace, Jay.subtypes.goodsDelisting, Jay.genesisRS, 0, 1, attachment, appendages);
@@ -635,13 +634,13 @@ var Jay = {};
 		return Jay.createTrf(Jay.types.marketplace, Jay.subtypes.quantityChange, Jay.genesisRS, 0, 1, attachment, appendages);
 	}
 
-	Jay.dgsPurchase = function(itemId, quantity, price, appendages)
+	Jay.dgsPurchase = function(itemId, quantity, priceNQT, appendages)
 	{
 		var attachment = [];
 		attachment.push(Jay.transactionVersion)
 		attachment = attachment.concat(Jay.numberToBytes(itemId));
 		attachment = attachment.concat(converters.int32ToBytes(quantity));
-		attachment = attachment.concat(Jay.numberToBytes(Math.round(price*Jay.oneNxt)));
+		attachment = attachment.concat(Jay.numberToBytes(priceNQT));
 		return Jay.createTrf(Jay.types.marketplace, Jay.subtypes.purchase, Jay.genesisRS, 0, 1, attachment, appendages);
 	}
 
@@ -655,14 +654,14 @@ var Jay = {};
 		var attachment = [];
 		attachment.push(Jay.transactionVersion);
 		attachment = attachment.concat(Jay.numberToBytes(itemId));
-		appendages = Jay.addAppendage(Jay.appendages.arbitraryMessage, feedback, appendages);
+		appendages = Jay.addAppendage(Jay.appendages.message, feedback, appendages);
 		return Jay.createTrf(Jay.types.marketplace, Jay.subtypes.feedback, Jay.genesisRS, 0, 1, attachment, appendages);
 	}
 
 	Jay.dgsRefund = function(purchaseId, refundAmount, appendages)
 	{
 		var attachment = [];
-		attachment.push(transactionVersion);
+		attachment.push(Jay.transactionVersion);
 		attachment = attachment.concat(Jay.numberToBytes(purchaseId));
 		attachment = attachment.concat(Jay.numberToBytes(Math.round(refundAmount*Jay.oneNxt)));
 		return Jay.createTrf(Jay.types.marketplace, Jay.subtypes.refund, Jay.genesisRS, 0, 1, attachment, appendages);
@@ -703,14 +702,6 @@ var Jay = {};
 		attachment = attachment.concat(Jay.numberToBytes(units));
 		attachment = attachment.concat(Jay.numberToBytes(counter));
 		return Jay.createTrf(Jay.types.monetarySystem, Jay.subtypes.currencyMinting, Jay.genesisRS, 0, 1, attachment, appendages);
-	}
-
-	Jay.verifyMgwDepositAddrV1 = function (transactionId, depositAddr, account, appendage) {
-		var attachment = [];
-		attachment.push(Jay.transactionVersion);
-		attachment = attachment.concat(Jay.numberToBytes(transactionId));
-		attachment = attachment.concat(converters.stringToByteArray(depositAddr));
-		return Jay.createTrf(Jay.types.supernet, Jay.subtypes.verifyMgwDepositAddrV1, account, 0, 0, attachment, appendage);
 	}
 
 	Jay.wordBytes = function(word)

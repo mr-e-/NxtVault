@@ -5,8 +5,8 @@ import android.webkit.ValueCallback;
 
 import com.nxt.nxtvault.JayClientApi;
 import com.nxt.nxtvault.R;
-import com.nxt.nxtvault.framework.PinManager;
 import com.nxt.nxtvault.preference.PreferenceManager;
+import com.nxt.nxtvaultclientlib.jay.IJavascriptLoadedListener;
 
 /**
  * Created by Brandon on 5/30/2015.
@@ -24,9 +24,22 @@ public class UpgradePin2Task implements IUpgradeTask{
 
     @Override
     public void upgrade(int fromVersion, final ValueCallback<Void> callback) {
-        mPreferences.getSharedPref().edit().putBoolean(mContext.getString(R.string.pin2upgraderequired), true).commit();
+        final com.nxt.nxtvault.legacy.JayClientApi legacyClient = new com.nxt.nxtvault.legacy.JayClientApi(mContext);
+        legacyClient.addReadyListener(new IJavascriptLoadedListener() {
+            @Override
+            public void onLoaded() {
+                legacyClient.hasPin(new ValueCallback<Boolean>() {
+                    @Override
+                    public void onReceiveValue(Boolean value) {
+                        if (value){
+                            mPreferences.getSharedPref().edit().putBoolean(mContext.getString(R.string.pin2upgraderequired), true).commit();
+                        }
 
-        callback.onReceiveValue(null);
+                        callback.onReceiveValue(null);
+                    }
+                });
+            }
+        });
     }
 
     @Override
