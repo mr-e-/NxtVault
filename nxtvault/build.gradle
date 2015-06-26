@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    signingConfigs {
-        config {
-            keyAlias 'nxtvault'
-            keyPassword 'klsiII898sjYQui290KSiioaq'
-            storeFile file('D:\\Projects\\Nxt\\NxtVault-bitbucket\\keystore.jks')
-            storePassword 'klsiII898sjYQui290KSiioaq'
-        }
-    }
+//    signingConfigs {
+//        config {
+//            keyAlias 'nxtvault'
+//            keyPassword 'klsiII898sjYQui290KSiioaq'
+//            storeFile file('D:\\Projects\\Nxt\\NxtVault-bitbucket\\keystore.jks')
+//            storePassword 'klsiII898sjYQui290KSiioaq'
+//        }
+//    }
     compileSdkVersion 21
     buildToolsVersion "21.1.2"
     defaultConfig {
