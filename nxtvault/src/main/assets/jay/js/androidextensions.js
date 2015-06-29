@@ -90,12 +90,20 @@ var AndroidExtensions = {
     {
 		this.reviewData = [];
 		var bytes;
+		var signed;
 
 		if (trfBytes.indexOf("TX_") > -1){
 			bytes = this.startTRF(senderPubKey, trfBytes);
 		}
 		else{
-			bytes = trfBytes;
+			bytes  = converters.hexStringToByteArray(trfBytes);
+
+			var sig = converters.byteArrayToSignedInt32(bytes.slice(96, 100));
+
+            if(sig == 1)
+            {
+                signed = true;
+            }
 		}
 
 		// lets think here.

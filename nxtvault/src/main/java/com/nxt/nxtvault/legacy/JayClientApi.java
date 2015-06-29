@@ -82,6 +82,6 @@ public class JayClientApi extends JayApi {
           public void run() {
               hasPinCallback.onReceiveValue(gson.fromJson(result, Boolean.class));
           }
-        }); 
+        });
     }
 }
