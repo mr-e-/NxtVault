@@ -72,7 +72,7 @@ public class JayClientApi extends JayApi {
     public void hasPin(final ValueCallback<Boolean> callback){
         hasPinCallback = callback;
 
-        mWebView.loadUrl("javascript:MyInterface.hasPinResult(localStorage['pin']);");
+        mWebView.loadUrl("javascript:MyInterface.hasPinResult(localStorage['pin'] != undefined);");
     }
 
     @JavascriptInterface
