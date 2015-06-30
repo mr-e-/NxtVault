@@ -2,6 +2,7 @@ package com.nxt.nxtvault;
 
 import android.animation.ObjectAnimator;
 import android.app.ActionBar;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -235,15 +236,28 @@ public class MainActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if (scanResult != null) {
-            String re = scanResult.getContents();
+        if (requestCode == 2){
+            if (resultCode == Activity.RESULT_CANCELED){
+                if (data != null)
+                    Toast.makeText(this, data.getAction(), Toast.LENGTH_LONG).show();
+                else
+                    Toast.makeText(this, "Transaction Cancelled!", Toast.LENGTH_LONG).show();
+            }
+            else if (resultCode == Activity.RESULT_OK) {
+                Toast.makeText(this, "Transaction Complete!", Toast.LENGTH_LONG).show();
+            }
+        }
+        else {
+            IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+            if (scanResult != null) {
+                String re = scanResult.getContents();
 
-            if (re != null) {
-                Intent intent = mTransactionFactory.createSelfSignedTx("nxtvault.intent.action.BROADCAST", re);
-                intent.putExtra("SignedBytes", re);
+                if (re != null) {
+                    Intent intent = mTransactionFactory.createSelfSignedTx("nxtvault.intent.action.BROADCAST", re);
+                    intent.putExtra("SignedBytes", re);
 
-                startActivityForResult(intent, 2);
+                    startActivityForResult(intent, 2);
+                }
             }
         }
     }

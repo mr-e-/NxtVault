@@ -252,7 +252,7 @@ public abstract class BaseActivity extends ActionBarActivity {
             } else if (mActivity.mCurrentPinMode == PinMode.Enter) {
                 if (canEnterPin()) {
 
-                    //upgrade pin from version 10 to 11. had to be done here because we need to wait until right after the pin is entered
+                    //*UPGRADEPIN*upgrade pin from version 10 to 11. had to be done here because we need to wait until right after the pin is entered
                     //this is set to true in the pin2upgrade runner
                     boolean upgradeRequired = mActivity.mPreferences.getSharedPref().getBoolean(mActivity.getString(R.string.pin2upgraderequired), false);
 
@@ -268,7 +268,7 @@ public abstract class BaseActivity extends ActionBarActivity {
                                             headerText.setText("Please try again");
                                             handleIncorrectPin();
                                         } else {
-                                            //this has to happen first so that the pin manager receives pinNotSet and allows the setting of a new pin. I hate this code with a passion.
+                                            //*UPGRADEPIN*this has to happen first so that the pin manager receives pinNotSet and allows the setting of a new pin. I hate this code with a passion.
                                             mActivity.mPreferences.getSharedPref().edit().putBoolean(mActivity.getString(R.string.pin2upgraderequired), false).commit();
 
                                             mActivity.mPinManager.changePin(s);

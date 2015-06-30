@@ -135,6 +135,7 @@ public class SignTxActivity extends MainActivity {
                             setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.invalid_transaction)));
                         } else {
                             args.putSerializable(TxConfirmationFragment.ARGS, lineItems);
+                            args.putBoolean(TxConfirmationFragment.SIGN, false);
                             fragment.setArguments(args);
 
                             navigate(fragment, false);
@@ -282,6 +283,47 @@ public class SignTxActivity extends MainActivity {
         finish();
     }
 
+    public void confirm(){
+        if (mCurrentOperation == Operation.SIGNANDBROADCAST) {
+            signTransaction(new ValueCallback<String>() {
+                @Override
+                public void onReceiveValue(String signedBytesString) {
+                    broadcast(signedBytesString, null);
+                }
+            }, new ValueCallback<String>() {
+                @Override
+                public void onReceiveValue(String value) {
+                    setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.access_denied)));
+                }
+            });
+        }
+        else if (mCurrentOperation == Operation.BROADCAST) {
+            broadcast(getIntent().getExtras().getString("TransactionData"), null);
+        }
+    }
+
+    public void broadcast(String signedBytesString, final ValueCallback<Boolean> callback) {
+        //broadcast the transaction
+        mJay.broadcast(signedBytesString, new ValueCallback<BroadcastTxResponse>() {
+            @Override
+            public void onReceiveValue(BroadcastTxResponse response) {
+                Gson gson = new Gson();
+                if (response != null && response.ErrorCode == 0)
+                    setResultAndFinish(RESULT_OK, new Intent(gson.toJson(response, BroadcastTxResponse.class)));
+                else {
+                    if (response != null)
+                        setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.error_broadcasting) + response.ErrorCode + " - " + response.ErrorDescription));
+                    else {
+                        setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.error_broadcasting) + "Unknown error. Please check your settings if you've overriden the broadcast server and make sure it is correct."));
+                    }
+                }
+
+                if (callback != null)
+                    callback.onReceiveValue(true);
+            }
+        });
+    }
+
     /**
      * A placeholder fragment containing a simple view.
      */
@@ -386,6 +428,7 @@ public class SignTxActivity extends MainActivity {
 
     public static class TxConfirmationFragment extends BaseFragment {
         public static final String ARGS = "lineItems";
+        public static final String SIGN = "sign";
 
         public TxConfirmationFragment() {
 
@@ -395,6 +438,8 @@ public class SignTxActivity extends MainActivity {
         protected View inflateView(LayoutInflater inflater, @Nullable ViewGroup container) {
             return inflater.inflate(R.layout.fragment_tx_confirmation, container, false);
         }
+
+
 
         @Override
         public void onReady(View rootView, Bundle savedInstanceState) {
@@ -408,6 +453,7 @@ public class SignTxActivity extends MainActivity {
 
             final SignTxActivity activity = (SignTxActivity)getActivity();
 
+
             //TODO: Lower android version
             btnConfirm.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -418,49 +464,7 @@ public class SignTxActivity extends MainActivity {
                     ObjectAnimator.ofFloat(buttons, View.ALPHA, 1, 0).start();
                     ObjectAnimator.ofFloat(progress, View.ALPHA, 0, 1).start();
 
-                    activity.signTransaction(new ValueCallback<String>() {
-                        @Override
-                        public void onReceiveValue(String signedBytesString) {
-                            if (((SignTxActivity)mActivity).mCurrentOperation == Operation.SIGNANDBROADCAST
-                                || ((SignTxActivity)mActivity).mCurrentOperation == Operation.BROADCAST){
-
-                                //broadcast the transaction
-                                mJay.broadcast(signedBytesString, new ValueCallback<BroadcastTxResponse>() {
-                                    @Override
-                                    public void onReceiveValue(BroadcastTxResponse response) {
-                                        Gson gson = new Gson();
-                                        if (response != null && response.ErrorCode == 0)
-                                            ((SignTxActivity)mActivity).setResultAndFinish(RESULT_OK, new Intent(gson.toJson(response, BroadcastTxResponse.class)));
-                                        else {
-                                            if (response != null)
-                                                ((SignTxActivity)mActivity).setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.error_broadcasting) + response.ErrorCode + " - " + response.ErrorDescription));
-                                            else {
-                                                ((SignTxActivity)mActivity).setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.error_broadcasting) + "Unknown error. Please check your settings if you've overriden the broadcast server and make sure it is correct."));
-                                            }
-                                        }
-
-                                        hideLoader();
-                                    }
-                                });
-                            }
-                            else{
-                                hideLoader();
-                            }
-                        }
-
-                        private void hideLoader() {
-                            ObjectAnimator.ofFloat(lst_tx_details, View.ALPHA, 0, 1).start();
-                            ObjectAnimator.ofFloat(buttons, View.ALPHA, 0, 1).start();
-                            ObjectAnimator.ofFloat(progress, View.ALPHA, 1, 0).start();
-
-                            progress.setVisibility(View.GONE);
-                        }
-                    }, new ValueCallback<String>() {
-                        @Override
-                        public void onReceiveValue(String value) {
-                            ((SignTxActivity)mActivity).setResultAndFinish(RESULT_CANCELED, new Intent(getString(R.string.access_denied)));
-                        }
-                    });
+                    ((SignTxActivity)mActivity).confirm();
                 }
             });
 
