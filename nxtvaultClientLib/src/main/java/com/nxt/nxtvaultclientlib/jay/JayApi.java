@@ -52,7 +52,11 @@ public class JayApi implements IJayApi {
             WebView.setWebContentsDebuggingEnabled(true);
         }
 
-        mWebView.setWebViewClient(new WebViewClient(){
+        //resolve issue for xss error on jellybean browser. looks like I won't be able to support anything below jellybean
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+            mWebView.getSettings().setAllowUniversalAccessFromFileURLs(true);
+
+        mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
