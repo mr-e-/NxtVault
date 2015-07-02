@@ -53,7 +53,7 @@ public class JayApi implements IJayApi {
         }
 
         //resolve issue for xss error on jellybean browser. looks like I won't be able to support anything below jellybean
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
             mWebView.getSettings().setAllowUniversalAccessFromFileURLs(true);
 
         mWebView.setWebViewClient(new WebViewClient() {
