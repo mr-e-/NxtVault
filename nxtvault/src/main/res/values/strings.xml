@@ -8,6 +8,7 @@
     <string name="action_change_pin">Change PIN</string>
     <string name="action_scan_cold">Scan Cold Storage</string>
     <string name="action_scantx">Scan Tx</string>
+    <string name="action_account_details">Account Details</string>
     <string name="action_export">Export</string>
     <string name="account">Account</string>
     <string name="info">Info</string>

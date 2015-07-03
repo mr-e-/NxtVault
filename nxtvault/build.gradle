@@ -9,14 +9,14 @@ android {
 //            storePassword 'klsiII898sjYQui290KSiioaq'
 //        }
 //    }
-    compileSdkVersion 21
+    compileSdkVersion 22
     buildToolsVersion "21.1.2"
     defaultConfig {
         applicationId "jay.nxtvault"
         minSdkVersion 15
-        targetSdkVersion 21
-        versionCode 12
-        versionName "0.91"
+        targetSdkVersion 22
+        versionCode 13
+        versionName "0.92"
     }
     buildTypes {
         release {

@@ -8,6 +8,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -132,6 +133,10 @@ public class ManageAccountFragment extends BaseFragment {
             sendIntent.setType("text/plain");
 
             startActivity(sendIntent);
+        }
+        else if (id == R.id.action_account_details){
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.mynxt.info/account/" + accountData.accountRS));
+            startActivity(browserIntent);
         }
 
         return true;

@@ -2,14 +2,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
 
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="100" app:showAsAction="never" />
-
     <item android:id="@+id/action_change_pin" android:title="@string/action_change_pin"
-        android:orderInCategory="200" app:showAsAction="never"  />
+        android:orderInCategory="100" app:showAsAction="never"  />
 
     <item android:id="@+id/action_scan_cold" android:title="@string/action_scan_cold"
-        android:orderInCategory="300" app:showAsAction="never"  />
+        android:orderInCategory="200" app:showAsAction="never"  />
+
+    <item android:id="@+id/action_settings" android:title="@string/action_settings"
+        android:orderInCategory="300" app:showAsAction="never" />
 
     <item android:id="@+id/action_about" android:title="@string/action_about"
         android:orderInCategory="400" app:showAsAction="never"  />
