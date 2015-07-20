@@ -68,8 +68,8 @@ public class SignTxActivity extends MainActivity {
         final Intent intent = getIntent();
 
         try {
-            if (intent.getAction().equals("nxtvault.intent.action.SIGNANDBROADCAST")) {
-                mCurrentOperation = Operation.SIGNANDBROADCAST;
+            if (intent.getAction().equals("nxtvault.intent.action.SIGNANDBROADCAST") || intent.getAction().equals("nxtvault.intent.action.SIGN")) {
+                mCurrentOperation = intent.getAction().equals("nxtvault.intent.action.SIGNANDBROADCAST") ? Operation.SIGNANDBROADCAST : Operation.SIGN;
 
                 final BaseFragment fragment = new TxConfirmationFragment();
 
@@ -103,11 +103,6 @@ public class SignTxActivity extends MainActivity {
                         }
                     });
                 }
-            } else if (intent.getAction().equals("nxtvault.intent.action.SIGN")) {
-                mCurrentOperation = Operation.SIGN;
-
-                setTitle(getString(R.string.nxtvault_signtx));
-
             } else if (intent.getAction().equals("nxtvault.intent.action.REQUESTACCOUNT")) {
                 mCurrentOperation = Operation.REQUESTACCOUNT;
 
@@ -284,11 +279,15 @@ public class SignTxActivity extends MainActivity {
     }
 
     public void confirm(){
-        if (mCurrentOperation == Operation.SIGNANDBROADCAST) {
+        if (mCurrentOperation == Operation.SIGNANDBROADCAST || mCurrentOperation == Operation.SIGN) {
             signTransaction(new ValueCallback<String>() {
                 @Override
                 public void onReceiveValue(String signedBytesString) {
-                    broadcast(signedBytesString, null);
+                    if (mCurrentOperation == Operation.SIGNANDBROADCAST)
+                        broadcast(signedBytesString, null);
+                    else{
+                        setResultAndFinish(RESULT_OK, new Intent(signedBytesString));
+                    }
                 }
             }, new ValueCallback<String>() {
                 @Override
