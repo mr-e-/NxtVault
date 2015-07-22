@@ -26,7 +26,7 @@
         android:summary="Which website to use when displaying account details"
         android:entries="@array/websites"
         android:entryValues="@array/websites_values"
-        android:defaultValue="http://nxtreporting.com" />
+        android:defaultValue="http://www.mynxt.info/account/" />
 
     <!--<CheckBoxPreference-->
         <!--android:key="checkbox_preference"-->
