@@ -58,6 +58,10 @@ public class PreferenceManager {
         return sharedPref.getBoolean(mContext.getString(R.string.testnet_preference), false);
     }
 
+    public String getAccountDetailChoice(){
+        return sharedPref.getString(mContext.getString(R.string.account_details), "http://www.mynxt.info/account/");
+    }
+
     public String getCustomServer(){
         return sharedPref.getString(mContext.getString(R.string.server_preference), null);
     }

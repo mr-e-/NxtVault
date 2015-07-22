@@ -33,6 +33,7 @@ import com.nxt.nxtvault.framework.PasswordManager;
 import com.nxt.nxtvault.framework.PinManager;
 import com.nxt.nxtvault.framework.TransactionFactory;
 import com.nxt.nxtvault.model.AccountData;
+import com.nxt.nxtvault.preference.PreferenceManager;
 import com.nxt.nxtvault.util.TextValidator;
 
 import java.util.Timer;
@@ -54,6 +55,9 @@ public class ManageAccountFragment extends BaseFragment {
 
     @Inject
     TransactionFactory mTransactionFactory;
+
+    @Inject
+    PreferenceManager mPreferences;
 
     TextView txtAccountName;
     TextView txtAccountRs;
@@ -135,7 +139,7 @@ public class ManageAccountFragment extends BaseFragment {
             startActivity(sendIntent);
         }
         else if (id == R.id.action_account_details){
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.mynxt.info/account/" + accountData.accountRS));
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mPreferences.getAccountDetailChoice() + accountData.accountRS));
             startActivity(browserIntent);
         }
 

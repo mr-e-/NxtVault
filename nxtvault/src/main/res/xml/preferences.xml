@@ -13,12 +13,20 @@
         android:summary="Switches the port number to 6876. Must be used in conjunction with a custom testnet server." />
 
     <ListPreference
-        android:key="pin_timeout"
+        android:key="@string/pin_timeout"
         android:title="PIN Timout"
         android:summary="How long before the app requires your pin number"
         android:entries="@array/minutes"
         android:entryValues="@array/minutes"
         android:defaultValue="5" />
+
+    <ListPreference
+        android:key="@string/account_details"
+        android:title="Account Detail Website"
+        android:summary="Which website to use when displaying account details"
+        android:entries="@array/websites"
+        android:entryValues="@array/websites_values"
+        android:defaultValue="http://nxtreporting.com" />
 
     <!--<CheckBoxPreference-->
         <!--android:key="checkbox_preference"-->
