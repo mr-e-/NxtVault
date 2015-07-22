@@ -352,7 +352,11 @@ public class ManageAccountFragment extends BaseFragment {
                         txtAccountName.requestFocus();
                     } else {
                         accountData.accountName = accountName;
-                        getMainActivity().getAccountManager().storeAccount(accountData);
+
+                        if (newAccount)
+                            getMainActivity().getAccountManager().storeAccount(accountData);
+                        else
+                            getMainActivity().getAccountManager().persist();
 
                         Toast.makeText(getMainActivity(), "Account created successfully!", Toast.LENGTH_SHORT).show();
                         getMainActivity().onBackPressed();

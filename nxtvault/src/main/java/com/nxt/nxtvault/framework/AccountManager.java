@@ -109,8 +109,7 @@ public class AccountManager {
                             mPinManager.changePin(newPin);
 
                             onComplete.onReceiveValue(null);
-                        }
-                        else{
+                        } else {
                             changePinRecursive(newPin, oldPin, account - 1, onComplete);
                         }
                     }
@@ -160,6 +159,10 @@ public class AccountManager {
 
     public void deleteAllAccount() {
         mAccountData.clear();
+        saveAccounts();
+    }
+
+    public void persist() {
         saveAccounts();
     }
 }
