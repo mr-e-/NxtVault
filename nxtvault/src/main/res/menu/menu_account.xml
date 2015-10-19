@@ -4,8 +4,10 @@
 
     <item android:id="@+id/action_account_details" android:title="@string/action_account_details"
         android:orderInCategory="98" app:showAsAction="never" android:icon="@drawable/ic_action_discard" />
+    <item android:id="@+id/action_tx_from_clipboard" android:title="@string/tx_from_clipboard"
+        android:orderInCategory="99" app:showAsAction="never" />
     <item android:id="@+id/action_scan_tx" android:title="@string/action_scantx"
-        android:orderInCategory="99" app:showAsAction="ifRoom" android:icon="@drawable/ic_action_discard" />
+        android:orderInCategory="100" app:showAsAction="ifRoom" android:icon="@drawable/ic_action_discard" />
     <item android:id="@+id/action_export_account" android:title="@string/action_export"
-        android:orderInCategory="99" app:showAsAction="never" android:icon="@drawable/icon_scan" />
+        android:orderInCategory="101" app:showAsAction="never" android:icon="@drawable/icon_scan" />
 </menu>
