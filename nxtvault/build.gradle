@@ -15,8 +15,8 @@ android {
         applicationId "jay.nxtvault"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 18
-        versionName "0.95"
+        versionCode 20
+        versionName "0.97"
     }
     buildTypes {
         release {

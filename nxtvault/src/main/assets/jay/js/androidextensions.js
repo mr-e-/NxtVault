@@ -49,13 +49,15 @@ var AndroidExtensions = {
             bytes = this.startTRF(senderPubKey, trfBytes);
         }
         else{
-            bytes = converters.stringToByteArray(trfBytes);
+            bytes = converters.hexStringToByteArray(trfBytes);
         }
 
         var sig = signBytes(bytes, secretPhrase);
         var signed = bytes.slice(0,96);
         signed = signed.concat(sig);
         signed = signed.concat(bytes.slice(96+64));
+
+        //var rarw = converters.byteArrayToString(signed.slice(0, signed.length - 1));
 
         return converters.byteArrayToHexString(signed);
     },
