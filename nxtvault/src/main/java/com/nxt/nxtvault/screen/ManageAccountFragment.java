@@ -142,6 +142,14 @@ public class ManageAccountFragment extends BaseFragment {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mPreferences.getAccountDetailChoice() + accountData.accountRS));
             startActivity(browserIntent);
         }
+        else if (id == R.id.action_tx_from_clipboard){
+            ClipboardManager clipboard = (ClipboardManager)getMainActivity().getSystemService(getMainActivity().CLIPBOARD_SERVICE);
+            String text = clipboard.getText().toString();
+
+            Intent intent = mTransactionFactory.createSelfSignedTx("nxtvault.intent.action.SIGNANDBROADCAST", text);
+            intent.putExtra("PublicKey", accountData.publicKey);
+            startActivityForResult(intent, 2);
+        }
 
         return true;
     }
@@ -541,6 +549,7 @@ public class ManageAccountFragment extends BaseFragment {
                             getMainActivity().navigate(SendMoneyFragment.getInstance(re, accountData.publicKey), true);
                         }
                         else {
+                            //sign tx
                             Intent intent = mTransactionFactory.createSelfSignedTx("nxtvault.intent.action.SIGNANDBROADCAST", re);
                             intent.putExtra("PublicKey", accountData.publicKey);
 

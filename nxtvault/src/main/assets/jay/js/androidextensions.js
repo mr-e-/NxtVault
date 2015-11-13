@@ -49,7 +49,7 @@ var AndroidExtensions = {
             bytes = this.startTRF(senderPubKey, trfBytes);
         }
         else{
-            bytes = trfBytes;
+            bytes = converters.stringToByteArray(trfBytes);
         }
 
         var sig = signBytes(bytes, secretPhrase);
