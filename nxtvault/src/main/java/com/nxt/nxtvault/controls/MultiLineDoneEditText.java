@@ -8,7 +8,7 @@ import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
 
 /**
- * Created by Brandon on 4/26/2015.
+ *  on 4/26/2015.
  */
 public class MultiLineDoneEditText extends EditText {
     public MultiLineDoneEditText(Context context) {

@@ -8,7 +8,7 @@ import com.nxt.testwallet.MainActivity;
 import com.nxt.testwallet.R;
 
 /**
- * Created by Brandon on 4/19/2015.
+ *  on 4/19/2015.
  */
 public class PreferenceFragment extends com.github.machinarius.preferencefragment.PreferenceFragment {
     @Override

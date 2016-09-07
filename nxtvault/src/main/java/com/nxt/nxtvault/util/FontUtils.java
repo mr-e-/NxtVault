@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 /**
- * Created by Brandon on 4/19/2015.
+ *  on 4/19/2015.
  */
 public class FontUtils {
     private static Typeface normal;

@@ -16,7 +16,7 @@ import com.nxt.nxtvault.R;
 import com.nxt.nxtvault.model.AccountData;
 
 /**
- * Created by Brandon on 4/6/2015.
+ *  on 4/6/2015.
  */
 public class AccountFragment extends BaseFragment {
     ButtonFloat btnNewAccount;

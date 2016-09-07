@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
- * Created by Brandon on 4/16/2015.
+ *  on 4/16/2015.
  */
 public class AccountInfo implements Serializable{
     private ArrayList<AccountData> mAccountData;

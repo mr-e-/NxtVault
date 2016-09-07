@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Brandon on 4/6/2015.
+ *  on 4/6/2015.
  */
 public class JayApi implements IJayApi {
     protected Handler mHandler = new Handler();

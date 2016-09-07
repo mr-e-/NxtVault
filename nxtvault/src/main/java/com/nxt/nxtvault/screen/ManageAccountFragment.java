@@ -42,7 +42,7 @@ import java.util.TimerTask;
 import javax.inject.Inject;
 
 /**
- * Created by Brandon on 4/18/2015.
+ *  on 4/18/2015.
  */
 public class ManageAccountFragment extends BaseFragment {
     public static final String ENCRYPTED_PASSPHRASE = "****************************************";

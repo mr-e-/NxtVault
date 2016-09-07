@@ -15,7 +15,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
- * Created by Brandon on 5/30/2015.
+ *  on 5/30/2015.
  */
 @Singleton
 public class UpgradeAccountsToJavaTask implements IUpgradeTask{

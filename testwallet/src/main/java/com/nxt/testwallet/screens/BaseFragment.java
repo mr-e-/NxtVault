@@ -6,7 +6,7 @@ import android.support.v4.app.Fragment;
 import com.nxt.testwallet.MainActivity;
 
 /**
- * Created by Brandon on 4/21/2015.
+ *  on 4/21/2015.
  */
 public abstract class BaseFragment extends Fragment {
     protected MainActivity mActivity;

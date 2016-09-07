@@ -15,7 +15,7 @@ import com.nxt.testwallet.file.FileReader;
 import java.util.ArrayList;
 
 /**
- * Created by Brandon on 4/6/2015.
+ *  on 4/6/2015.
  */
 public class JayClientApi extends JayApi {
     public JayClientApi(Context context, Uri uri) {

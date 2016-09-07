@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 /**
- * Created by Brandon on 4/12/2015.
+ *  on 4/12/2015.
  */
 public class AccessTokenProvider {
     Gson gson = new Gson();

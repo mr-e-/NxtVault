@@ -3,7 +3,7 @@ package com.nxt.nxtvault.model;
 import java.io.Serializable;
 
 /**
- * Created by Brandon on 4/6/2015.
+ *  on 4/6/2015.
  */
 public class AccountData implements Serializable{
     public String secretPhrase;

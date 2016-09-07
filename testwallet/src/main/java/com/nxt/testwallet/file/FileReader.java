@@ -13,7 +13,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 
 /**
- * Created by Brandon on 4/29/2015.
+ *  on 4/29/2015.
  */
 public class FileReader {
     public String loadAssets(Context context){

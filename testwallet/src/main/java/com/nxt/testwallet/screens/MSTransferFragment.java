@@ -1,7 +1,7 @@
 package com.nxt.testwallet.screens;
 
 /**
- * Created by Brandon on 4/21/2015.
+ *  on 4/21/2015.
  */
 public class MSTransferFragment extends BaseFragment {
     private static MSTransferFragment mInstance;

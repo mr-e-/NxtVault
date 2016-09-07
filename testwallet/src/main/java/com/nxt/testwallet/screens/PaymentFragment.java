@@ -13,7 +13,7 @@ import android.widget.Toast;
 import com.nxt.testwallet.R;
 
 /**
- * Created by Brandon on 4/21/2015.
+ *  on 4/21/2015.
  */
 public class PaymentFragment extends BaseFragment {
     TextView txtRecip;

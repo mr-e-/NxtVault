@@ -9,7 +9,7 @@ import com.nxt.nxtvault.preference.PreferenceManager;
 import com.nxt.nxtvaultclientlib.jay.IJavascriptLoadedListener;
 
 /**
- * Created by Brandon on 5/30/2015.
+ *  on 5/30/2015.
  */
 public class UpgradePin2Task implements IUpgradeTask{
     PreferenceManager mPreferences;

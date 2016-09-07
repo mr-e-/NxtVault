@@ -16,7 +16,7 @@ import com.nxt.nxtvault.framework.TransactionFactory;
 import javax.inject.Inject;
 
 /**
- * Created by Brandon on 4/6/2015.
+ *  on 4/6/2015.
  */
 public abstract class BaseFragment extends Fragment {
     protected MainActivity mActivity;

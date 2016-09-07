@@ -9,7 +9,7 @@ import android.content.pm.ResolveInfo;
 import java.util.List;
 
 /**
- * Created by Brandon on 4/20/2015.
+ *  on 4/20/2015.
  */
 public class NxtVault {
     public static final int REQUEST_REQUESTACCOUNT = 1;

@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 
 /**
- * Created by Brandon on 4/21/2015.
+ *  on 4/21/2015.
  */
 public class Account extends NrsResult {
     @SerializedName("name")

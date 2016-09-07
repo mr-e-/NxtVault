@@ -20,7 +20,7 @@ import com.nxt.testwallet.model.AssetViewModel;
 import java.util.Arrays;
 
 /**
- * Created by Brandon on 4/21/2015.
+ *  on 4/21/2015.
  */
 public class AssetTransferFragment extends BaseFragment {
     TextView txtRecip;

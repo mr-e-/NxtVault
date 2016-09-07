@@ -20,7 +20,7 @@ import com.nxt.nxtvault.R;
 import com.nxt.nxtvault.util.TextValidator;
 
 /**
- * Created by Brandon on 5/24/2015.
+ *  on 5/24/2015.
  */
 public class SendMoneyFragment extends BaseFragment {
     String mAccountRs, mSenderPublicKey;

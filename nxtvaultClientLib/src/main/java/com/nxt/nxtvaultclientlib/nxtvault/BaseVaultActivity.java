@@ -16,7 +16,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 /**
- * Created by Brandon on 4/20/2015.
+ *  on 4/20/2015.
  */
 public abstract class BaseVaultActivity extends ActionBarActivity {
     protected static IJayApi jay;

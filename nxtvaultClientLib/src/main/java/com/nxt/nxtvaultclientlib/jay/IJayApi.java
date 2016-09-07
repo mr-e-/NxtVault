@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Brandon on 5/2/2015.
+ *  on 5/2/2015.
  */
 public interface IJayApi {
     void addReadyListener(IJavascriptLoadedListener javascriptLoadedListener);

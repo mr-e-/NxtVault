@@ -5,7 +5,7 @@ import android.text.TextWatcher;
 import android.widget.TextView;
 
 /**
- * Created by Brandon on 4/16/2015.
+ *  on 4/16/2015.
  */
 public abstract class TextValidator implements TextWatcher {
     private final TextView textView;

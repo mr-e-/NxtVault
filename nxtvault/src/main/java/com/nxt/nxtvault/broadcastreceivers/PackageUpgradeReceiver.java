@@ -7,7 +7,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 /**
- * Created by Brandon on 5/30/2015.
+ *  on 5/30/2015.
  */
 public class PackageUpgradeReceiver extends BroadcastReceiver {
     @Override

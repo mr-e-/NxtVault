@@ -1,5 +1,5 @@
 /**
- * Created by Brandon on 6/11/2015.
+ *  on 6/11/2015.
  */
 AndroidExtensions.getAccounts = function(){
     var accounts = localStorage['accounts'];
